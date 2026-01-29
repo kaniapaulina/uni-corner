@@ -1,0 +1,31 @@
+﻿<Window x:Class="ZespolGUI.OsobaWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ZespolGUI"
+        mc:Ignorable="d"
+        Title="OsobaWindow" Height="450" Width="800">
+    <Grid>
+        <Label Content="PESEL" HorizontalAlignment="Left" Height="27" Margin="223,59,0,0" VerticalAlignment="Top" Width="100"/>
+        <TextBox x:Name="TxtPESEL" HorizontalAlignment="Center" Height="27" Margin="0,59,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="154"/>
+        <Label Content="Imie" HorizontalAlignment="Left" Height="27" Margin="223,91,0,0" VerticalAlignment="Top" Width="100"/>
+        <TextBox x:Name="TxtImie" HorizontalAlignment="Center" Height="27" Margin="0,91,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="154"/>
+        <Label Content="Nazwisko" HorizontalAlignment="Left" Height="27" Margin="223,123,0,0" VerticalAlignment="Top" Width="100"/>
+        <TextBox x:Name="TxtNazwisko" HorizontalAlignment="Center" Height="27" Margin="0,123,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="154"/>
+        <Label Content="Data Urodzenia" HorizontalAlignment="Left" Height="27" Margin="223,155,0,0" VerticalAlignment="Top" Width="100"/>
+        <TextBox x:Name="TxtDataUrodzenia" HorizontalAlignment="Center" Height="27" Margin="0,155,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="154"/>
+        <Label Content="Funkcja" HorizontalAlignment="Left" Height="27" Margin="223,187,0,0" VerticalAlignment="Top" Width="100"/>
+        <TextBox x:Name="TxtFunkcja" HorizontalAlignment="Center" Height="27" Margin="0,187,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="154"/>
+        <Label Content="Doświadczenie" HorizontalAlignment="Left" Height="27" Margin="223,219,0,0" VerticalAlignment="Top" Width="100"/>
+        <TextBox x:Name="TxtDoswiadczenie" HorizontalAlignment="Center" Height="27" Margin="0,219,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="154"/>
+        <Label Content="Plec" HorizontalAlignment="Left" Height="27" Margin="223,251,0,0" VerticalAlignment="Top" Width="100"/>
+        <ComboBox x:Name="ComboBox" HorizontalAlignment="Center" Height="27" Margin="0,251,0,0" VerticalAlignment="Top" Width="154">
+            <ComboBoxItem x:Name="K">Kobieta</ComboBoxItem>
+            <ComboBoxItem x:Name="M">Mężczyzna</ComboBoxItem>
+        </ComboBox>
+        <Button x:Name="BtnZatwierdz" Content="Zatwierdz" HorizontalAlignment="Left" Height="29" Margin="223,294,0,0" VerticalAlignment="Top" Width="126" Click="BtnZatwierdz_Click"/>
+        <Button x:Name="BtnAnuluj" Content="Anuluj" HorizontalAlignment="Left" Height="29" Margin="354,294,0,0" VerticalAlignment="Top" Width="123"/>
+
+    </Grid>
+</Window>

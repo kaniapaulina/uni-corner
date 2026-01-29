@@ -1,0 +1,385 @@
+--
+title: "lab1"
+author: "Paulina Kania"
+date: "2025-11-27"
+output: html_document
+---
+
+## Zadanie 1
+
+```{r}
+pierwsza <- c(1:8)
+druga <- c(1:8)
+
+suma <- pierwsza + druga
+suma
+różnica <- pierwsza - druga
+różnica
+wiecej <- pierwsza + 1
+wiecej
+```
+
+**Komentarz** Działanie pierwsza + 1 dodaje do każdego elementu wektora pierwsza cyfre 1
+
+```{r}
+trzecia <- c(1:6)
+czwarta <- c(1:4)
+wynik <- trzecia - czwarta
+wynik
+
+mean(pierwsza)
+sd(pierwsza)
+```
+
+**Komentarz** Działanie odejmujace od wektora "trzecia" wektor "czwarty", gdy kończy sie wektor "czwarty" w działaniach "loopuje" sie od początku wiec dla trzecia[5] - czwarta[1]
+
+## Zadanie 2
+
+```{r}
+osoby <- data.frame(
+  wzrost = c(1.72, 1.88, 1.56, 1.55, 1.78, 1.70, 1.90, 2.01, 1.49, 1.66),
+  waga = c(56, 77, 68, 92, 81, 70, 59, 64, 94, 100)
+)
+str(osoby)
+head(osoby, 3)
+tail(osoby, 3)
+dim(osoby)
+summary(osoby)
+```
+
+## Zadanie 3
+
+```{r}
+rownames(osoby) = c("Emilia", "Weronika", "Wiktoria", "Gabriel", "Michał", "Adrian", "Jacek", "Paulina", "Iza", "Daria")
+
+osoby$BMI = osoby$waga/(osoby$wzrost^2)
+osoby[osoby$BMI>30,]
+sum(osoby$BMI<=25)
+
+```
+
+## Zadanie 4
+
+```{r}
+str(mtcars)
+```
+
+**Komentarz** Dane z gazetki (1974 Motor Trend US), opisuje aspekty konstrukcji i wydajności 32 samochodów
+
+```{r}
+str(Orange)
+```
+
+**Komentarz** 35 wiersze i 3 kolumny, o danych dotyczących cyklu wzrostu drzewa pomarańczowego
+
+```{r}
+mtcars[mtcars$cyl == 6,]
+
+mtcars_spal20 <- mtcars[mtcars$mpg<20,]
+mean(mtcars_spal20$hp)
+
+hist(Orange$age)
+boxplot(mtcars$mpg, horizontal=T)
+boxplot(mtcars$hp, horizontal=T)
+boxplot(mtcars$qsec, horizontal = T)
+```
+
+## Zadanie 5
+
+```{r}
+library(psych)
+describe(mtcars)
+summary(mtcars)
+```
+
+**Komentarz** Describe i Summary mają miejscami zamienione kolumny i wiersze, gdzie summary zbiera według oryginalnego rodzaju danych a Describe opisuje wszytsko w jednej tablicy. Describe również zawiera więcej statystyk wbudowanych i jest bardziej szczegółowe
+
+```{r}
+describeBy(mtcars)
+```
+
+**Komentarz** DescribeBy może być użyty do zraportowania podstawowej statystyki według zmiennej grupującej
+
+## Zadanie 6
+```{r}
+proba <- sample(1:6, 20, replace=T)
+mean(proba)
+sd(proba)
+
+rzut <- sample(c(0,1), 100, replace=T)
+sum(rzut==1)
+
+bez <- sample(0:100, 10, replace=F)
+bez 
+
+a <- rnorm(10, 50, 25)
+a
+
+b <- rt(10, 20, 5)
+b
+c <- rpois(10, 10)
+c
+```
+
+## Zadanie 7
+```{r}
+lista <- list(palenie = c(F,T,T,F,F,T,F),
+              cyfry = 0:9,
+              macierz = matrix(sample(1:5,16,replace = T),4,4),
+              tekst = c("Litwo", "ojczyzno", "moja", "ty",
+                        "jestes", "jak", "zdrowie"))
+lista[["tekst"]]
+lista[["cyfry"]][3]
+lista[["macierz"]][,3]
+```
+
+## Zadanie 8
+```{r}
+wiek <- c(50, 17, 39, 27, 90)
+waga <- c(80, 75, 92, 105, 60)
+pacjenci <- data.frame(
+  "wiek"=wiek,
+  "waga"=waga
+)
+pacjenci[pacjenci$waga<90 & pacjenci$wiek>18,]
+```
+
+## Zadanie 9
+
+```{r}
+library(nycflights13)
+
+flight_lm <- lm(arr_delay ~ dep_delay + month + carrier, 
+                data = flights)
+
+str(flight_lm)
+summary(flight_lm)
+
+length(flight_lm)
+names(flight_lm)
+coef(flight_lm)
+```
+
+## Zadanie 10
+
+```{r}
+VADeaths
+VAMale <- VADeaths[,c("Rural Male", "Urban Male")]
+VAFemale <- VADeaths[,c("Rural Female", "Urban Female")]
+
+VAMale <- cbind(VAMale, Mean=rowMeans(VAMale))
+VAMale <- rbind(VAMale, Mean=colMeans(VAMale))
+VAMale
+VAFemale <- cbind(VAFemale, Mean=rowMeans(VAFemale))
+VAFemale <- rbind(VAFemale, Mean=colMeans(VAFemale))
+VAFemale
+```
+
+
+## Zadanie 11
+
+```{r}
+cztery <- function(x) {
+  if(x %% 4 == 0) {
+    print("TAK!")
+  }
+  else {
+    print("Nie..")
+  }
+}
+
+czteryifelse <- function(x) {
+  ifelse(x%%4==0, "TAK!", "Nie..")
+}
+
+cztery(8)
+cztery(9)
+czteryifelse(c(8, 9))
+```
+
+## Zadanie 12
+
+```{r}
+ksiazki <- sample(0:4, size = 25, replace = TRUE)
+ksiazki
+
+mean(ksiazki)
+sum(ksiazki>3)
+sum(ksiazki<0)
+
+ksiazki2<-0
+for(x in ksiazki) {
+  if(x>0) {
+    ksiazki2<- ksiazki2+1
+  }
+}
+ksiazki2
+
+days_in_month <- function(x, y) {
+  if(x %in% c(1,3,5,7,8,10,12)) {
+    return(31)
+  } 
+  else if(x %in% c(4, 6, 9, 11)) {
+    return(30)
+  }
+  else if(x==2) {
+    if((y%%4==0) | (y%%400==0) & (y%%100 != 0)) {
+      return(29)
+    }
+    else {
+      return(28)
+    }
+  }
+  
+}
+days_in_month(2,2023)
+days_in_month(2,2024)
+```
+
+## Zadanie 13
+
+```{r}
+temp <- function(x) {
+  far <- ((x*9/5)+32)
+  kel <- x + 273.15
+  cat("Celsius: ", x, ", Fahrenheit: ", far, ", Kelvin: ", kel)
+}
+temp(0)
+temp(23)
+```
+
+## Zadanie 14
+
+```{r}
+pole <- function(a,b,c) {
+  if (!((a + b > c) & (a + c > b) & (b + c > a))) {
+    return("BŁĄD!!!")
+  }
+  s <- (a + b + c) / 2
+  pole <- sqrt(s * (s - a) * (s - b) * (s - c))
+  return(pole)
+}
+
+print(pole(3,4,5))
+print(pole(1,2,10))
+```
+
+## Zadanie 15
+
+```{r}
+typ <- function(a, b, c) {
+  if (!((a + b > c) & (a + c > b) & (b + c > a))) {
+    return("BŁĄD!!! Boki nie tworzą trójkąta")
+  }
+
+  boki <- sort(c(a, b, c))
+  a_kw <- boki[1]^2
+  b_kw <- boki[2]^2
+  c_kw <- boki[3]^2
+  
+  if (a_kw + b_kw == c_kw) {
+    return("Trójkąt jest prostokatny")
+  } else if (a_kw + b_kw > c_kw) {
+    return("Trójkąt jest ostrokatny")
+  } else {
+    return("Trójkąt jest rozwartokatny")
+  }
+}
+
+print(typ(3, 4, 5))   
+print(typ(2, 2, 2))   
+print(typ(2, 3, 4)) 
+```
+
+## Zadanie 16
+
+``` {r}
+wzrost <- round(rnorm(100, 175, 10),0)
+waga   <- round(wzrost - 105 + rnorm(1,0,5))
+wiek   <- sample(20:60, 100, replace = TRUE)
+dzieci <- rpois(100, lambda = 1)
+osoby  <- data.frame(wzrost = wzrost, 
+                     waga = waga,
+                     wiek = wiek, 
+                     dzieci = dzieci)
+osoby$BMI <- osoby$waga / (osoby$wzrost / 100)^2
+osoby$plec <- factor(rep(c("Kobieta", "Mezczyzna"), each = 50))
+
+# a
+str(osoby)
+head(osoby)
+tail(osoby)
+dim(osoby)
+summary(osoby)
+
+# b
+sum(osoby$dzieci >= 2)
+
+# c
+osoby[osoby$wzrost >= 185, ]
+
+# d 
+mean(osoby$wzrost)
+
+library(psych)
+describeBy(osoby$wzrost, osoby$plec)
+```
+
+**Komentarz** Mężczyźni mają przeciętnie wyższy wzrost niż Kobiety - co widać w rubryce mean w describeBy
+
+```{r}
+# e
+nadwaga <- osoby[osoby$BMI > 30, ]
+table(nadwaga$plec)
+
+# f
+osoby$wzrost2 <- ifelse(osoby$wzrost < 165, "niski",
+                        ifelse(osoby$wzrost <= 185, "sredni",
+                               "wysoki"))
+
+print(head(osoby[, c("wzrost", "wzrost2")]))
+
+# g
+summary(osoby$wzrost2)
+```
+
+**Komentarz** Summary nie wyswietla ilość wystąpień tylko Length, Class i Mode, a nikt z osób nie ma BMI>30
+
+```{r}
+osoby$wzrost2 <- as.factor(osoby$wzrost2)
+summary(osoby$wzrost2)
+```
+
+**Komentarz** Teraz summary zwraca liczebność, co pozwala ocenić wzrost ludzi
+
+## Zadanie 17
+
+```{r} 
+days_in_month <- function(x, y) {
+  dni <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+  if(y%%4==0) {
+    if(x==2){
+      cat("29 days w ", month.name[x], "-", y)
+    }
+  }
+  else {
+    cat(dni[x], "days in ",  month.name[x], "-", y)
+  }
+  
+}
+days_in_month(2,2001)
+days_in_month(2,1996)
+```
+
+
+## Zadanie 18
+
+```{r}
+sila_grawitacji <- function(m1, m2, r) {
+  G <- 6.674e-11
+  Newton <- G * (m1 * m2) / (r^2)
+  return(Newton)
+}
+
+print(sila_grawitacji(m1 = 5.972e24, m2 = 100, r=6.371e6))
+```

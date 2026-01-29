@@ -1,0 +1,230 @@
+---
+title: "lab2"
+author: "Paulina Kania"
+date: "2026-01-12"
+output: html_document
+---
+
+## Zadanie 1
+
+```{r}
+lista2 <- list(dane1 = c(NA, 1:10),
+               dane2 = c(-5:5, NA))
+lapply(lista2, mean, na.rm=TRUE)
+lapply(lista2, sd, na.rm=TRUE)
+lapply(lista2, quantile, na.rm=TRUE)
+```
+**Komentarz** Funkcja załątwiająca: na.rm=TRUE
+
+## Zadanie 2
+
+```{r}
+lista4 <- list(dane1 = 20:1,
+               dane2 = 1:10,
+               dane3 = 1:5)
+sapply(lista4, max)
+sapply(lista4, min)
+
+zmiennosc <- function(x) {
+  return(sd(x)/mean(x))
+}
+sapply(lista4, zmiennosc)
+```
+**Komentarz** Wynikiem działania sapply to tabela wyswiętlająca przerobione wszystkie wektory listy, co różni ją od lapply która wyświetla wszystkie elementy listy osobno
+
+# Zadanie 3
+```{r}
+macierz1 <- matrix(round(rnorm(20), 1),5)
+macierz2 <- matrix(sample(1:5,16,replace = T),4)
+macierz3 <- matrix(1:9,3)
+
+apply(macierz1, 1, median) #wiersze
+apply(macierz2, 2, max) #kolumny
+apply(macierz3, 1, summary)
+```
+**Komentarz** Apply różni się tym że pracuje na macierzach - przez co trzeba przy wywoływaniu tej funkcji wybrac pozycje macierzy (kolmny czy wiersze)
+
+# Zadanie 4
+```{r}
+#a
+mtcars
+#b
+tapply(mtcars$mpg, mtcars$cyl, mean)
+tapply(mtcars[,1], mtcars[,2], mean)
+#c
+summary(mtcars)
+summary(tapply(mtcars[,1], mtcars[,2], mean))
+```
+
+# Zadanie 5
+```{r}
+library(datasets)
+head(anscombe)
+library(MASS)
+head(fgl)
+
+#a
+sapply(anscombe, mean)
+sapply(fgl, mean, na.rm=T)
+
+#b
+str(fgl)
+sapply(fgl[,1:9], mean)
+
+#c
+sapply(anscombe, median)
+sapply(fgl[,1:9], median)
+
+roznica <- function(x) {
+  return(mean(x) - median(x))
+}
+sapply(anscombe, roznica)
+sapply(fgl[,1:9], roznica)
+
+#d
+sapply(anscombe, sd)
+sapply(fgl[,1:9], sd)
+
+sapply(anscombe, zmiennosc)
+sapply(fgl[,1:9], zmiennosc)
+```
+
+# Zadanie 6
+```{r}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(gapminder)
+
+# part a
+gapminder <- gapminder %>% rename(rok = "year", PKB = gdpPercap)
+names(gapminder)
+summary(gapminder)
+
+# part b
+gapminder <- gapminder %>% mutate(pop=pop/1000000)
+
+# part c
+gapminder %>% filter(continent=="Africa" & rok==1957 & PKB>1200)
+  
+gapminder %>% filter(continent=="Africa" & PKB>12000) %>% 
+  count(rok) %>% plot()
+
+#alternatywnie:
+
+countafrica <- gapminder |> filter(continent=="Africa" & PKB > 12000) |> group_by(rok) |> summarise(count_country = n())
+ggplot(countafrica, aes(x=rok, y=count_country)) + geom_col()
+
+# part d 
+gapminder |> filter(continent != "Africa" & rok==1962 & PKB<750)
+
+# part e
+zad6pol <- pull(gapminder |> filter(rok %in% c(1952, 1977, 2002) & country=="Poland") |> select(lifeExp))
+
+zad6usa <- gapminder %>% filter (rok %in% c(1952, 1977, 2002) & continent=="Americas" & lifeExp>zad6pol) %>% arrange(desc(lifeExp))
+print(zad6usa, n=25) 
+unique(zad6usa$rok)
+
+# part f
+gapminder %>% filter(rok==2007) %>% group_by(continent) %>%
+  summarize(
+    mean=mean(pop), 
+    median=median(pop),
+    sd=sd(pop)
+  )
+
+# part g
+gapminder %>% filter(rok==1977 & PKB<5000 & continent %in% c("Africa", "Europe", "Asia")) %>% group_by(continent) %>% top_n(-3, PKB)
+
+# additionally
+gapminder %>% filter(continent=="Europe" & rok==1977) %>%
+  mutate(
+    system = case_when(
+      country %in% c("Poland", "Czech Republic", "Hungary", "Romania", "Bulgaria") ~ "RWPG",
+      country %in%c("Germany", "Belgium", "France", "Netherlands", "Italy", "Denmark", "Ireland", "United Kingdom") ~ "UE",
+      TRUE ~ "others"
+    )
+  ) %>%
+  group_by(system) %>% summarise(
+    mean=mean(lifeExp),
+    median=median(lifeExp),
+    sd=sd(lifeExp),
+    q1 = quantile(lifeExp, 0.25),
+    q3 = quantile(lifeExp, 0.75)
+  )
+
+```
+**Komentarz** Podpunkt e: z ciekawszych rzeczy jakie zauważyłam, to żaden kraj w Ameryce w roku 1977 miał większą przeciętną długość życia niż Polska
+**Komentarz** Dodatkowe polecenie: z statystyk widać różnicę w jakości życia w krajach UE vs RWPG - gdzie w krajach z reguły socjalistycznych przeciętna długość życia była o wiele niższa
+
+# Zadanie 7
+```{r}
+wideger <- gapminder %>% 
+  filter(country =="Germany") %>% 
+  select(country, lifeExp, rok) %>% 
+  spread(rok, lifeExp) 
+yearsger <- as.numeric(colnames(wideger)[-1])
+plot(yearsger, wideger[1,-1], type="l", col="red")
+
+ggplot(data=(gapminder %>% filter(country %in% c("Germany", "China", "Angola"))), aes(x=rok, y=lifeExp, color=country)) + geom_line()
+```
+
+# Zadanie 8
+```{r}
+set.seed(8)
+for (i in c(2,10,50,100,1000)) {
+  cat("dla ", i, " rzutów\n")
+  a <- sample(1:6, i, replace = T)
+  print(table(a))
+  cat("Srednia: ", mean(a), "\n")
+}
+```
+
+**Komentarz** Metoda Monte Carlo z mojego rozumowania - to metoda stosowana do trudnych i zlozonych procesow obliczeniowych i statystycznych by przewidziec wyniki osiagniete. Dokladność wyniku zależy od ilości powtórzeń i zgodności rozkładu
+
+```{r}
+nba <- c("Chicaco Bulls", "NY Knicks")
+score <- 0
+for (i in 1:10000) {
+  match <- sample(0:1, 7, prob = c(0.35, 0.65), replace=T)
+  if (sum(match) >= 4) {
+    score <- score + 1
+  }
+}
+print(score)
+print(score/100)
+```
+
+# Zadanie 9
+```{r}
+library(MASS)
+mammals
+
+library(robustbase)
+Animals2
+
+# part a
+animals <- intersect(rownames(mammals), rownames(Animals2))
+print(animals)
+length(animals)*2
+
+# part b
+setdiff(rownames(mammals), rownames(Animals2))
+
+# part c
+setdiff(rownames(Animals2), rownames(mammals))
+```
+
+# Zadanie 10
+```{r}
+qnorm(0.05, 0, 1)
+qnorm(0.95, 0, 1)
+
+stSwobody <- c( 1, 5, 10, 30, 50, 1000)
+
+for(df in stSwobody) {
+  tstudent <- qt(c(0.05, 0.95), df = df)
+  cat("dla", df, "stopien swobody: ", tstudent, "\n")
+}
+```
+

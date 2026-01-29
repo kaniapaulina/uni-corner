@@ -1,0 +1,36 @@
+﻿<Window x:Class="ZespolGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ZespolGUI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="500" Width="800">
+    <Grid>
+        <DockPanel Grid.ColumnSpan="3">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_Plik">
+                    <MenuItem Header="_Otwórz" Click="MenuOtworz_Click"/>
+                    <MenuItem Header="_Zapisz" Click="MenuZapisz_Click"/>
+                    <MenuItem Header="_Wyjdź" Click="MenuWyjdz_Click"/>
+                    <Image Height="100" Width="100"/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+
+        <Label Content="Nazwa" HorizontalAlignment="Left" Height="37" Margin="150,36,0,0" VerticalAlignment="Top" Width="55"/>
+        <TextBox x:Name="TxtNazwa" HorizontalAlignment="Left" Height="37" Margin="205,36,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="250"/>
+        <Label Content="Kierownik" HorizontalAlignment="Left" Height="37" Margin="132,78,0,0" VerticalAlignment="Top" Width="73"/>
+        <TextBox x:Name="TxtKierownik" HorizontalAlignment="Left" Height="37" Margin="205,78,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="250"/>
+        <ListBox x:Name="LstCzlonkowie" HorizontalAlignment="Left" Height="189" Margin="258,185,0,0" VerticalAlignment="Top" Width="467" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+        <Button x:Name="BtnZmien" Content="Zmień" HorizontalAlignment="Left" Height="37" Margin="472,78,0,0" VerticalAlignment="Top" Width="143" Click="BtnZmien_Click"/>
+        <Button x:Name="BtnDodaj" Content="Dodaj" HorizontalAlignment="Left" Height="37" Margin="97,185,0,0" VerticalAlignment="Top" Width="143" Click="BtnDodaj_Click"/>
+        <Button x:Name="BtnUsun" Content="Usuń" HorizontalAlignment="Left" Height="37" Margin="97,227,0,0" VerticalAlignment="Top" Width="143" Click="BtnUsun_Click"/>
+        <Button x:Name="BtnSortuj" Content="Sortuj" HorizontalAlignment="Left" Height="37" Margin="97,269,0,0" VerticalAlignment="Top" Width="143" Click="BtnSortuj_Click"/>
+        <Button x:Name="BtnSortujPesel" Content="Sortuj po Pesel" HorizontalAlignment="Left" Height="37" Margin="97,311,0,0" VerticalAlignment="Top" Width="143" Click="BtnSortujPesel_Click"/>
+        <Button x:Name="BtnUsunKilka" Content="Usuń kilka członkow" HorizontalAlignment="Left" Height="37" Margin="97,353,0,0" VerticalAlignment="Top" Width="143"/>
+        <TextBox x:Name="txtSzukanaFunkcja" TextWrapping="Wrap" Text="" Margin="314,389,301,57"/>
+        <Button x:Name="btnZnajdz" Content="Znajdź" Width="86" Margin="526,389,188,57" Click="ButtonZnajdz_Click"/>
+        <Button x:Name="BtnZmienCzlonka" Content="Zmień Czlonka" HorizontalAlignment="Left" Height="37" Margin="97,395,0,0" VerticalAlignment="Top" Width="143" Click="BtnZmienCzlonka_Click"/>
+    </Grid>
+</Window>
