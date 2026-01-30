@@ -16,7 +16,7 @@ output:
 ## Cel projektu
 > *"Czy ścieżka STEM to jedyna droga do sukcesu w Stanach Zjednoczonych"*
 
-Ameryka jest jednym z najbardziej skomplikowanych państw na świecie - z bardzo intrygującym systemem edukacji. Moim głownym zamysłem początkowo bylo dokonanie analizy kierunkow powiązanych z popularnym określeniem *"STEM" - science, technology, engineering and mathematics* gdyż kierunki i uczelnie z tym słowem powiązane są najbliższe motywowi edukacji AGH. Jednakże przy aktualnej dominacji rynku technologicznego (STEM) nad pozostalymi dziedzinami np. humanistycznymi (liberal arts) warto też porównać zarobki absolwenta Informatyki (Computer Science) do przykladowo Historyka (History). Dane z Kaggle są co prawda lekko przestarzałe (ponieważ powstały 9 lat temu), jednak trend wzrostu technologicznego pojawił się długo przed. Należy pamiętać, że od tego czasu rynek technologiczny przeszedł dynamiczne zmiany (rozwój AI i pandemia), co mogło jeszcze bardziej powiększyć dystans między STEM a innymi dziedzinami. Istnieje popularny motyw o którym głośno na zagranicznych portalach społęcznościowych - o "humanistycznym długu", czyli fakt iż zadłużenie studenckie (student loans) przerasta średnie zarobki po ukonczeniu studiów. W poniższej analizie postaram się przybliżyć zagadnienia związane z wybranym tematem.
+Ameryka jest jednym z najbardziej skomplikowanych państw na świecie – z bardzo intrygującym systemem edukacji. Moim głównym zamysłem początkowo było dokonanie analizy kierunków powiązanych z popularnym określeniem **"STEM" – science, technology, engineering and mathematics**, gdyż kierunki i uczelnie z tym słowem powiązane są najbliższe motywowi edukacji AGH. Jednakże przy aktualnej dominacji rynku technologicznego (STEM) nad pozostałymi dziedzinami, np. humanistycznymi (liberal arts), warto też porównać zarobki absolwenta informatyki (Computer Science) do przykładowo historyka (History). Dane z Kaggle są co prawda lekko przestarzałe (ponieważ powstały 9 lat temu), jednak trend wzrostu technologicznego pojawił się długo przedtem. Należy pamiętać, że od tego czasu rynek technologiczny przeszedł dynamiczne zmiany (rozwój AI i pandemia), co mogło jeszcze bardziej powiększyć dystans między STEM a innymi dziedzinami. Istnieje popularny motyw, o którym głośno na zagranicznych portalach społecznościowych – o „humanistycznym długu”, czyli fakt, iż zadłużenie studenckie (student loans) przerasta średnie zarobki po ukończeniu studiów. W poniższej analizie postaram się przybliżyć zagadnienia związane z wybranym tematem.
 
 ## Dane użyte w analizie
 
@@ -41,19 +41,15 @@ glimpse(salariesByRegion)
 
 ---
 
-# Data Wrangling
+# Przygotowanie danych
 
 ## Biblioteki
 - tidyverse: pakiet podstawowy do analizy danych
-- naniar: do sprawdzenia procentowego udziału braku danych (NA)
-- datawizard: data wrangling
+- datawizard: dla funckji data_rotate()
 - knitr: estetyka i czytelność
 - corrplot: dla macierzy korelacji
-- ggrepel: do wykresu anomalii
 ```{r, echo=TRUE, warning=FALSE, message=FALSE}
-library(naniar)
 library(knitr)
-library(ggrepel)
 library(datawizard)
 library(corrplot)
 library(tidyverse)
@@ -64,16 +60,13 @@ library(tidyverse)
 ### degrees-that-pay-back.csv
 
 ```{r, echo=TRUE}
-# zaczynam od przerobienia i czyszczenia danych z pliku 'degrees-that-pay-back'
 degree <- degreesThatPayBack
 str(degree)
 ```
 
-Na pierwszy rzut oka można zauważyć już wstępne problemy, czyli bardzo długie tytuły kolumn jak i nieużywalny format danych zapisanych jako "chr" zamiast "num"
+Na pierwszy rzut oka można zauważyć już wstępne problemy, czyli bardzo długie tytuły kolumn jak i nieużywalny format danych zapisanych jako "chr" zamiast "num".
 
 ```{r}
-# zmiana nazw kolumn - dla czytelności i łatwiejszej obsługi danych
-# użyje do tego dplyr::rename()
 degree <- rename(
   degree,
   major = Undergraduate.Major, 
@@ -86,11 +79,7 @@ degree <- rename(
   p90_salary = Mid.Career.90th.Percentile.Salary
   )
 
-# zmiana na lepsze
 colnames(degree)
-
-# zmiana typu danych - na numeryczne by móc je używać do analizy
-# użyje do tego stringr::str_replace_all()
 
 degree <- degree %>%
   mutate(
@@ -106,11 +95,10 @@ degree <- degree %>%
 
 kable(head(degree))
 ```
-Teraz kolej na pozostałe pliki - które wykonam analogicznie
+Teraz kolej na pozostałe pliki - które wykonam analogicznie.
 
 ### salaries-by-college-type.csv
 ```{r}
-# wybralam nazwy zmiennych z wzgledu na charakterystyczną ceche zestawu danych: degree, college i region
 college <- salariesByCollegeType
 str(college)
 
@@ -138,13 +126,9 @@ college <- college %>%
 
 kable(head(college))
 ```
-Zauważyłam już przy pierwszym wglądzie w dane, iż jest dużo brakujących pozycji w kolumnach percentylowych - i nie byłam pewna na ile to może zakłócić mojej analizie. Przy "mutacji" zawartości na liczbowe tekstowy zapis "N/A" zmienił się na prawdziwy i odczytany przez R "NA" przez co biblioteka naniar wykryje gdzie dokładnie mam dziury danych.  
+Zauważyłam już przy pierwszym wglądzie w dane, iż jest dużo brakujących pozycji w kolumnach percentylowych – i nie byłam pewna, na ile to może zakłócić moją analizę. Przy „mutacji” zawartości na liczbowe, tekstowy zapis "N/A" zmienił się na prawdziwy i odczytany przez R "NA", przez co biblioteka naniar wykryje, gdzie dokładnie mam dziury w danych.
 
-```{r}
-gg_miss_var(college)
-```
-
-Jedyne braki danych mam w uzupełniajacych sie kolumnach 90- i 10-percentylowych, więc w dalszej analizie albo muszę znaleść sposób na ominięcie ich albo używanie 25- i 75-percentyli.
+Jedyne braki danych mam w uzupełniających się kolumnach 90- i 10-percentylowych, więc w dalszej analizie albo muszę znaleźć sposób na ominięcie ich, albo używać 25- i 75-percentyli.
 
 ### salaries-by-region.csv
 
@@ -174,24 +158,19 @@ region <- region %>%
   )
 kable(head(region))
 
-gg_miss_var(region)
 ```
 
-Dane pogrupowane przez region i przez typ szkoły są bardzo podobne - będe musiała na te zbiory zwrócić szczegółową uwage przy analizie danych
 
 ---
 
 # Exploratory Data Analysis (EDA)
 
-## Pytania Badawcze 
-Patrząc na zestaw danych zanim otworzyłam RStudio zapisałam sobie w notatniku pytania które sobie stawiłam związane z moim tematem projektu - i po zapisaniu posortowałam je w logiczny tok opowieści. Pytania pozwolą zweryfikować rynkową wartość edukacji wyższej w USA według trzech sekcji.
+## Pytania Badawcze
 
-## Sekcja I: Fundamenty - Krajobraz płac w USA 
-
-### Pytanie 1: Dominacja STEM – fakt czy mit?  
+### Pytanie 1: Czy dominacja STEM to fakt czy mit? 
 Porównanie podstawowych statystyk opisowych (mediana, średnia, odchylenie standardowe) dla kierunków STEM oraz pozostałych dziedzin na początku i w środku kariery 
 
-Mając tabele "degree" widać wszystkie reprezentowane kierunki studiowania ale bez dokładnego oznaczenia do których z typów studiów (STEM, human czy zarządzanie) należy. By dokonać ogólnej analizy musimy ustalić typ studiów jak i ich ogólna kategoria - dla uproszczenia analizy bedzie to STEM vs others.
+Mając tabelę "degree", widać wszystkie reprezentowane kierunki studiowania, ale bez dokładnego oznaczenia, do których z typów studiów (STEM, human czy zarządzanie) należą. By dokonać ogólnej analizy, musimy ustalić typ studiów jak i ich ogólną kategorię – dla uproszczenia analizy będzie to STEM vs others.
 
 ```{r}
 
@@ -240,7 +219,8 @@ degree <- degree %>%
 
 table(degree$category)
 ```
-Patrząc wstępnie na liczbe występowania każdego typu studiów musze niestety zwrócić uwagę na jeden kierunek matematyczny. W polskim posiadamy matematyke stosowaną, ficzyną i tym podobne ale na liście niestety nie ma takich wyróżnień. Po za tym podział jest w miare zrównoważony z zauważalnym wyżem w Liberal Arts jak i Business gdy są to szersze kategorie i sumując wszystkie kierunki STEM, nie osiągają one przewage liczbową.
+
+Patrząc wstępnie na liczbę występowania każdego typu studiów, muszę niestety zwrócić uwagę na jeden kierunek matematyczny. W polskim systemie posiadamy matematykę stosowaną, fizyczną i tym podobne, ale na liście niestety nie ma takich wyróżnień. Poza tym podział jest w miarę zrównoważony z zauważalnym wyżem w Liberal Arts jak i Business, gdyż są to szersze kategorie i sumując wszystkie kierunki STEM, nie osiągają one przewagi liczbowej.
 
 ```{r}
 # Statystyka Opisowa
@@ -262,7 +242,8 @@ degreestart$STEM[1]/degreestart$Others[1]
 # róznica średniej
 degreestart$STEM[1]-degreestart$Others[1]
 ```
-Już w pierwszej analizie statystyczej widać różnicę miedzy kierunkami technicznymi a pozostałymi. Średnia zarobków jest prawie 34% wyższa dla absolwentów STEM już na początku kariery - a co ciekawe, mediana dla STEM jest prawie równa wartości maksymalnej dla pozostałych kierunków. Grupa "others" charakteryzuje się jednak znacznie wiekszą przewidywalnością - niskie odchylenie standardowe i relatywnie mały rozstęp (range). Kierunki techniczne wykazują się większym zróżnicowaniem wewnętrznym.
+
+Już w pierwszej analizie statystycznej widać różnicę między kierunkami technicznymi a pozostałymi. Średnia zarobków jest prawie 34% wyższa dla absolwentów STEM już na początku kariery – a co ciekawe, mediana dla STEM jest prawie równa wartości maksymalnej dla pozostałych kierunków. Grupa "others" charakteryzuje się jednak znacznie większą przewidywalnością – niskie odchylenie standardowe i relatywnie mały rozstęp (range). Kierunki techniczne wykazują się większym zróżnicowaniem wewnętrznym.
 
 ```{r}
 degreemid <- degree %>% group_by(category) %>%
@@ -282,8 +263,10 @@ degreemid$STEM[1]/degreemid$Others[1]
 # różnica średniej
 degreemid$STEM[1]-degreemid$Others[1]
 ```
-Z ciekawszych obserwacji mimo wzrostu różnicy średnich w środku kariery (porównując do początkowej wartości), różnica procentowa zmalała. Warto też spojrzeć na maksymalną wartość dla kierunków nie-STEM i mediane dla STEM - wartości są bardzo do siebie zbliżone, co sugeruje o porównywalności "sufitu humanistów" a "podłodze inżynierów".
-Odchylenie dla obu grup skoczyło w górę - po 10 latach w zawodzie już nie tylko studia decydują o zarobkach ale gromo zewnętrznych czynników a zarobki minimalne są bardzo do siebie zbliżone.
+
+Z ciekawszych obserwacji: mimo wzrostu różnicy średnich w środku kariery (porównując do początkowej wartości), różnica procentowa zmalała. Warto też spojrzeć na maksymalną wartość dla kierunków nie-STEM i medianę dla STEM – wartości są bardzo do siebie zbliżone, co sugeruje porównywalność „sufitu humanistów” a „podłogi inżynierów”. 
+
+Odchylenie dla obu grup skoczyło w górę, po 10 latach w zawodzie już nie tylko studia decydują o zarobkach, ale grono zewnętrznych czynników, a zarobki minimalne są bardzo do siebie zbliżone.
 
 ```{r}
 degree %>% 
@@ -299,7 +282,7 @@ degree %>%
 
 ```
 
-### Pytanie 2: Dynamika wzrostu wynagrodzeń  
+### Pytanie 2: Jak wygląda prędkość rozwoju wynagrodzeń.
 Identyfikacja kierunków o największym i najmniejszym przyroście płac w czasie, czy absolwenci nauk humanistycznych z czasem zmniejszają dystans finansowy do grup STEM.
 
 ```{r}
@@ -347,26 +330,19 @@ degree %>%
     aes(x=career_start, xend=career_mid), 
     linewidth=1.2 
     ) +
-  geom_text(
-    aes(x=(career_start+career_mid)/2, label=paste0(p_change, "%")), 
-    nudge_y=0.3,
-    color='black'
-    ) +
   scale_color_manual(values=c('Engineering'='deepskyblue2', 'Mathematics'='deepskyblue4', 'Science'='darkseagreen4', 'Technology'='seagreen3', 'Liberal Arts'='plum1', 'Business'='plum3')) +
   theme_bw() +
   labs(
-    title = "Top3 Kierunki z każdego rodzaju nauki - i ich wzrost",
+    title = "Zmiany 10-letnich karier absolwentów",
     x = "Zarobki w ($)",
     y = NULL,
-    subtitle = "Zmiana procentowa między początkiem a środkiem kariery - p odana nad linią wykresu"
   ) + 
   scale_x_continuous(limits= c(min(degree$career_start),max(degree$career_mid))) 
 ```
 
 Powyższy wykres przedstawia moment startowy kariery i zmiane procentową do momentu średniego - i wybrałam tu 5 najlepiej zarabiających kierunków podzielonych na kategorie "type". Wykres pomaga zobrazować jak zmiana procentowa po 10 latach wygląda na faktycznych zarobkach. Mimo dużych wzrostów procentowych humaniści i "business" studenci przy realnych liczbach kuleją przy zarobkach STEM. Co ciekawe - dobrze widać tu zarobki asystenta lekarskiego (Physician Assistant). Mimo bardzo małej zmiany zarobków dalej utrzymuje się w topce wszystkich kierunków, co pokazuje, że niski sufit nie jest wcale taki zły gdy pokój się znajduje na metaforycznym 15stym piętrze.
 
-### Pytanie 3: Wewnętrzna hierarchia "Imperium STEM".  
-Analiza porównawcza subdziedzin.
+### Pytanie 3: Wewnętrzna hierarchia "Imperium STEM" - która dziedzina dominuje.  
 
 ```{r}
 cor_data <- degree %>%
@@ -386,26 +362,20 @@ Macierz korelacji pokazuje silną dodatnią zależność między przynależnośc
 degree %>%
   filter(category=="STEM") %>%
   ggplot(
-    aes(y = reorder(major, career_start), x = career_start, fill = type)) +
-  geom_col(colour='darkgray', alpha = 0.5) +
+    aes(y = reorder(major, career_mid), x = career_mid, fill = type)) +
+  geom_col() +
   scale_fill_manual(values=c('Engineering'='deepskyblue2', 'Mathematics'='deepskyblue4', 'Science'='darkseagreen4', 'Technology'='seagreen3')) +
-  geom_col(
-    aes(y = reorder(major, career_mid), x = career_mid), alpha=0.3) +
   labs(
     title = "Kto króluje w STEM",
     x = "Zarobki w dollarach ($)",
     y = NULL,
-    subtitle = "Porównanie początków kariery i środkowych zarobków"
   ) + theme_bw()
   
 ```
 
-Już na pierwszy rzut oka widać wyraźną przewagę kierunków inżynieryjnych (Engineering), które okupują szczyt zestawienia. Warto zwrócić uwagę na pozycję kategorii Technology. Choć w badanych danych plasuje się ona tuż za inżynierią, współczesny boom na technologie AI prawdopodobnie wyniósł te profesje ponad "tradycyjną naukę" (Science). Termin "STEM" jest nadużywany jako gwarancja sukcesu. Prawdziwe pieniądze leżą w "TE".
+Już na pierwszy rzut oka widać wyraźną przewagę kierunków inżynieryjnych (Engineering), które okupują szczyt zestawienia. Warto zwrócić uwagę na pozycję kategorii Technology. Choć w badanych danych trzyma się ona tuż za inżynierią, współczesny boom na technologie AI prawdopodobnie wyniósł te profesje ponad "tradycyjną naukę" (Science). Termin "STEM" jest nadużywany jako gwarancja sukcesu. Prawdziwe pieniądze leżą w "TE".
 
-## Sekcja II: Analiza ryzyka
-
-### Pytanie 4: Bezpieczny wybór vs. hazard zawodowy.  
-Wskazanie kierunków "bezpiecznych" oraz tych o wysokim risk/reward.
+### Pytanie 4: Wskazanie kierunków "bezpiecznych" oraz tych o wysokim risk/reward.
 
 ```{r}
 degree %>% ggplot(aes(x = career_mid, y = reorder(type, career_mid), fill = type)) +
@@ -421,14 +391,7 @@ degree %>% ggplot(aes(x = career_mid, y = reorder(type, career_mid), fill = type
 Najdziwniejszą pozycją wykresu jest pozycja "Mathematics", jednak objaśnienie jest proste: pod tą kategorią jest podpięty jedynie jeden kierunek. Kategoria zatem jest praktycznie niemożliwa do przedstawienia na wykresie Boxplot. Innymi ciekawymi pozycjami to "Business" i "Science" które mają bardzo szerokie pudełka. Oznacza to dużą niepewność. Wrzuca się też w oko jeden Outlier w kategorii Engineering. 
 
 ```{r}
-degreerisk <- degree %>% 
-  filter(!is.na(p10_salary) & !is.na(p90_salary)) %>%
-  mutate(
-    risk25 = p75_salary - p25_salary,
-    risk10 = p90_salary - p10_salary
-  ) 
-
-degreerisk %>%
+degree %>%
   group_by(type) %>%
   top_n(5, career_mid) %>%
   ggplot(
@@ -436,8 +399,6 @@ degreerisk %>%
     ) +
   geom_segment(
     aes(x=p25_salary, xend=p75_salary), linewidth=1.2,) +
-  geom_text(
-    aes(x=(p25_salary+p75_salary)/2, label = risk25), nudge_y=0.3, color='black') +
   theme_bw() +
   scale_color_manual(values=c('Engineering'='deepskyblue2', 'Mathematics'='deepskyblue4', 'Science'='darkseagreen4', 'Technology'='seagreen3', 'Liberal Arts'='plum1', 'Business'='plum3')) +
   labs(
@@ -451,19 +412,21 @@ degreerisk %>%
 
 Niespodziewanie pozycje numer jeden zajmuje Ekonomia o bardzo szerokiej rozpiętości. Oznacza to niepewne zarobki przyszłościowe dla absolwentów. Oczywiście ekonomia łączy z sobą dużo ścisłych jak i humanistycznych zagadnień, dzięki czemu absolwenci mogą znaleść pracę w dużej ilości dziedzin. Po ukończeniu studiów wiele czynników zewnętrznych wpływa na to jak wygląda płaca ekonomisty. Jest to trend dla wielu biznesowych i humanistycznych kierunków, gdzie płace STEM charakteryzują się mniejszą rozpiętością. Zaczynają wyżej zarobkowo ale względnie wiekszość stanowisk są równomiernie prestiżowe, w porównaniu z innymi dziedzinami.
 
-### Pytanie 5: Sufit płacowy: STEM vs. Biznes.  
+### Pytanie 5: Sufit zarobkowy: STEM vs. Biznes.  
 Sprawdzenie, która z grup szybciej osiąga pełny potencjał zarobkowy (z osobistej ciekawości studiując Informatyke na Wydziale Zarządzania).
 
 ```{r}
 degree %>% 
   filter(type == "Business" | category=="STEM") %>%
-  ggplot(aes(x = career_start, y = p90_salary, color = type)) +
+  ggplot(
+    aes(x = career_start, y = p90_salary, color = type)
+    ) +
   geom_point(size = 3, alpha = 0.6) +
   theme_bw() +
   geom_smooth(method = "lm", se=F) +
   scale_color_manual(values=c('Engineering'='deepskyblue2', 'Mathematics'='deepskyblue4', 'Science'='darkseagreen4', 'Technology'='seagreen3', 'Business'='plum3')) +
   labs(
-    title = "Relacja: Start kariery vs. Szczyt finansowy",
+    title = "Start kariery vs. Sufit finansowy",
     x = "Płaca początkowa",
     y = "90. percentyl zarobków"
     )
@@ -471,36 +434,18 @@ degree %>%
 
 Na wykresie powyżej widać w sposób dosłowny sufit finansowy o którym ciągle wspominam. 90-ty percentyl to inaczej 10 procent najlepiej zarabiających absolwentów danego kierunku. "Business" zaczyna nisko lecz niesamowicie wysoko wystrzela zakłądając najlepsze dla studenta warunki. Inżynierowie natomiast są bardziej stabilni. Kąt nachylenia linii którą tworzą niebieskie punkty jest mniejszy niż ten dla Business, jednak kropki zaczynają z wiele wiekszymi zarobkami początkowymi.
 
-### Pytanie 6: Anomalie humanistyczne i businessowe (Outliers).  
+### Pytanie 6: Anomalie wśród kierunków nie-STEM.  
 Identyfikacja konkretnych kierunków które przechodzą niestandardowy dla swojej kategorii wzrost.
 
-Ekonomia jak i inne kierunki "Business" ewidentnie się odznaczały przy porównywaniu z STEM. Jednak warto również popatrzeć troche głębiej łącząc Business i Liberal Arts, i dokonać na tych kategoriach osobną analize
-
-```{r}
-outlierstable <- degree %>%
-  mutate(
-    growth = p90_salary / career_start
-    ) %>%
-  arrange(desc(growth)) %>%
-  head(10) %>%
-  select(major, type, career_start, p90_salary, growth)
-
-kable(outlierstable)
-
-outliersname <- degree %>%
-  filter(category == "Others") %>%
-  arrange(desc(p90_salary)) %>%
-  slice(1:5)
-```
+Ekonomia jak i inne kierunki "Business" ewidentnie się odznaczały przy porównywaniu z STEM. Jednak warto również popatrzeć troche głębiej łącząc Business i Liberal Arts, i dokonać na tych kategoriach osobną analize.
 
 ```{r}
 degree %>% 
   filter(category=="Others") %>%
-  ggplot(aes(x = career_start, y = p90_salary, color = type)) +
+  ggplot(
+    aes(x = career_start, y = p90_salary, color = type)
+    ) +
   geom_point(size = 3, alpha = 0.6) +
-  geom_text_repel(data = outliersname, 
-                  aes(label = major), 
-                  size = 3)+
   geom_smooth(method = "lm", se=F) +
   theme_bw() +
   scale_color_manual(values=c('Liberal Arts'='plum1', 'Business'='plum3')) +
@@ -511,9 +456,7 @@ degree %>%
     )
 ```
 
-Niektóre kierunki aż czterokrotnie powiekszają swoje zarobki (oczywiście biorąc pod uwagę szczyt możliwych płac). Widać również, iż większość Outlierów pochodzą jednak z kategorii business - oprócz filozofii (Philosophy). Pozostałe kierunki układają sie w podobnej ćwiartce wykresu (przy zarobkach startowych w wysokosci 40000$ i suficie percentylowym 150000$)
-
-## Sekcja III: Wpływ instytucji i geografii
+Widać, iż większość Outlierów pochodzą jednak z kategorii business - oprócz filozofii (Philosophy). Pozostałe kierunki układają sie w podobnej ćwiartce wykresu (przy zarobkach startowych w wysokosci 40000$ i suficie percentylowym 150000$).
 
 ```{r}
 table(college$type)
@@ -522,7 +465,7 @@ table(region$Region)
 
 Przeglądając pozostałe dwa datasety, wrzucają sie w oczy wartości typu uczelni i regionu. Tu typ uczelni "engineering" to nie to samo co kierunek "engineering" choć sugeruje, iż na takiej uczelni istnieje dużo inżynierskich kierunków. W ostatniej części EDA przyjrzymy się jak te wartości kształtują całokształt edukacji w Ameryce Północnej.
 
-### Pytanie 7: Prestiż Ivy League vs. praktyczność State Schools.
+### Pytanie 7: Prestiż Ivy League vs. State Schools.
 czy "historyk z Harvardu" zarabia więcej niż "informatyk z uczelni stanowej"? Czy nazwa uczelni niweluje różnice między kierunkami?
 
 ```{r}
@@ -538,27 +481,16 @@ college %>%
     x = "Typ uczelnii"
   )
 
-Q1 <- quantile(college$career_mid, 0.25, na.rm = TRUE)
-Q3 <- quantile(college$career_mid, 0.75, na.rm = TRUE)
-IQR_value <- Q3 - Q1
-
-gorna_granica <- Q3 + 1.5 * IQR_value
-dolna_granica <- Q1 - 1.5 * IQR_value
-
-outliers_list <- college %>%
-  filter(career_mid > gorna_granica | career_mid < dolna_granica)
-
-kable(outliers_list %>% select(university, type, career_mid))
 ```
 
-Pierwsze co postanowiłam sprawdzić to kolejne outliery w kategorii uczelni. By odpowiedzieć na powyżej podane pytanie użyłam początkowo średniej by zrealizować różnice między typami szkół jednak wartości nie zgadzały mi się z oczekiwaną analizą, więc zdecydowałam na użycie wartości środkowej. Mediana pozwala na rzetelne przedstawienie sytuacji finansowej 'typowego' absolwenta, chroniąc wyniki przed zniekształceniem przez nieliczne, ekstremalnie wysokie lub niskie zarobki
+Na wykresie widać dużo wartości odstających dla kategorii "State".
 
 ```{r}
 ivystate <- college %>%
   filter(type %in% c("Ivy League", "State", "Engineering")) %>%
   group_by(type) %>%
   summarise(
-    school_count = n(),
+    count = n(),
     median_start = median(career_start, na.rm = TRUE),
     median_mid = median(career_mid, na.rm = TRUE),
     p10 = median(p10_salary, na.rm = TRUE),
@@ -591,8 +523,7 @@ college %>%
        y = NULL)
 ```
 
-### Pytanie 8: Stabilność finansowa a profil uczelni.
-Porównanie rozkładów gęstości zarobków dla różnych typów szkół
+### Pytanie 8: Korelacja miedzy stabilnością finansową a typem uczelnii.
 
 ```{r}
 college %>%
@@ -606,47 +537,48 @@ college %>%
        fill = "Typ uczelni")
 ```
 
-Krzywa dla Ivy League jest najbardziej wysunięta na prawo, co ponownie potwierdza moje wcześniejsze wnioski iż przestiż uczelni daje lepszy start w karierze i otwiera drzwi na rozwój. Z ciekawszych obserwacji krzywa dla Engineering jest najszersza i najniższa co sugeruje pewną niepewność zarobkową gdy Party jest bardzo szczupłe i wysunięte do góry. Mimo niższego średniego wynagrodzenia jest ono o wiele pewniejsze niż przykładowo dla Liberal Arts czy State, co niektórzy ludzie sobie cenią w wyborze studiów. Liberal Arts szczególnie na wykresie wręcz "merge"uje State i Engineering. Stoi w limbo między dużą stanową uczelnią a prestiżem uczelni technicznych po któruch wnioskujemy lepsze zarobki
+Krzywa dla Ivy League jest najbardziej wysunięta na prawo, co ponownie potwierdza moje wcześniejsze wnioski iż przestiż uczelni daje lepszy start w karierze i otwiera drzwi na rozwój. Z ciekawszych obserwacji krzywa dla Engineering jest najszersza i najniższa co sugeruje pewną niepewność zarobkową gdy Party jest bardzo szczupłe i wysunięte do góry. Mimo niższego średniego wynagrodzenia jest ono o wiele pewniejsze niż przykładowo dla Liberal Arts czy State, co niektórzy ludzie sobie cenią w wyborze studiów. Liberal Arts szczególnie na wykresie wręcz "merge"uje State i Engineering. Stoi w limbo między dużą stanową uczelnią a prestiżem uczelni technicznych po któruch wnioskujemy lepsze zarobki.
 
-### Pytanie 9: Geografia sukcesu: Regiony USA.
-Który region oferuje najwiekszą pomoc w przyszłych zarobkach. Sprawdzenie, co ma silniejszy wpływ na płacę: lokalizacja czy typ uczelni.
+### Pytanie 9: Porównanie Regionów USA.
+Który region oferuje najwiekszą pomoc w przyszłych zarobkach.
 
 ```{r}
-region %>%
+statsregion <- region %>%
   group_by(Region) %>%
-  top_n(3, career_mid) %>%
-  ggplot(aes(x = Region, y = university, fill = career_mid)) +
-  geom_tile() +
-  scale_fill_gradient(low = "lightgray", high = "steelblue") +
-  theme_minimal() +
-  labs(title = "Ranking regionalny",
-       x = "Region",
-       y = NULL,
-       fill = "Zarobki Mid-Career") +
-  theme(axis.text.x = element_text(angle = 90, hjust=1)) +
-  coord_flip()
+  summarise(
+    count = n(),
+    mean_start = mean(career_mid, na.rm = TRUE),
+    mean_mid = median(career_mid, na.rm = TRUE),
+    sd = sd(career_mid, na.rm = TRUE),
+    min = min(career_mid, na.rm = TRUE),
+    max = max(career_mid, na.rm = TRUE)
+  ) %>%
+  arrange(desc(mean_mid))
+
+kable(statsregion)
 ```
 
-Jest to nieuniknione by w internecie nie natrafić na rywalizacje regionów USA. W każdej możliwej dziedzinie czy to edukacja czy muzyka Hip-Hop różne stany z sobą konkurują, spowodowane między innymi przez przeogromn rozmiar geograficzny Ameryki. Na Heatmapie widać dwie odznaczające się ciemniejsze obszary: Northeastern i California, co nie powinno nikogo zdziwić. To wybrzeże to miejsce powstania prestiżowych uczelni takich jak: MIT, Yale, Princeton czy też Stanford, które reprezentują z sobą dużą sieć do rozwoju studentów i dostęp do najsławniejszego regionu karierowego w Ameryce - Silicon Vallej, zlokalizowany w Kalifornii.
+Jest to nieuniknione by w internecie nie natrafić na rywalizacje regionów USA. W każdej możliwej dziedzinie czy to edukacja czy muzyka Hip-Hop różne stany z sobą konkurują, spowodowane między innymi przez przeogromn rozmiar geograficzny Ameryki. Przy analizie odznaczające się dwa regiony: Northeastern i California, co nie powinno nikogo zdziwić. To wybrzeże to miejsce powstania prestiżowych uczelni takich jak: MIT, Yale, Princeton czy też Stanford, które reprezentują z sobą dużą sieć do rozwoju studentów i dostęp do najsławniejszego regionu karierowego w Ameryce - Silicon Vallej, zlokalizowany w Kalifornii.
 
-### Pytanie 10: "Złoty bilet" – i podsumowanie wyników.
+### Pytanie 10: Czy istnieje "Złoty bilet" do lepszych zarobków – i podsumowanie wyników.
 
-```{r, fig.height=10, fig.width=8}
+```{r, fig.height=8, fig.width=12}
 degree %>% 
   arrange(desc(career_start)) %>%
   ggplot(
-    aes(y = reorder(major, career_start), x = career_start, fill=category)
+    aes(x = reorder(major, career_start), y = career_start, fill=category)
   ) +
   geom_col(colour='darkgray', alpha = 0.5) +
   geom_col(
-    aes(y = reorder(major, career_mid), x = career_mid), alpha=0.4
+    aes(x = reorder(major, career_mid), y = career_mid), alpha=0.4
   ) +
   scale_fill_manual(values=c('plum2', 'skyblue1')) +
   labs(
     title = "Kierunki - ich wynagrodzenie świeżo po studiach i po 10 latach",
-    y = NULL,
-    x = "Zarobki w dollarach ($)"
-  ) + theme_bw()
+    x = NULL,
+    y = "Zarobki w dollarach ($)"
+  ) + theme_bw() + 
+  theme(axis.text.x = element_text(angle = 90, hjust=1))
 ```
 
 Ostatni wykres pokazuje pełny krajobraz opłacalności studiów. Choć kolory błękitne (STEM) dominują w górnej części wykresu, potwierdzając swoją rynkową siłę, to rozpiętość słupków fioletowych (Others) ujawnia ogromny potencjał kierunków biznesowych i humanistycznych. Ostatecznie 'Złoty Bilet' to nie tylko wybór kierunku z wysokim startem, ale świadomość, że w niektórych dziedzinach (Economics, Finance) prawdziwy zysk finansowy przychodzi dopiero z czasem, często wyrównując szanse w starciu z inżynierami i informatykami. Dużo zależy od ambicji i starań osobistych studenta i choć uważam, iż "the American Dream" o bogactwie i możliwościach dla wszystkich jest niestety bardzo przekolorowane to szanse na spokojne i wygodne życie tkwieją w każdej dziedzinie.
@@ -659,7 +591,7 @@ Mogę jedynie słownie podsumować stan aktualnego wynagrodzenia (a nie tego spr
 
 ## Źródła naukowe
 
-By zniwelować jakiekolwiek wątpliwości co do samodzielności mojej pracy dołączam źródła zewnętrzne z których korzystałam i nie tylko - dużo moich informacji pochodzi również z dyskusji na StackOverflow i Geeks4Geeks. Dużo linków do zewnętrznych źródeł znalazłam poprzez okna RStudio - Packages & Help
+By zniwelować jakiekolwiek wątpliwości co do samodzielności mojej pracy dołączam źródła zewnętrzne z których korzystałam i nie tylko - dużo moich informacji pochodzi również z dyskusji na StackOverflow i Geeks4Geeks. Dużo linków do zewnętrznych źródeł znalazłam poprzez okna RStudio - Packages & Help.
 
 https://bookdown.org/yihui/rmarkdown/
 
@@ -667,12 +599,16 @@ https://github.com/rstudio/cheatsheets/tree/main
 
 https://tidyverse.org/  
 
-https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/
-
 https://r-charts.com/colors/
 
 https://r-graph-gallery.com/
 
+https://r-graph-gallery.com/histogram_several_group.html
+
+https://r-graph-gallery.com/362-scatter-plot-with-trend-line-and-labels.html
+
+https://r-charts.com/distribution/dumbbell-plot-ggplot2/
+
 https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html
 
-https://ggrepel.slowkow.com/
+https://r-charts.com/correlation/corplot/

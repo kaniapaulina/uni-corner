@@ -1,0 +1,34 @@
+Projekt: gra Tetirs w terminalu w jêzyku C
+Przedmiot: Programowanie Komputerów, IiE
+Autorki: Natalia Kruk, Paulina Kania
+
+Podzia³ pracy:
+•    obracanie bloczków, kontrolki z klawiatury, opadanie bloczków, usuwanie pe³nych wierszy, main – Natalia Kruk
+•    tworzenie nowych bloczków, tworzenie planszy, sprawdzanie u³o¿enia bloczka, dodawanie bloczka do planszy, main -  Paulina Kania
+Program ze wzglêdu na bycie gr¹ nie wymaga ¿adnych danych wejœciowych, u¿ytkownik interaguje z nim w trackie dzia³ania. Program wyœwietla na bie¿¹co wynik u¿ytkownika. 
+
+1. Inicjalizacja:
+	Przy starcie programu losowany jest pierwszy klocek (nowyblok())
+	Klocek pojawia siê na górze planszy
+
+2. G³ówna pêtla gry (w main.c):
+	Sprawdza czy gracz nacisn¹³ klawisz (strza³ki lub spacja)
+	Przesuwa/obraca klocek jeœli to mo¿liwe (ruszamypanowie())
+	Co pewien czas przesuwa klocek w dó³
+	Jeœli klocek nie mo¿e spaœæ dalej:
+		Zapisuje go na planszy
+		Sprawdza linie (fulllinia())
+		Tworzy nowy klocek
+
+3. Rysowanie:
+	Czyœci ekran
+	Rysuje aktualny stan planszy (rysuj())
+	Pokazuje aktualny wynik
+
+4. Koniec gry:
+	Gdy nowy klocek nie mo¿e siê pojawiæ (kolizja od razu)
+	Wyœwietla wynik koñcowy i koñczy program
+
++Funkcje zosta³y zaimplementowane w celu:
+Zapisania historii wyników gry
+Przechowywania najwy¿szego osi¹gniêtego wyniku (highscore)

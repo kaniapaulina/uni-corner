@@ -577,6 +577,20 @@ region %>%
        y = "Poziom wynagrodzenia",
        fill = "Kwota w ($)")
 
+statsregion <- region %>%
+  group_by(Region) %>%
+  summarise(
+    count = n(),
+    mean_start = mean(career_mid, na.rm = TRUE),
+    mean_mid = median(career_mid, na.rm = TRUE),
+    sd = sd(career_mid, na.rm = TRUE),
+    min = min(career_mid, na.rm = TRUE),
+    max = max(career_mid, na.rm = TRUE)
+  ) %>%
+  arrange(desc(mean_mid))
+
+kable(statsregion)
+
 
 ### Pytanie 10: "Złoty bilet" – Synteza wyników.
 #Cel: Podsumowanie analizy i próba wskazania optymalnej kombinacji (kierunek + typ uczelni + region), która statystycznie daje największą pewność sukcesu finansowego.
