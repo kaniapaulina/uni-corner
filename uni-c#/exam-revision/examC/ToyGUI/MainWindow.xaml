@@ -1,0 +1,32 @@
+﻿<Window x:Class="ToyGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ToyGUI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <TextBlock HorizontalAlignment="Left" Height="40" Margin="20,24,0,0" TextWrapping="Wrap" Text="Toys" VerticalAlignment="Top" Width="520" FontSize="20"/>
+        <ListBox x:Name="lbToys" HorizontalAlignment="Left" Height="160" Margin="20,69,0,0" VerticalAlignment="Top" Width="520" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+        
+        <ListBox x:Name="lbSelect" HorizontalAlignment="Left" Height="160" Margin="20,244,0,0" VerticalAlignment="Top" Width="520" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+        
+        <TextBlock x:Name="tbSuma" HorizontalAlignment="Left" Height="40" Margin="560,24,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="220" FontSize="20"/>
+        
+        <Button x:Name="btnAdd" Content="New Toy" HorizontalAlignment="Left" Height="45" Margin="560,69,0,0" VerticalAlignment="Top" Width="220" Click="btnAdd_Click"/>
+        <ComboBox x:Name="cbKind" HorizontalAlignment="Left" Height="47" Margin="560,244,0,0" VerticalAlignment="Top" Width="220">
+            <ComboBoxItem>basic</ComboBoxItem>
+            <ComboBoxItem>interactive</ComboBoxItem>
+            <ComboBoxItem>creative</ComboBoxItem>
+            <ComboBoxItem>educational</ComboBoxItem>
+            <ComboBoxItem>musical</ComboBoxItem>
+            <ComboBoxItem>wooden</ComboBoxItem>
+        </ComboBox>
+        <Button x:Name="btnKind" Content="Add Kind" HorizontalAlignment="Left" Height="46" Margin="560,126,0,0" VerticalAlignment="Top" Width="220" Click="btnKind_Click"/>
+        <Button x:Name="btnSelect" Content="Select Toys" HorizontalAlignment="Left" Height="45" Margin="560,297,0,0" VerticalAlignment="Top" Width="220" Click="btnSelect_Click"/>
+        <Button x:Name="btnClose" Content="Bye Bye!!!" HorizontalAlignment="Left" Height="45" Margin="560,359,0,0" VerticalAlignment="Top" Width="220" Click="btnClose_Click"/>
+        <Button x:Name="btnRemove" Content="Remove Toy" HorizontalAlignment="Left" Height="46" Margin="560,183,0,0" VerticalAlignment="Top" Width="220" Click="btnRemove_Click"/>
+
+    </Grid>
+</Window>

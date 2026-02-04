@@ -1,0 +1,23 @@
+﻿<Window x:Class="examG.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:examG"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <ListBox x:Name="lbFlights" HorizontalAlignment="Left" Height="243" Margin="25,25,0,0" VerticalAlignment="Top" Width="455" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+        <ComboBox x:Name="cbFlight" HorizontalAlignment="Left" Height="40" Margin="500,26,0,0" VerticalAlignment="Top" Width="205">
+            <ComboBoxItem>Business</ComboBoxItem>
+            <ComboBoxItem>Charter</ComboBoxItem>
+        </ComboBox>
+        <TextBox x:Name="tbPassenger" HorizontalAlignment="Left" Height="40" Margin="500,159,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="205"/>
+        <Button x:Name="btnAddFlight" Content="Add Flight" HorizontalAlignment="Left" Height="45" Margin="500,71,0,0" VerticalAlignment="Top" Width="205" Click="btnAddFlight_Click"/>
+        <Button x:Name="btnAddPassenger" Content="Add Passenger" HorizontalAlignment="Left" Height="45" Margin="500,204,0,0" VerticalAlignment="Top" Width="205" Click="btnAddPassenger_Click"/>
+        <ListBox x:Name="lbTopFlights" HorizontalAlignment="Left" Height="151" Margin="25,273,0,0" VerticalAlignment="Top" Width="455" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+        <Button x:Name="btnTopFlights" Content="Find High Value" HorizontalAlignment="Left" Height="45" Margin="500,273,0,0" VerticalAlignment="Top" Width="205" Click="btnTopFlights_Click"/>
+        <Button x:Name="btnExit" Content="Exit" HorizontalAlignment="Left" Height="45" Margin="500,379,0,0" VerticalAlignment="Top" Width="205" Click="btnExit_Click"/>
+
+    </Grid>
+</Window>

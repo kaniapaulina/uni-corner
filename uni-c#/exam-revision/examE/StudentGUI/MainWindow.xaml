@@ -1,0 +1,29 @@
+﻿<Window x:Class="StudentGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StudentGUI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <TextBlock HorizontalAlignment="Left" Height="40" Margin="20,24,0,0" TextWrapping="Wrap" Text="Students" VerticalAlignment="Top" Width="520"/>
+        <ListBox x:Name="lbStudents" HorizontalAlignment="Left" Height="148" Margin="20,69,0,0" VerticalAlignment="Top" Width="520" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+        
+        <TextBlock HorizontalAlignment="Left" Height="40" Margin="20,231,0,0" TextWrapping="Wrap" Text="Best Students" VerticalAlignment="Top" Width="460"/>
+        <ListBox x:Name="lbBestStudents" HorizontalAlignment="Left" Height="147" Margin="20,277,0,0" VerticalAlignment="Top" Width="520" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+
+        <ComboBox x:Name="cbFoS" HorizontalAlignment="Left" Height="40" Margin="560,84,0,0" VerticalAlignment="Top" Width="200">
+            <ComboBoxItem>Z</ComboBoxItem>
+            <ComboBoxItem>ZiIP</ComboBoxItem>
+            <ComboBoxItem>IiE</ComboBoxItem>
+        </ComboBox>
+
+        <Button x:Name="btnAdd" Content="Add Student" HorizontalAlignment="Left" Height="40" Margin="560,144,0,0" VerticalAlignment="Top" Width="200" Click="btnAdd_Click"/>
+        <Button x:Name="btnGrade" Content="Add Grade" HorizontalAlignment="Left" Height="40" Margin="560,192,0,0" VerticalAlignment="Top" Width="200" Click="btnGrade_Click"/>
+        <Button x:Name="btnBest" Content="Select Best Students" HorizontalAlignment="Left" Height="40" Margin="560,237,0,0" VerticalAlignment="Top" Width="200" Click="btnBest_Click"/>
+        <Button x:Name="btnClose" Content="Close" HorizontalAlignment="Left" Height="40" Margin="560,384,0,0" VerticalAlignment="Top" Width="200" Click="btnClose_Click"/>
+        <TextBlock HorizontalAlignment="Left" Height="40" Margin="560,24,0,0" TextWrapping="Wrap" Text="Field Of Study" VerticalAlignment="Top" Width="200"/>
+
+    </Grid>
+</Window>

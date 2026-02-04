@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36623.8 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "examD", "examD\examD.csproj", "{B65ABC0D-41A0-4CF0-B229-83D4636C875A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputerShopGUI", "ComputerShopGUI\ComputerShopGUI.csproj", "{076F7C14-EE85-4AA6-8B65-FDC04D2D448D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B65ABC0D-41A0-4CF0-B229-83D4636C875A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B65ABC0D-41A0-4CF0-B229-83D4636C875A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B65ABC0D-41A0-4CF0-B229-83D4636C875A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B65ABC0D-41A0-4CF0-B229-83D4636C875A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{076F7C14-EE85-4AA6-8B65-FDC04D2D448D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{076F7C14-EE85-4AA6-8B65-FDC04D2D448D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{076F7C14-EE85-4AA6-8B65-FDC04D2D448D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{076F7C14-EE85-4AA6-8B65-FDC04D2D448D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {54698605-763E-41AD-8EEB-EAC92B8AD91E}
+	EndGlobalSection
+EndGlobal

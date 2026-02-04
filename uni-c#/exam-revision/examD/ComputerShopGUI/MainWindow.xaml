@@ -1,0 +1,26 @@
+﻿<Window x:Class="ComputerShopGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ComputerShopGUI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <TextBlock x:Name="tbSum" HorizontalAlignment="Left" Height="40" Margin="340,24,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="420"/>
+        <TextBlock x:Name="tbName" HorizontalAlignment="Left" Height="40" Margin="20,24,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="300"/>
+        
+        <ListBox x:Name="lbComp" HorizontalAlignment="Left" Height="315" Margin="20,84,0,0" VerticalAlignment="Top" Width="380" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+        
+        <Button x:Name="btnSort" Content="Sort" HorizontalAlignment="Left" Height="40" Margin="440,177,0,0" VerticalAlignment="Top" Width="300" Click="btnSort_Click"/>
+
+        <ComboBox x:Name="cbEnum" HorizontalAlignment="Left" Height="45" Margin="440,254,0,0" VerticalAlignment="Top" Width="300">
+            <ComboBoxItem>SATA</ComboBoxItem>
+            <ComboBoxItem>SAS</ComboBoxItem>
+            <ComboBoxItem>NLSAS</ComboBoxItem>
+            <ComboBoxItem>SSD</ComboBoxItem>
+        </ComboBox>
+        <Button x:Name="btnFInd" Content="Find" HorizontalAlignment="Left" Height="48" Margin="440,304,0,0" VerticalAlignment="Top" Width="300" Click="btnFInd_Click"/>
+
+    </Grid>
+</Window>
