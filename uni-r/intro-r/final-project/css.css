@@ -1,0 +1,74 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #4a4a4a;
+}
+
+slides > slide {
+    background-color: #f7f7f7;
+}
+
+slides > slide h1 {
+    color: #ce5a9c;
+    border-bottom: 2px solid #77DD77;
+    padding-bottom: 10px;
+}
+
+slides > slide h3 {
+    color: #77DD77;
+    font-weight: bold;
+}
+
+slides > slide:not(.nobackground):before {
+    background: #fcfcfc;
+    color: #ce5a9c;
+}
+
+a {
+    color: #77DD77;
+    text-decoration: none;
+}
+a:hover {
+    color: #ce5a9c;
+    text-decoration: underline;
+}
+
+blockquote {
+    border-left: 5px solid #77DD77;
+    background-color: #C1E1C1;
+    padding: 10px 15px;
+    font-style: italic;
+    color: #333;
+}
+
+code {
+    color: #ce5a9c;
+    background-color: #fcecf4;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+strong {
+    color: #ce5a9c;
+}
+
+table {
+    width: 100%;
+    margin: 15px 0;
+    border-collapse: collapse;
+}
+
+slides > slide table th {
+    background-color: #ce5a9c !important; 
+    color: white !important;
+    padding: 8px;
+    border: 1px solid #ce5a9c;
+}
+
+table td {
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+table tr:nth-child(odd) {
+    background-color: #f2f2f2;
+}

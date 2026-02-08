@@ -1,0 +1,21 @@
+#sidebar {
+	background-color: #c2c2d6;
+}
+
+#navbar {
+	background-color: #c2c2d6;
+}
+
+#mydiv1 {
+	vertical-align: middle;
+}
+
+#myspan1 {
+	font-family: open sans,Geneva,sans-serif;
+	color:#666699; 
+	text-shadow: 1px 1px 0 yellow;
+}
+           
+body, label, input, button, select { 
+	font-family: "Arial";
+}

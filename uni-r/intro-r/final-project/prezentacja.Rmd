@@ -1,0 +1,225 @@
+---
+title: "Analiza Sprzedaży Konsol do Gier"
+subtitle: "Projekt zaliczeniowy: Programowanie w R"
+author: "Natalia Kruk, Paulina Kania, IiE sem. III"
+date: "2025/2026"
+output:
+  ioslides_presentation:
+    css: css.css
+    incremental: true
+    widescreen: true
+---
+```{r setup, include=FALSE}
+# kocham kradziez
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 9, fig.height = 5)
+
+# musisz wczytac pakiety by pozniej dzialaly w chunkach kodu
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(DT)
+
+console_data <- read.csv("konsole.csv")
+
+colnames(console_data) <- c("Pozycja", "Konsola", "Ameryka_Polnocna", "Europa", 
+                            "Japonia", "Reszta_Swiata", "Sprzedaz_Globalna")
+
+console_data$Producent <- case_when(
+  grepl("PlayStation|PS[0-9]|PSP|PSV", console_data$Konsola) ~ "Sony",
+  grepl("Nintendo|GameBoy|NES|SNES|N64|Wii|Switch", console_data$Konsola) ~ "Nintendo", 
+  grepl("Xbox|X360|XOne", console_data$Konsola) ~ "Microsoft",
+  grepl("Sega|Genesis|Master System|Saturn|Dreamcast", console_data$Konsola) ~ "Sega",
+  TRUE ~ "Inni"
+)
+
+# (sd/mean)
+console_data$Zrównowazenie <- apply(console_data[, 3:6], 1, function(x) {
+  if(mean(x) == 0) return(0)
+  sd(x)/mean(x)
+})
+```
+
+## Wprowadzenie ☆*: .｡. o(≧▽≦)o .｡.:*☆
+### Cel naszego projektu 
+Przeprowadzenie interaktywnej analizy historycznej sprzedaży konsol do gier wideo, identyfikacja trendów rynkowych i sukcesów regionalnych.
+
+### Pomysł na projekt
+Chciałyśmy wybrać dane łączące nasze pasje i zainteresowania z tematyką naszych studiów i przedmiotu, czyli obroty finansowe rynku konsolowego.
+
+**Pytania badawcze**
+
+-- Które konsole miały najbardziej zrównoważoną sprzedaż międzynarodową?
+
+-- Czy istnieje korelacja między sukcesem w Japonii a sukcesem globalnym?
+
+-- Który producent ma najbardziej stabilną sprzedaż między generacjami?
+
+
+
+## ☆ Źródło i Struktura 
+
+* **Źródło Danych:** [VGChartz](https://www.vgchartz.com/charts/platform_totals/Hardware.php)
+
+* **Zakres:** Sprzedaż w milionach jednostek od początków rynku (1972) do października 2025 roku.
+
+* **Kategorie Regionalne:** Ameryka Północna, Europa, Japonia, Reszta Świata.
+
+* **Obrobione Dane:** Obejmują 30 najważniejszych platform plus agregację "Inne" (łączna sprzedaż 52 mniejszych platform ).
+
+```{r source, echo=F}
+tab_display <- console_data %>%
+  select(Konsola, Producent, Ameryka_Polnocna, Europa, Sprzedaz_Globalna) %>%
+  head(2)
+knitr::kable(tab_display, caption = "Pierwsze 2 wiersze finalnej tabeli (mln sztuk)", row.names = FALSE)
+```
+
+
+
+
+## ☆ Wskaźniki i Przetwarzanie
+
+### **1. Przetwarzanie i Czyszczenie Danych**
+* **Pobieranie:** Wykorzystanie pakietów **`XML`** i **`httr`** do parsowania tabeli HTML ze strony VGChartz.
+    * Użycie `GET(theurl, user_agent("Mozilla"))` by uzyskać zawartość strony.
+* **Czyszczenie:**
+    * Zastąpienie brakujących wartości **"N/A"** zerami (`"0"`) w kolumnach regionalnych.
+    * Zmiana typu kolumn sprzedaży na numeryczny (`as.numeric()`).
+* **Agregacja:** Stworzenie wiersza **"Inne"** z sumy sprzedaży (kolumny 31-82), co upraszcza analizę głównych platform.
+* **Kategoryzacja:** Przypisanie każdej konsoli do **Producenta** (`Sony`, `Nintendo`, `Microsoft`, `Sega`, `Inni`) za pomocą funkcji `case_when()`.
+
+##
+
+### **2. Wskaźnik Zrównoważenia Sprzedaży**
+> Służy do oceny, jak równomiernie dana konsola sprzedawała się w różnych regionach świata.
+
+* **Definicja:** Współczynnik zmienności (ang. *Coefficient of Variation*).
+    $$Wskaźnik  Zrównoważenia = \frac{\sigma_{reg}}{\bar{x}_{reg}}$$
+    * $\sigma_{reg}$: Odchylenie standardowe sprzedaży regionalnej
+    * $\bar{x}_{reg}$: Średnia sprzedaż regionalna
+* **Interpretacja:** **Niska wartość** $\implies$ bardziej równomierny rozkład sprzedaży między regionami.
+
+
+
+## ☆ Analiza: Globalni Liderzy
+
+> Analiza odpowiada na pytanie: Jak zmieniała się siła sprzedaży konsol na przestrzeni lat?.
+
+```{r global-ranking, echo=FALSE, fig.align='center'}
+top_data <- head(console_data[order(-console_data$Sprzedaz_Globalna), ], 10)
+ggplot(top_data, aes(x = reorder(Konsola, Sprzedaz_Globalna), 
+                     y = Sprzedaz_Globalna, 
+                     fill = Producent)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Top 10 najlepiej sprzedających się konsol",
+       x = "Konsola", y = "Sprzedaż globalna (mln)") +
+  scale_fill_brewer(palette = "RdPu") +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "bottom")
+```
+
+
+
+## ☆ Analiza: Zrównoważenie Sprzedaży
+> Analiza odpowiada na pytanie: Które konsole miały najbardziej zrównoważoną sprzedaż międzynarodową? (Konsole o najniższym wskaźniku Zrównoważenia: SD/Mean)
+
+```{r balance, echo=FALSE, fig.align='center'}
+balanced_data <- head(console_data[order(console_data$Zrównowazenie), ], 10)
+balanced_data$Zrównowazenie <- round(balanced_data$Zrównowazenie, 4)
+
+ggplot(balanced_data, aes(x = reorder(Konsola, -Zrównowazenie), 
+                                     y = Zrównowazenie, 
+                                     fill = Producent)) +
+        geom_col() +
+        coord_flip() +
+        labs(title = "Top 10 Konsol z Najbardziej Zrównoważoną Sprzedażą",
+             subtitle = "Mniejsza wartość (sd/mean) = bardziej zrównoważona sprzedaż",
+             x = "Konsola", y = "Wskaźnik Zrównoważenia (sd/mean)") +
+        scale_fill_brewer(palette = "PRGn") +
+        theme_minimal(base_size = 14) +
+        theme(legend.position = "bottom")
+```
+
+## ☆ Analiza: Korelacje Między Regionami
+
+>Czy sukces w Japonii koreluje z sukcesem globalnym?
+
+Wniosek: Rynek Japoński ma najniższe historyczne korelacje z rynkami zachodnimi ($\approx 0.54 - 0.58$).
+
+```{r correlation, echo=FALSE}
+required_cols <- c("Ameryka_Polnocna", "Europa", "Japonia", "Reszta_Swiata")
+correlation_matrix <- cor(console_data[, required_cols])
+
+ggplot(data = as.data.frame(as.table(correlation_matrix)), 
+       aes(x = Var1, y = Var2, fill = Freq)) +
+  geom_tile() +
+  geom_text(aes(label = round(Freq, 2)), color = "black", size = 5) +
+  scale_fill_gradient2(low = "pink", high = "darkgreen", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab", 
+                       name = "Korelacja") +
+  labs(title = "Macierz Korelacji Między Regionami Sprzedaży", x = "", y = "") +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+## ☆ Analiza: Statystyki Producentów
+
+>Który producent ma najbardziej stabilną sprzedaż między generacjami?
+Stabilność mierzymy Średnią Sprzedażą na Konsolę.
+
+```{r producer, echo=FALSE}
+producer_stats <- console_data %>%
+  group_by(Producent) %>%
+  summarise(
+    Liczba_Konsol = n(),
+    Sprzedaz_Total = round(sum(Sprzedaz_Globalna), 1),
+    Srednia_Sprzedaz_na_Konsolę = round(mean(Sprzedaz_Globalna), 2),
+    Udział_w_Rynku_Proc = round(sum(Sprzedaz_Globalna) / sum(console_data$Sprzedaz_Globalna) * 100, 1)
+  ) %>%
+  arrange(desc(Sprzedaz_Total))
+knitr::kable(producer_stats, caption = "Podsumowanie sprzedaży według producentów (mln)")
+```
+
+## ☆ Analiza: Hity Regionalne (Rekordy)
+
+>Które konsole były "hitami" w konkretnych regionach?
+
+```{r hit, echo=FALSE}
+top_region_data <- data.frame(
+  Region = c("Ameryka_Polnocna", "Europa", "Japonia", "Reszta_Swiata"),
+  Konsola = c(console_data$Konsola[which.max(console_data$Ameryka_Polnocna)],
+              console_data$Konsola[which.max(console_data$Europa)],
+              console_data$Konsola[which.max(console_data$Japonia)],
+              console_data$Konsola[which.max(console_data$Reszta_Swiata)]),
+  Sprzedaz = c(max(console_data$Ameryka_Polnocna), max(console_data$Europa), 
+               max(console_data$Japonia), max(console_data$Reszta_Swiata))
+)
+
+ggplot(top_region_data, aes(x = Region, y = Sprzedaz, fill = Region)) +
+  geom_col() +
+  geom_text(aes(label = paste0(Konsola, "\n(", round(Sprzedaz, 1), " mln)")), vjust = 1.5, size = 5, color = "white") +
+  labs(title = "Rekordy Sprzedaży w Poszczególnych Regionach",
+       x = "Region", y = "Sprzedaż (mln)") +
+  scale_fill_brewer(palette = "PiYG") +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "none")
+```
+
+
+## ☆ Opis Wybranych Funkcji i Pakietu {.smaller}
+```{r funcs, echo=FALSE}
+funkcje_df <- data.frame(
+  Pakiet = c("httr", "XML", "dplyr", "ggplot2", "DT"),
+  Autor_Pakietu = c("Hadley Wickham", "Duncan Temple Lang", "Hadley Wickham", "Hadley Wickham", "Yihui Xie, Joe Cheng, Alan Dipert, Heidi Schubert"),
+  Funkcja_Metoda = c("GET(url, ...)", "readHTMLTable(doc)", "case_when(...)", "coord_flip()", "datatable(...)"),
+  Zastosowanie_w_Projekcie = c(
+    "Wykonuje żądanie HTTP GET. Kluczowa do pobrania surowego kodu HTML strony VGChartz (z użyciem user_agent).",
+    "Parsuje kod HTML i konwertuje znalezioną tabelę do ramki danych R. Automatyzuje wczytywanie danych z internetowej tabeli.",
+    "Umożliwia efektywną kategoryzację konsol przez przypisanie ich do Producenta na podstawie dopasowania ciągu znaków.",
+    "Odwraca osie na wykresie słupkowym, zamieniając słupki pionowe na poziome, co zwiększa czytelność długich nazw konsol.",
+    "Tworzy interaktywne tabele w aplikacji Shiny. Umożliwia sortowanie, filtrowanie i paginację danych bezpośrednio w przeglądarce."
+  )
+)
+knitr::kable(funkcje_df, caption = "Opis wybranych funkcji i pakietów", row.names = FALSE)
+```

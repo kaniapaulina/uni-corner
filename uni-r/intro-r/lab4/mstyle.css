@@ -1,0 +1,39 @@
+slides > slide.backdrop {
+  background-image: linear-gradient(to top, #ecd8e3 5%, #d8e3ec 99%, #9fb9d2 100%);
+}
+
+slides > slide.title-slide hgroup h1 {
+  font-family: "Century Gothic";
+  font-weight: bold;
+}
+
+slides > section h1 {
+  font-family: "Risque", sans-serif;
+  font-weight: bold;
+}
+
+.cited {
+    margin: auto;
+    background: #e3ecd8;
+    color: rgb(0, 153, 51);
+    font-size: 12pt;
+    text-align:center;
+}
+
+.footer {
+    margin: auto;
+    background: #e3ecd8;
+    color: rgb(255, 0, 0);
+    font-size: 12pt;
+    text-align:center;
+    width:90%;
+    position: absolute;
+    bottom: 23px;
+    line-height: 1.9;
+}
+
+.format1 {
+  font-family: Museo;
+  font-size: 0.8em;
+  color: rgb(0, 0, 153); 
+}
