@@ -43,4 +43,4 @@ tab
 #Jak zmieniała się geografia sprzedaży konsol na przestrzeni lat?
 #Które konsole były "hitami" w konkretnych regionach?
 
-write.csv(tab,file='C:/Users/Nietoperek/Desktop/STUDIA!!!!!!!!!/2 rok/Cwiczenia R/konsole.csv', row.names=FALSE)
+write.csv(tab,file='konsole.csv', row.names=FALSE)

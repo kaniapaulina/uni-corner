@@ -1,109 +1,106 @@
-# Paulina Kania 
+# --------------------------------------------------------------------------
+# Temat: Zadania domowe 2 - Macierze, ramki danych i operacje na listach
+# --------------------------------------------------------------------------
 
-# -
-# zadanie 1
+# --- Zadanie 1: Macierz nxn z liczbami 1:n na przekątnych
 set.seed(11)
-n <- sample(seq(5,29, by=2), 1, replace=F)
-B <- matrix(0, nrow=n, ncol=n)
+n <- sample(seq(5, 29, by = 2), 1)
+B <- matrix(0, nrow = n, ncol = n)
 diag(B) <- 1:n
-indeks <- cbind(1:n, n:1)
-B[indeks] <- 1:n
-print(B) #odp
+B[cbind(1:n, n:1)] <- 1:n
+print(B)
 
-# -
-# zadanie 2
+# --------------------------------------------------------------------------
+# --- Zadanie 2: Mnożenie macierzy C i D (ziarno 41)
 set.seed(41)
-C <- matrix(runif(50,2,5), nrow=5, ncol=10)
-D <- matrix(runif(50,2,5), nrow=5, ncol=10)
-CTD <- t(C) %*% D
-print(CTD) #odp
-CDT <- tcrossprod(C, D)
-print(CDT) #odp
+C <- matrix(runif(50, 2, 5), nrow = 5, ncol = 10)
+D <- matrix(runif(50, 2, 5), nrow = 5, ncol = 10)
 
-# -
-# zadanie 3
-x <- as.vector(c(C,D))
+# (a) Iloczyn C^T * D
+print(t(C) %*% D)
+
+# (b) Iloczyn C * D^T przy użyciu crossprod
+print(crossprod(t(C), t(D)))
+
+# --------------------------------------------------------------------------
+# --- Zadanie 3: Wektor z brakującymi danymi (NA)
+x_vec <- as.vector(c(C, D))
 set.seed(40)
-indeks <- sample(length(x),20,replace=F)
-x[indeks] <- NA
-print(mean(x, na.rm = TRUE)) #odp
-print(sd(x, na.rm = TRUE)) #odp
+x_vec[sample(length(x_vec), 20)] <- NA
 
-# -
-# zadanie 4
-m1 <- outer(0:9, 0:9, function(i, j) (i + j) %% 10)
-m2 <- outer(0:8, 0:8, function(i, j) (i - j) %% 9)
-print(m1) #odp
-print(m2) #odp
+# (a-b)
+print(mean(x_vec, na.rm = TRUE))
+print(sd(x_vec, na.rm = TRUE))
 
-# -
-# zadanie 5
+# --------------------------------------------------------------------------
+# --- Zadanie 4: Specyficzne struktury macierzy (outer)
+# (a)
+m4a <- outer(0:9, 0:9, function(a, b) (a + b) %% 10)
+print(m4a)
+
+# (b)
+m4b <- outer(0:8, 0:8, function(a, b) (10 - (a + b)) %% 11)
+print(m4b)
+
+# --------------------------------------------------------------------------
+# --- Zadanie 5: Dwa największe elementy w wierszach
 set.seed(31)
 G <- matrix(sample(-20:20, 200, replace = TRUE), 20, 10)
-print(G) #odp
-#print(t(apply(G, 1, function(x) sort(x, decreasing = TRUE)[1:2])))
-sortG <- t(apply(G, 1, sort, decreasing=T))
-print(sortG[,1:2]) #odp
+print(G)
 
-# -
-# zadanie 6
+print(t(apply(G, 1, function(x) sort(x, decreasing = TRUE)[1:2])))
+
+# --------------------------------------------------------------------------
+# --- Zadanie 6: Pary kolumn o sumie > 75
 set.seed(31)
-E <- matrix(sample(1:10, 60, replace=T), nrow=6, ncol=10)
-suma <- colSums(E)
-razem <- outer(suma, suma, "+")
-pary <- which(razem > 75, arr.ind = T)
-ColPar <- cbind(pary[, "row"], pary[, "col"])
-colnames(ColPar) <- c("K1", "K2")
-print(ColPar) #odp
-uniqPar <- ColPar[ColPar[, "K1"] < ColPar[, "K2"], , drop = FALSE]
-print(uniqPar) #odp
+E <- matrix(sample(1:10, 60, replace = TRUE), nrow = 6, ncol = 10)
+s_cols <- colSums(E)
+razem <- outer(s_cols, s_cols, "+")
 
-# -
-# zadanie 7
+# (a)
+pary <- which(razem > 75, arr.ind = TRUE)
+print(pary)
+
+# (b)
+print(pary[pary[, 1] < pary[, 2], ])
+
+# --------------------------------------------------------------------------
+# --- Zadanie 7: Tworzenie ramki danych dane.stud (ziarno 27)
 set.seed(27)
-x <- sample(20:27, 200, replace = T)
-print(x) #odp
-y <- character(20)
-wiek <- x <= 22
-y[wiek] <- sample(c("lic", "inż."), sum(wiek), replace = T, prob = c(.4, .6))
-y[!wiek] <- sample(c("mgr", "mgr inż."), sum(!wiek), replace = T, prob = c(.3, .7))
-print(y) #odp
-z <- sample(c("Kraków", "Warszawa", "Katowice", "Rzeszów", "Częstochowa"), 200, replace = T)
-print(z) #odp
-dane.stud <- data.frame(
-  wiek = x, 
-  wykształcenie = y, 
-  adres = z)
-print(dane.stud) #odp
+x_wiek <- sample(20:27, 200, replace = TRUE)
+y_wykszt <- character(200)
 
-# -
-# zadanie 8
-print(nrow(dane.stud[complete.cases(dane.stud),])) #odp
-print(sum(!duplicated(dane.stud))) #odp
-print(table(dane.stud$wiek)) #odp
 
-# -
-# zadanie 9
-print(subset(dane.stud, wiek > 20 & adres %in% c("Kraków", "Warszawa"), select = c("wiek", "adres"))) #odp
-print(subset(dane.stud, wiek > 20 & adres %in% c("Kraków", "Warszawa"))) #odp
+idx_mlodzi <- x_wiek <= 22
+y_wykszt[idx_mlodzi] <- sample(c("lic", "inż."), sum(idx_mlodzi), replace = TRUE, prob = c(0.4, 0.6))
+y_wykszt[!idx_mlodzi] <- sample(c("mgr", "mgr inż."), sum(!idx_mlodzi), replace = TRUE, prob = c(0.3, 0.7))
 
-#zad10
-library(gridExtra)
-agg <- aggregate(wiek ~ adres + wykształcenie, dane.stud, mean)
-agg$wiek <- round(agg$wiek, 2)
-wide <- reshape(agg, idvar = "wykształcenie", timevar = "adres", direction = "wide")
-colnames(wide) <- gsub("wiek.", "", colnames(wide))
-rownames(wide) <- wide$wykształcenie
-wide$wykształcenie <- NULL
-grid.table(wide)
+z_miasta <- sample(c("Kraków", "Warszawa", "Katowice", "Rzeszów", "Częstochowa"), 200, replace = TRUE)
 
-#zad11
+dane.stud <- data.frame(wiek = x_wiek, wykształcenie = y_wykszt, adres = z_miasta)
+print(dane.stud)
+
+# --------------------------------------------------------------------------
+# --- Zadanie 8: Analiza ramki danych
+print(nrow(dane.stud[complete.cases(dane.stud), ])) 
+print(sum(!duplicated(dane.stud)))
+print(table(dane.stud$wiek))
+
+# --------------------------------------------------------------------------
+# --- Zadanie 9: Filtrowanie subset()
+# (a)
+print(subset(dane.stud, wiek > 20 & adres %in% c("Kraków", "Warszawa"), select = c("wiek", "adres")))
+
+# (b)
+print(subset(dane.stud, wiek > 20 & adres %in% c("Kraków", "Warszawa")))
+
+# --------------------------------------------------------------------------
+# --- Zadanie 11 & 12: Listy i sumowanie składowych
 set.seed(23)
-lista1 <- lapply(1:6, runif, min=2, max=8)
-print(lista1) #odp
+lista1 <- lapply(1:6, function(n) runif(n, 2, 8))
+lista2 <- lapply(1:6, function(n) runif(n, 2, 8))
+lista_suma <- mapply("+", lista1, lista2)
 
-#zad12
-lista2 <-   lapply(1:6, runif, min=2, max=8)
-sum_list <- mapply("+", lista1, lista2)
-print(lista2) #odp
-print(sum_list) #odp
+print(lista1)     
+print(lista2)     
+print(lista_suma) 

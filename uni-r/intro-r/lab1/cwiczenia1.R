@@ -1,140 +1,139 @@
+# --------------------------------------------------------------------------
+# Temat: Ćwiczenia 1 - Podstawy języka R (typy danych, wektory i listy)
+# --------------------------------------------------------------------------
 
-# Paulina Kania 09.10.2025
+# --- Zadanie 1: Generowanie wektorów
+# (a)
+a1 <- c(55, 22, 1:200, 13)
 
-# - - - - - - - - - - - -
-#zad1
-a1<-c(55,22,1:200,13)
-b1<-rep(c(4,6,3),10)
-c1<-rep(3:9,each=3)
-d1<-seq(-5,5,length.out=100)
+# (b)
+b1 <- rep(c(4, 6, 3), times = 10)
 
+# (c)
+c1 <- rep(3:9, each = 3)
+
+# (d)
+d1 <- seq(-5, 5, length.out = 100)
+
+# (e)
 set.seed(111)
-e1<-sample(1:99,30)
+e1 <- sample(1:99, 30)
 
-#replace - by mogl kilkukrotnie wyliczyc ta sama liczbe
-f1<-sample(c(0,1),99,replace=T, prob=c(0.3,0.7))
+# (f)
+f1 <- sample(c(0, 1), 99, replace = TRUE, prob = c(0.3, 0.7))
 
-print()
+# --------------------------------------------------------------------------
+# --- Zadanie 2: Operacje na wektorach
+set.seed(123)
+x <- sample(0:9, 150, replace = TRUE)
+y <- sample(0:9, 150, replace = TRUE)
 
-class()
-typeof()
-length()
-sum()
-mean()
-quantile()
-sd() #odchylenie standardowe
-quantile(x)[4]-quantile(x)[2] #rozstep miedzykwartylny
-mad(x)
-sd(x)/sqrt(length(x))
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-#zad2
-(x<-sample(0:9,150,replace=T))
-(y<-sample(0:9,150,replace=T))
+# (a)
+res2a <- exp(x) * cos(y)
 
-a2<-exp(x)*cos(y)
-print(a2)
+# (b)
+# y[2:150] to y2...yn, x[1:149] to x1...xn-1
+res2b <- y[2:150] - x[1:149]
 
-b2<-y[1:149]-x[2:150]
-print(b2)
+# (c)
+res2c <- sin(y[1:149]) / cos(x[2:150])
 
-c2<-sin(y[1:149])/cos(x[2:150])
-print(c2)
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-#zad3
-x<-c(10:100)
-a3<-x^3+4*x^2
-print(sum(a3))
+# --------------------------------------------------------------------------
+# --- Zadanie 3: Sumy szeregów
+# (a)
+i_seq <- 10:100
+res3a <- sum(i_seq^3 + 4 * i_seq^2)
 
-i<-rep(1:20, each=5)
-j<-c(1:5)
+# (b)
+i_vals <- rep(1:20, each = 5)
+j_vals <- rep(1:5, times = 20)
+res3b <- sum((2^i_vals / i_vals) + (3^j_vals / j_vals))
 
-b3<-sum((2^i/i+3^j/j))
-print(b3)
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-#zad4
-x<-sample(0:99,60)
-y<-sample(0:99,60)
+# --------------------------------------------------------------------------
+# --- Zadanie 4: Przeszukiwanie i filtrowanie
+set.seed(444)
+x <- sample(0:99, 60)
+y <- sample(0:99, 60)
 
-print(y[y>60])
-print(which(y>60))
-print(x[y>60])
+# (a-c) 
+vals_gt_60 <- y[y > 60]          # Wartości y > 60
+idx_gt_60  <- which(y > 60)      # Indeksy y > 60
+x_matching <- x[y > 60]          # Elementy x na pozycjach gdzie y > 60
 
-m<-mean(x)
-print(c(sqrt(abs(x-m))))
+# (d) 
+m <- mean(x)
+res4d <- sqrt(abs(x - m))
 
-print(sort(y))
-print(x[order(y)])
+# (e) 
+x_sorted_by_y <- x[order(y)]
 
-i<-seq(1,60,b=3)
-print(y[i])
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-#zad5
-x<-sample(10:100,60)
-print(any(x>90))
-print(all(x>85))
-print(sum(x>90))
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-#zad6
-x<-c(1,seq(2,38,by=2))
-x
-y<-seq(1,39,by=2)
-y
-print(sum(cumprod(x/y)))
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-#zad7
-x<-runif(500,3,5)
-y<-rnorm(500) #standard: 0,1
-print(mean(x))
-print(mean(y))
-print(sd(y))
-print(var(y))
+# (f) co trzeci element
+res4f <- y[seq(1, length(y), by = 3)]
 
-hist(x)
-hist(y, col="lightblue", border="purple")
-hist(x, col="lightblue", border="purple", breaks=21)
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-#zad9
-napis<-c( "Katedra", "Informatyki", "Biznesowej", "i", "Inżynierii", "Zarządzania", "WZ", "AGH", 2022)
-print(length(napis))
-print(class(napis))
-print(sapply(napis,nchar))
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-#zad10
-x<-c(2,3,5)
-y<-c("aa", "bb", "cc", "dd", "ee")
-z<-c(TRUE, FALSE, TRUE, FALSE, FALSE)
-l1<-list(x=x,y=y,z=z)
-print(l1[[2:3]])
-print(l1[2])
-print(l1[-2])
-print(names(l1))
-names(l1)<-c("V1","V2","V3")
-print(names(l1))
-print(l1$V1)
-l1$V4<-c(1:10)
-print(l1)
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-# - - - - - - - - - - - -
-#zad11
-l1<-lapply(1:6,runif,min=2,max=8)
-l1
-l2<-lapply(1:6,runif,min=2,max=8)
-l2
-#mapply do reszty zadanka
+# --------------------------------------------------------------------------
+# --- Zadanie 5: Funkcje any() i all()
+vec5 <- sample(10:100, 60)
+has_gt_95 <- any(vec5 > 95)      
+all_gt_85 <- all(vec5 > 85)      
+
+# --------------------------------------------------------------------------
+# --- Zadanie 6: Skomplikowany szereg
+# Obliczanie sumy iloczynów: 1 + 2/3 + (2/3 * 4/5) + ...
+nums <- seq(2, 38, by = 2)
+dens <- seq(3, 39, by = 2)
+res6 <- 1 + sum(cumprod(nums / dens))
+
+# --------------------------------------------------------------------------
+# --- Zadanie 7: Rozkłady prawdopodobieństwa i statystyki ---
+xu35 <- runif(500, 3, 5)   # Rozkład jednostajny
+xn01 <- rnorm(500)         # Rozkład normalny standardowy, N(0,1)
+
+# Statystyki opisowe dla xn01
+avg_n   <- mean(xn01)
+sd_n    <- sd(xn01)
+var_n   <- var(xn01)
+
+# Wizualizacja
+par(mfrow = c(1, 2)) #
+hist(xu35, col = "lightblue", main = "Histogram: Jednostajny")
+boxplot(xn01, col = "lightgreen", main = "Boxplot: Normalny")
+par(mfrow = c(1, 1)) 
+
+# --------------------------------------------------------------------------
+# --- Zadanie 8: Napisy 
+labels_a <- paste("label", 1:50)     # Ze spacją 
+labels_b <- paste0("fn", 1:50)      # Bez spacji 
+
+# --------------------------------------------------------------------------
+# --- Zadanie 9: Operacje na napisach 
+napis <- c("Katedra", "Informatyki", "Biznesowej", "i", 
+           "Inżynierii", "Zarządzania", "WZ", "AGH", 2022)
+
+len_napis <- length(napis)
+type_napis <- class(napis)
+chars_count <- nchar(napis)
+
+# --------------------------------------------------------------------------
+# --- Zadanie 10: Listy 
+a <- c(2, 3, 5)
+b <- c("aa", "bb", "cc", "dd", "ee")
+c <- c(TRUE, FALSE, TRUE, FALSE, FALSE)
+
+xlist <- list(a = a, b = b, c = c)
+
+# (a-c)
+elem_2_3 <- xlist[2:3]             
+content_b <- xlist[[2]]          
+minus_2 <- xlist[-2]              
+
+# (d-g)
+names(xlist) <- c("V1", "V2", "V3")
+val_v1 <- xlist$V1
+xlist$V4 <- 1:10
+
+# --------------------------------------------------------------------------
+# --- Zadanie 11: lapply i mapply 
+l1 <- lapply(1:6, function(n) runif(n, 2, 8))
+l2 <- lapply(1:6, function(n) runif(n, 2, 8))
+
+l_sum <- mapply("+", l1, l2)

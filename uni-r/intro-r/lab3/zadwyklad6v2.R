@@ -1,10 +1,14 @@
+# --------------------------------------------------------------------------
+# Temat: Web scraping (tym razem działające)
+# --------------------------------------------------------------------------
+
 library(rvest)
 library(dplyr)
 library(ggplot2)
 library(stringr)
 library(tidyr)
 
-# 1. Pobieranie danych z pełnej tabeli gier na Nintendo Switch
+# Pobieranie danych z pełnej tabeli gier na Nintendo Switch
 url <- "https://en.wikipedia.org/wiki/List_of_best-selling_Nintendo_Switch_video_games"
 page <- read_html(url)
 

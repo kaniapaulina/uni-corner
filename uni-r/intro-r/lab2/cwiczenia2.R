@@ -1,96 +1,90 @@
-  # Paulina Kania
+# --------------------------------------------------------------------------
+# Temat: Ćwiczenia 2 - Generowanie danych, macierze i ramki danych
+# --------------------------------------------------------------------------
 
-# ---------------------
-# ---------------------
-
-# zadanie 1
+# --- Zadanie 1: Generowanie wektorów 101-elementowych
 set.seed(111)
 
-cs <- seq(0.5,60, length.out=101)
-cp <- seq(356,480, length.out=101)
-odp <- sample(c("tak", "nie", "nie_wiem"), 101, replace=TRUE, prob=c(.5,.3,.2))
-wynik <- rnorm(101, mean=65, sd=15)
-pun <- runif(101,0,200)
-gr <- sample(1:4, 101, replace=TRUE)
+# (a-b)
+cs <- seq(0.5, 60, length.out = 101)
+cp <- seq(356, 480, length.out = 101)
 
-length(cs)
-length(cp)
-typeof(cs)
-typeof(cp)
+# (c)
+odp <- sample(c("tak", "nie", "nie_wiem"), 101, replace = TRUE)
 
-# ---------------------
-# ---------------------
+# (d-f)
+wn  <- rnorm(101, mean = 65, sd = 15)
+pun <- runif(101, 0, 200)
+gr  <- sample(1:4, 101, replace = TRUE)
 
-# zadanie 2
+# --------------------------------------------------------------------------
+# --- Zadanie 2: Operacje na macierzy A (20x10)
+A <- matrix(sample(-20:20, 200, replace = TRUE), nrow = 20, ncol = 10)
 
-A <- matrix(sample(-20:20,200, replace=TRUE),nrow=20)
-A
+# (a-b)
 print(colSums(A))
 print(rowMeans(A))
-print(rowSums(A)[seq(2,20,by=2)])
-#print(rowSUms(A[seq(1,20,by=2,)]))
-print(apply(A,2,max))
-print(apply(A,1,sd))
-print(apply(A[1:20 %% 2==1,],1,var))
-print(apply(A,1,prod))
 
-# ---------------------
-# ---------------------
+# (c) Sumy w wierszach parzystych
+print(rowSums(A[seq(2, 20, by = 2), ]))
 
-# zadanie 3
+# (d-g)
+print(apply(A, 2, max))                             
+print(apply(A, 1, sd)) 
+print(apply(A[seq(2, 20, by = 2), ], 1, var))
+print(apply(A, 1, prod))     
 
-wm <- sample(2:10,10,replace=T)
-m <- sample(8:12,10,replace=T)
-s <- sample(1:4,10,T)
-i <- 1
-x <-list()
-for(i in 1:10) {
-  x[[i]]<- matrix(rnorm(wm[i]*wm[i],m[i],s[i]),nrow=wm[i])
-}
+# --------------------------------------------------------------------------
+# --- Zadanie 3: Lista macierzy o zmiennych parametrach
+# Generowanie parametrów dla 10 macierzy
+dims  <- sample(2:10, 10, replace = TRUE)
+means <- runif(10, 8, 12)
+sds   <- runif(10, 1, 4)
 
-print(lapply(x,dim))
-print(sapply(x,dim))
+# Utworzenie listy macierzy
+x_list <- lapply(1:10, function(i) {
+  matrix(rnorm(dims[i]^2, mean = means[i], sd = sds[i]), nrow = dims[i])
+})
 
-print(det(x[[1]]))
-print(sapply(x[c(1,3)],det))
-# podpunkt c samodzielnie
+# (a-c)
+print(lapply(x_list, dim))
+print(det(x_list[[1]]))
+print(det(x_list[[3]]))
+print(sapply(x_list, det))
 
-# ---------------------
-# ---------------------
+# --------------------------------------------------------------------------
+# --- Zadanie 4: Utworzenie ramki danych
+dane <- data.frame(cs = cs, cp = cp, odp = odp, wn = wn, pun = pun, gr = gr)
+print(head(dane, 10))
 
-# zadanie 4
-dane <- data.frame(cs=cs,cp=cp,odp=odp,wynik=wynik,pun=pun, gr=gr)
-print(head(dane,10))
-dim(dane)
+# --------------------------------------------------------------------------
+# --- Zadanie 5: Dodanie kolumny z datami
+# Generowanie 101 dni od podanej daty
+dane$daty <- seq(as.Date("2025-07-06"), by = "day", length.out = 101)
+print(head(dane, 10))
 
-# zadanie 5
-dane$daty <- seq(as.Date("2025-07-06"), as.Date("2025-10-14"), by="day")
-print(head(dane,10))
-
-# zadanie 6 samodzielnie??
-wiersz <- list(.52, 358.5, "nie", 75, 199.2, 4, as.Date("2025-10-16"))
-dane[102,] <-wiersz
+# --------------------------------------------------------------------------
+# --- Zadanie 6: Dodanie nowego wiersza (rbind)
+nowy_wiersz <- data.frame(cs = 0.52, cp = 358.5, odp = "nie", wn = 75, 
+                          pun = 199.2, gr = 4, daty = as.Date("2025-10-16"))
+dane <- rbind(dane, nowy_wiersz)
 print(tail(dane, 5))
 
-# zadanie 7
-dane[dane$odp=="nie_wiem",]
-dane[dane$wynik>60,]
-print(dane[dane$odp == "nie_wiem" & dane$wynik>60,])
-subset(dane, odp == "nie_wiem" & wynik>60, select=c(wynik,pun))
+# --------------------------------------------------------------------------
+# --- Zadanie 7: Filtrowanie danych (warunki logiczne)
+# Wybór wierszy: nie_wiem oraz wynik > 60
+print(dane[which(dane$odp == "nie_wiem" & dane$wn > 60), ])
 
-# zadanie 8
-print(aggregate(cs~gr, data=dane,mean))
+# --------------------------------------------------------------------------
+# --- Zadanie 8: Agregacja - średni czas spóźnienia na grupę
+print(aggregate(cs ~ gr, data = dane, mean))
 
-# zadanie 9 samodzielnie
+# --------------------------------------------------------------------------
+# --- Zadanie 9: Agregacja - średni wynik dla każdej odpowiedzi
+print(aggregate(wn ~ odp, data = dane, meaan))
 
-# zadanie 10
-library (reshape2)
-?dcast
-print(dcast(dane, gr~odp, mean,value.var = "pun"))
-
-
-#duplikaty
-dane[103,] <- wiersz
-dane[104,] <- wiersz
-dane[105,] <- wiersz
-sum(duplicated(dane)==FALSE)
+# --------------------------------------------------------------------------
+# --- Zadanie 10: Tabela przestawna (reshape2)
+library(reshape2)
+# Średnie punkty dla grup w podziale na odpowiedzi
+print(dcast(dane, gr ~ odp, value.var = "pun", fun.aggregate = mean))

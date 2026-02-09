@@ -1,169 +1,119 @@
-# Paulina Kania
-# funkcje
+# --------------------------------------------------------------------------
+# Temat: Ćwiczenia 6 - Pisanie własnych funkcji w języku R
+# --------------------------------------------------------------------------
 
-# ----------------------
-# ZADANIE 1: minmaxK(x, K)
-minmax <- function (x, k=3) {
+# --- Zadanie 1: Funkcja minmaxK(x, K)
+minmaxK <- function(x, K = 5) {
   stopifnot(is.numeric(x))
+  if (length(x) < K) return("Błąd: wektor jest krótszy niż K")
   
-  if(length(x)<k) {
-    return("za krotki element")
-  }
-  return(c(sort(x)[1:k],sort(x)[(length(x)-k+1):length(x)]))
+  # Zwraca K najmniejszych i K największych elementów
+  return(list(
+    Min = sort(x)[1:K],
+    Max = sort(x, decreasing = TRUE)[1:K]
+  ))
 }
 
-x1 <- sample(1:200, 50, replace=T)
-print(minmax(x1, 5))
+set.seed(123)
+wektor_testowy <- sample(1:4000, 100, replace = TRUE)
+print(minmaxK(wektor_testowy, 5))
 
-# ----------------------
-# ZADANIE 2: 1Dskn1(x) - Liczba Doskonała
+# --------------------------------------------------------------------------
+# --- Zadanie 2: Funkcja lDsknl(x) - Liczby doskonałe
 lDsknl <- function(x) {
-  y<-c(1:ceiling(x/2))
-  if(sum(y[x%%y==0])==x) {
-    return(TRUE)
-  }
-  else {
-    return(FALSE)
-  }
+  dzielniki <- which(x %% seq_len(x/2) == 0)
+  return(sum(dzielniki) == x)
 }
-system.time( s <-sum(sapply(c(1:10000),lDsknl)))
-which(sapply(c(1:10000),lDsknl))
 
-# -------------------------------
-# ZADANIE 3: mynorm(x) - Unitaryzacja
-myNorm <- function(x, na.rm=F) {
+system.time({
+  doskonale <- which(sapply(1:10000, lDsknl))
+})
+print(doskonale)
+
+# --------------------------------------------------------------------------
+# --- Zadanie 3: Funkcja myNorm(x) - Unitaryzacja (normalizacja [0,1])
+myNorm <- function(x, na.rm = FALSE) {
   if (length(na.omit(x)) == 0) return(x)
-  if (max(x, na.rm = na.rm) == min(x, na.rm = na.rm)) return(rep(0, length(x)))
+  min_x <- min(x, na.rm = na.rm)
+  max_x <- max(x, na.rm = na.rm)
   
-  (x - min(x, na.rm = na.rm)) / (max(x, na.rm = na.rm) - min(x, na.rm = na.rm))
+  if (max_x == min_x) return(rep(0, length(x)))
+  return((x - min_x) / (max_x - min_x))
 }
 
-x3<- sample(1:200, 100, replace=T)
-y3<- mynorm(x3, na.rm=T)
-min(x3, na.rm=T)
-min(y3, na.rm=T)
-
-# ----------------------
-# ZADANIE 4: myCorr(x,y) - Korelacje
+# --------------------------------------------------------------------------
+# --- Zadanie 4: Funkcja myCorr(x, y) - Korelacje
 myCorr <- function(x, y) {
-  if (length(x) != length(y)) {
-    return("zła długość")
-  }
+  if (length(x) != length(y)) stop("Błąd: Wektory muszą mieć tę samą długość")
   
-  pearson <- cor(x, y, method = "pearson")
-  kendall <- cor(x, y, method = "kendall")
-  spearman <- cor(x, y, method = "spearman")
-  
-  return(c(Pearson = pearson, Kendall = kendall, Spearman = spearman))
+  return(c(
+    Pearson  = cor(x, y, method = "pearson"),
+    Kendall  = cor(x, y, method = "kendall"),
+    Spearman = cor(x, y, method = "spearman")
+  ))
 }
-x4 <- runif(100, min = 0, max = 5) 
-e4 <- rnorm(100)                    
-y4 <- x4 + e4       
-myCorr(x4,y4)
 
-# ----------------------
-# ZADANIE 5: myStats(x, p)
-myStats <- function(x, p) {
+# --------------------------------------------------------------------------
+# --- Zadanie 5: Funkcja myStats(x, p) - Statystyki opisowe
+myStats <- function(x, p = 0) {
   stopifnot(is.numeric(x), p %in% c(0, 1))
   
   if (p == 0) {
-    return(c(Mean = mean(x), StdDev = sd(x)))
+    return(c(Mean = mean(x), SD = sd(x)))
   } else {
     return(c(Median = median(x), MAD = mad(x)))
   }
 }
 
-print(myStats(x1, p = 0))
-print(myStats(x4, p = 1))
+# --------------------------------------------------------------------------
+# --- Zadanie 6: Funkcja myFun(x) i miejsca zerowe
+myFun <- function(x) 10*sin(1.5*x)*cos(0.5*x^3) + (0.5)*sqrt(abs(x))
 
-# ----------------------
-# ZADANIE 6: myFun(x) i miejsca zerowe
-myFun <- function(x) 10*sin(x)*cos(.5*x^3) + (1/2)*sqrt(abs(x))
-uniroot(myFun, c(1,2))
-uniroot(myFun, c(6,7))
-uniroot(myFun, c(-5,5))
+# (a) Miejsca zerowe w zadanych przedziałach
+print(uniroot(myFun, c(6, 7))$root)
+print(uniroot(myFun, c(1, 2))$root)
 
-# wszytskie miejsca zerowe
+# (b-c) Wizualizacja i wszystkie miejsca zerowe
 library(rootSolve)
+curve(myFun, -3, 3, main = "Wykres myFun i miejsca zerowe", cex.main = 0.8)
+abline(h = 0, lty = 2)
+miejsca <- uniroot.all(myFun, c(-3, 3))
+points(miejsca, rep(0, length(miejsca)), col = "red", pch = 19)
 
-x <- seq(-3,3,.1)
-plot(x, myFun(x), type="l", main="10*sin(x)*cos(.5*x^3) + (1/2)*sqrt(abs(x))", cex.main=0.8)
-wynik <- uniroot.all(myFun, c(-5,5))
-points(wynik, myFun(wynik),col="red", pch=19)
-
-# ----------------------
-# ZADANIE 7: myLin(x) - Układ Liniowy
+# --------------------------------------------------------------------------
+# --- Zadanie 7: myLin(x) - Układ równań liniowych
+library(rootSolve)
 myLin <- function(x) {
-  # sprawdzanie dlugosci x
-  f1 <- 2*x[1] + 1*x[2] - 2*x[3] + 2
-  f2 <- 1*x[1] + 2*x[2] - 2*x[3] - 1
-  f3 <- 2*x[1] + 1*x[2] - 1*x[3] + 3
-  
+  f1 <- 2*x[1] + x[2] - 2*x[3] + 2
+  f2 <- x[1] + 2*x[2] - 2*x[3] - 1
+  f3 <- 2*x[1] + x[2] - x[3] + 3
   return(c(f1, f2, f3))
 }
-multiroot(f=myLin, c(1,1,1))
-myLin(c(3.00, -3.50, 1.75))
+print(multiroot(f = myLin, start = c(1, 1, 1))$root)
 
-# ----------------------
-# ZADANIE 8: myNonLin(x) - Układ Nieliniowy
+# --------------------------------------------------------------------------
+# --- Zadanie 8: myNonLin(x) - Układ równań nieliniowych
 myNonLin <- function(x) {
   f1 <- 2*x[1] + x[2]^2 - 2*x[3] - 2
   f2 <- x[1]^2 + 2*x[2] - 2*x[3] - 3
   f3 <- 2*x[1] + x[2] - x[3] - 3
-  
   return(c(f1, f2, f3))
 }
-multiroot(f=myNonLin, c(2, 1, 2))
+print(multiroot(f = myNonLin, start = c(1, 1, 1))$root)
 
-# ----------------------
-# ZADANIE 9: myDane(url) - Pobieranie i Normalizacja Danych
-library(dplyr)
+# --------------------------------------------------------------------------
+# --- Zadanie 9: myDane(url) - Pobieranie i obróbka danych z Wikipedia
 library(rvest)
-library(tidyr)
-library(scales)
+url <- "https://pl.wikipedia.org/wiki/Lista_najwi%C4%99kszych_przedsi%C4%99biorstw"
 
-url<-"https://pl.wikipedia.org/wiki/Lista_najwi%C4%99kszych_przedsi%C4%99biorstw"
-
-MyDane<-function(x)
-{
-  read_html(x)%>%
-    html_nodes("table")%>%
-    html_table()->tables
-  return(tables)
+myDane <- function(target_url) {
+  html_table(read_html(target_url))[[1]]
 }
 
-dane<-MyDane(url)
-df<-dane[[1]]
-colnames(df)
+df_wiki <- myDane(url)
 
-k4<-gsub("[^[:alnum:]]", "", df$`Przychód(mln $)`, perl = TRUE)
-k4n<-as.numeric(k4)
+# Czyszczenie i konwersja kolumny Przychód (k4)
+czyste_k4 <- as.numeric(gsub("[^0-9.]", "", df_wiki[[4]]))
 
-k6<-df$`Symbol giełdowy`[!is.na(df$`Symbol giełdowy`)]
-k6
-
-remove_outliers <- function(x) {
-  if (length(na.omit(x)) == 0) return(numeric(0))
-  if (!is.numeric(x)) return(x)
-  
-  Q1 <- quantile(x, 0.25, na.rm = TRUE)
-  Q3 <- quantile(x, 0.75, na.rm = TRUE)
-  IQR <- Q3 - Q1
-  lower <- Q1 - 1.5 * IQR
-  upper <- Q3 + 1.5 * IQR
-  
-  x[x >= lower & x <= upper]
-}
-
-k4nbo <- remove_outliers(k4n)
-k4nbo
-
-k4nboNorm<-myNorm(k4nbo, na.rm=F)
-k4nboNorm
-
-k7<-df$Siedziba
-
-wstepnie_zrobione<-data.frame(k4nboNorm, k6[4:length(k6)], k7[4:length(k7)])
-colnames(wstepnie_zrobione) <-c("k4", "k6", "k7")
-wstepnie_zrobione_clean<-wstepnie_zrobione[wstepnie_zrobione$k6 != "", ]
-wstepnie_zrobione_clean
+k4_norm <- myNorm(na.omit(czyste_k4))
+print(head(k4_norm))

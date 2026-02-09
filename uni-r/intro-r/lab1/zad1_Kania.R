@@ -1,93 +1,77 @@
-# Paulina Kania
+# --------------------------------------------------------------------------
+# Temat: Zadanie 1 - wektory i operacje na danych
+# --------------------------------------------------------------------------
 
-# zadanie 1
-a1 <- c(1:20, 19:1)
-print(a1) #odp
+# --- Zadanie 1: Utwórz wektory
+# (a)
+print(c(1:20, 19:1))
 
-b1 <- rep(c(4,6,3), length.out=50)
-length(b1)
-print(b1) #odp
+# (b)
+print(rep(c(4, 6, 3), length.out = 50))
 
-c1 <- rep(c(4, 6, 3), times=c(10,20,30))
-length(c1)
-print(c1) #odp
+# (c)
+print(rep(c(4, 6, 3), times = c(10, 20, 30)))
 
-d1 <- seq(100,4,-8)
-print(d1) #odp
+# (d)
+print(seq(100, 4, by = -8))
 
-e1 <- 0.1^(seq(3, 36, 3)) * 0.2^(seq(1, 34, 3))
-print(e1)  #odp
+# (e) 
+print(0.1^(seq(3, 36, by = 3)) * 0.2^(seq(1, 34, by = 3)))
 
-# --------------------
-# --------------------
-# --------------------
+# --------------------------------------------------------------------------
+# --- Zadanie 2: Utwórz wektor napisów
+# Napisy typu "A_1.B", "X_2.D", "A_3.F" itd. do 30 
+print(paste0(rep(c("A", "X"), 15), "_", 1:30, ".", rep(c("B", "D", "F"), 10)))
 
-# zadanie 2
-a2 <- paste0(rep(c("A","X"), 15), rep("_",30), 1:30, rep(".",30), rep(c("B","D","F"), 10))
-print(a2) #odp
-
-# --------------------
-# --------------------
-# --------------------
-
-# zadanie 3
+# --------------------------------------------------------------------------
+# --- Zadanie 3: Losowanie z ziarnem 50
 set.seed(50)
 
-a3 <- sample(5:15, 100, replace=T)
-print(a3) #odp
+# (a) 100 liczb z zakresu 5-15 ze zwracaniem 
+print(sample(5:15, 100, replace = TRUE))
 
-b3 <- sample(c(LETTERS, letters), 100, replace=T)
-print(b3) #odp
+# (b) 100 małych i dużych liter alfabetu
+print(sample(c(letters, LETTERS), 100, replace = TRUE))
 
-# --------------------
-# --------------------
-# --------------------
-
-# zadanie 4
-set.seed(30)
+# --------------------------------------------------------------------------
+# --- Zadanie 4: Operacje na wektorach x, y (ziarno 30)
+set.seed(30) 
 x <- sample(0:999, 250)
 y <- sample(0:999, 250)
 
-a4 <- x[1:248] + 2*x[2:249] - y[3:250]
-print(a4) #odp
+# (a) 
+print(x[1:248] + 2 * x[2:249] - y[3:250])
 
-b4 <- sum(exp(-x[2:250])/(x[1:249]+10))
-print(b4) #odp
+# (b)
+print(sum(exp(-x[2:250]) / (x[1:249] + 10)))
 
-i<-rep(1:20, each=5)
-j<-c(1:5)
+# (c)
+i_v <- rep(1:20, each = 5)
+j_v <- rep(1:5, times = 20)
+print(sum(i_v^4 / (3 + j_v)))
 
-c4<-sum((i^4/i+3))
-print(c4) #odp
-
-# --------------------
-# --------------------
-# --------------------
-
-# zadanie 5
+# --------------------------------------------------------------------------
+# --- Zadanie 5: Statystyki wektora x (ziarno 50)
 set.seed(50)
-x <- sample(0:999, 500)
+x_500 <- sample(0:999, 500)
 
-a5 <- sum(x%%2 ==0)
-print(a5) #odp
+# (a)
+print(sum(x_500 %% 2 == 0))
 
-b5 <- sum(x %% 2 == 0 & x %% 3 == 0)
-print(b5) #odp
+# (b)
+print(sum(x_500 %% 6 == 0))
 
-c5 <- sum(x<30 | x>70)
-print(c5) #odp
+# (c)
+print(sum(x_500 < 30 | x_500 > 70))
 
-# --------------------
-# --------------------
-# --------------------
+# --------------------------------------------------------------------------
+# --- Zadanie 6: Operacje na tekście
+napis <- c("Katedra", "Informatyki", "Biznesowej", "i", "Inżynierii", 
+           "Zarządzania", "WZ", "AGH", 2022) 
+znaki <- unlist(strsplit(as.character(napis), split = ""))
 
-# zadanie 6 
-napis <- c( "Katedra", "Informatyki", "Biznesowej", "i", "Inżynierii", "Zarządzania",
-            "WZ", "AGH", 2022)
-xd <- unlist(strsplit(napis, split=""))
-a6 <- length(unique(xd))
-print(a6) #odp
+# (a)
+print(length(unique(znaki)))
 
-b6 <- names(which.max(table(xd)))
-print(b6) #odp
-
+# (b) 
+print(names(which.max(table(znaki))))
