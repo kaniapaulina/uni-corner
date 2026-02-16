@@ -1,0 +1,255 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Dnd_BBB.Core.Character" Collapsed="true">
+    <Position X="21.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EEAAAQBgAAAAAAQEoAABAgQtQAAEEIAAAAAAAgDiABE=</HashCode>
+      <FileName>Core\Character.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Dnd_BBB.Core.Unit" Collapsed="true">
+    <Position X="21.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IBAAQCIQIAAAQAAAAEAAAIABIECACCABAAh4gAACUUA=</HashCode>
+      <FileName>Core\Unit.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Dnd_BBB.Core.Party" Collapsed="true">
+    <Position X="21.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAACAAMCAEAAAAEAAACAACEIUAIABAAAAABAAAAJDg=</HashCode>
+      <FileName>Core\Party.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Dnd_BBB.Core.UnitClass" Collapsed="true">
+    <Position X="15.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAgAAAACAAAABBAAAAAAAAAAEAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Core\UnitClass.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Core.UnitRace" Collapsed="true">
+    <Position X="8.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Core\UnitRace.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Races.Dragonborn" Collapsed="true">
+    <Position X="11.75" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Races\Dragonborn.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Races.Dwarf" Collapsed="true">
+    <Position X="11.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Races\Dwarf.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Races.Elf" Collapsed="true">
+    <Position X="11.75" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Races\Elf.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Races.Gnome" Collapsed="true">
+    <Position X="11.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Races\Gnome.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Races.Half_Elf" Collapsed="true">
+    <Position X="11.75" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Races\Half-Elf.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Races.Halfling" Collapsed="true">
+    <Position X="11.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Races\Halfling.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Races.Half_Orc" Collapsed="true">
+    <Position X="11.75" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Races\Half-Orc.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Races.Human" Collapsed="true">
+    <Position X="11.75" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Races\Human.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Races.Tiefling" Collapsed="true">
+    <Position X="11.75" Y="13" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Races\Tiefling.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Classes.Barbarian" Collapsed="true">
+    <Position X="17.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAABAAAAAAAAAAAAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Classes\Barbarian.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Classes.Bard" Collapsed="true">
+    <Position X="17.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAABAAAAAAAAAAAAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Classes\Bard.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Classes.Cleric" Collapsed="true">
+    <Position X="17.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAABAAAAAAAAAAAAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Classes\Cleric.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Classes.Druid" Collapsed="true">
+    <Position X="17.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAABAAAAAAAAAAAAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Classes\Druid.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Classes.Fighter" Collapsed="true">
+    <Position X="17.75" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAABAAAAAAAAAAAAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Classes\Fighter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Classes.Monk" Collapsed="true">
+    <Position X="17.75" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAABAAAAAAAAAAAAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Classes\Monk.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Classes.Paladin" Collapsed="true">
+    <Position X="17.75" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAABAAAAAAAAAAAAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Classes\Paladin.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Classes.Ranger" Collapsed="true">
+    <Position X="17.75" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAABAAAAAAAAAAAAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Classes\Ranger.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Classes.Rogue" Collapsed="true">
+    <Position X="17.75" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAABAAAAAAAAAAAAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Classes\Rogue.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Classes.Sorcerer" Collapsed="true">
+    <Position X="17.75" Y="13" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAABAAAAAAAAAAAAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Classes\Sorcerer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Classes.Warlock" Collapsed="true">
+    <Position X="17.75" Y="14.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAABAAAAAAAAAAAAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Classes\Warlock.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Classes.Wizard" Collapsed="true">
+    <Position X="17.75" Y="15.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAABAAAAAAAAAAAAIAAAAAAAACAAAA=</HashCode>
+      <FileName>Classes\Wizard.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Exceptions.DextComparer" Collapsed="true">
+    <Position X="21.25" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>Exceptions and Interfaces\DextComparer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Dnd_BBB.Exceptions.HpComparer" Collapsed="true">
+    <Position X="21.25" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>Exceptions and Interfaces\HpComparer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Dnd_BBB.Exceptions.InvalidStatValueException" Collapsed="true">
+    <Position X="21.25" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions and Interfaces\InvalidStatValueException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Exceptions.StrComparer" Collapsed="true">
+    <Position X="21.25" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>Exceptions and Interfaces\StrComparer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Dnd_BBB.Service.PartyDbContext" Collapsed="true">
+    <Position X="9.25" Y="15.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASAAAAAAAAA=</HashCode>
+      <FileName>Service\PartyDbContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Service.StatService" Collapsed="true">
+    <Position X="9.25" Y="13.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAEAAAAAAA=</HashCode>
+      <FileName>Service\StatService.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Dnd_BBB.Service.StorageService" Collapsed="true">
+    <Position X="9.25" Y="14.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAEAAABAEA=</HashCode>
+      <FileName>Service\StorageService.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="Dnd_BBB.Exceptions.IAction" Collapsed="true">
+    <Position X="21.25" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>Exceptions and Interfaces\IAction.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Dnd_BBB.Exceptions.ILevel" Collapsed="true">
+    <Position X="21.25" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAABAAAAAAABAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions and Interfaces\ILevel.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

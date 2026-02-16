@@ -1,0 +1,266 @@
+﻿<Window x:Class="DndGUI.InfoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DndGUI"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        mc:Ignorable="d"
+        Title="Info" Height="570" Width="1000">
+    <Window.Background>
+        <ImageBrush ImageSource="/Images/o2.png" 
+                Stretch="UniformToFill"
+                Opacity="0.8"/>
+    </Window.Background>
+
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="65*" />
+            <ColumnDefinition Width="98*" />
+            <ColumnDefinition Width="56*" />
+        </Grid.ColumnDefinitions>
+
+
+        <StackPanel Grid.Column="0" Margin="6,6,6,6">
+            <TextBlock Text="Rasy" FontSize="22" FontWeight="Bold" Margin="0,0,0,8" Foreground="#FF315D61"/>
+            <RichTextBox IsReadOnly="True" VerticalScrollBarVisibility="Auto"
+                     Background="#FFDFF8D0" Foreground="#FF316956" BorderBrush="{x:Null}" FontWeight="Normal" Height="463" Padding="5">
+                <FlowDocument>
+                    <Paragraph>
+                        Podczas tworzenia postaci możesz wybrać jej rasę z poniższych opcji. Tutaj znajdziesz informację jak konkretne rasy przekładają się na statystyki Twojego bohatera.
+                    </Paragraph>
+                    <List MarkerStyle="Disc">
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Human</Bold> – bardzo uniwersalny, z bonusem do każdej ze statystyk (+1 do wszystkiego).
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Elf</Bold> – pełen wdzięku i nadnaturalnej zwinności (+2 Dex).
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Halfling</Bold> – mały, zwinny i niesamowicie odporny na strach (+2 Dex).
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Dragonborn</Bold> – potężny i budzący naturalny respekt (+2 Str i +1 Char).
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Gnome</Bold> – sprytny, pomysłowy i odporny na magię umysłu (brak bonusów do statystyk).
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Half-Elf</Bold> – naturalnie ujmujący i łatwo przystosowujący się (+2 Char).
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Half-Orc</Bold> – twardy, groźny i trudny do powstrzymania (+1 Str, +1 HP, +1 AC).
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Tiefling</Bold> – mrocznie charyzmatyczny i przebiegły (+2 Char i +1 Int).
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Dwarf</Bold> – twardy jak skała i nieugięty (+1 HP).
+                            </Paragraph>
+                        </ListItem>
+                    </List>
+                </FlowDocument>
+            </RichTextBox>
+        </StackPanel>
+
+
+        <StackPanel Grid.Column="1" Margin="6,6,6,6">
+            <TextBlock Text="Klasy" FontSize="22" FontWeight="Bold" Margin="0,0,0,8" Foreground="#FF315D61"/>
+            <RichTextBox IsReadOnly="True" VerticalScrollBarVisibility="Auto"
+                     Background="#FFDFF8D0" Foreground="#FF316956" BorderBrush="{x:Null}" FontWeight="Normal" Height="463" Padding="5">
+                <FlowDocument>
+                    <Paragraph>
+                        Podobnie do wyboru będzie klasa Twojej postaci. Informacje poniżej pomogą Ci w decyzji, do której z nich ma należeć Twój bohater.
+                    </Paragraph>
+                    <List MarkerStyle="Disc">
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Barbarian</Bold> – z HP równym 12 i ekwipunkiem złożonym głównie z broni, barbarzyńca jest gotowy do walki w szaleństwie.
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Bard</Bold> – z HP równym 8, rapierem przy boku i lutnią w dłoni, bard jest gotów na każdą przygodę.
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Cleric</Bold> – z HP równym 8, zbroją, młotem i symbolem wiary, kleryk jest gotów szerzyć słowo swego bóstwa.
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Druid</Bold> – z drewnianą tarczą, skórzaną zbroją i HP równym 8, druid jest strażnikiem pierwotnej równowagi.
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Fighter</Bold> – z HP równym 10, pancerzem i wszechstronnym arsenałem, wojownik jest żywą twierdzą na polu bitwy.
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Monk</Bold> – z HP równym 8, sztyletem i garścią lotek, mnich jest ucieleśnieniem dyscypliny i śmiercionośnej gracji.
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Paladin</Bold> – z HP równym 10, płytą kolczą i świętym symbolem, paladyn jest nieugiętym ramieniem sprawiedliwości.
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Ranger</Bold> – z HP równym 10, łukiem i parą mieczy, łowca jest mistrzem zapomnianych szlaków i ich niebezpieczeństw.
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Rouge</Bold> – z HP równym 8, rapierem i zestawem wytrychów, łotr rozwiązuje problemy z cienia i precyzyjnym ciosem.
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Warlock</Bold> – z HP równym 6, sakiewką komponentów i wewnętrzną mocą, czarodziej kształtuje rzeczywistość siłą woli.
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Sorcerer</Bold> – z HP równym 8, paktem z bytem spoza świata i lekką kuszą, czarownik wymusza na rzeczywistości swoją wolę.
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Wizard</Bold> – z HP równym 6, księgą zaklęć i kosturkiem w dłoni, mag bada fundamenty świata, litera po literze.
+                            </Paragraph>
+                        </ListItem>
+                    </List>
+                </FlowDocument>
+            </RichTextBox>
+        </StackPanel>
+
+
+        <StackPanel Grid.Column="2" Margin="6,5,6,1">
+            <TextBlock Text="Umiejętności" FontSize="22" FontWeight="Bold" Margin="0,0,0,8" Foreground="#FF316956"/>
+            <RichTextBox IsReadOnly="True" VerticalScrollBarVisibility="Auto"
+                     Background="#FFDFF8D0" Foreground="#FF316956" BorderBrush="{x:Null}" FontWeight="Normal" Height="378" Padding="5">
+                <FlowDocument>
+                    <Paragraph>
+                        W rozgrywce będą Ci się przydawać umiejętności, które możesz wybrać z tej listy:
+                    </Paragraph>
+                    <List MarkerStyle="Disc">
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Acrobatics</Bold> (DEX)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Animal Handling</Bold> (WIS)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Arcana</Bold> (INT)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Athletics</Bold> (STR)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Deception</Bold> (CHA)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>History</Bold> (INT)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Insight</Bold> (WIS)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Intimidation</Bold> (CHA)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Investigation</Bold> (INT)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Medicine</Bold> (WIS)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Nature</Bold> (INT)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Perception</Bold> (WIS)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Performance</Bold> (CHA)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Persuasion</Bold> (CHA)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Religion</Bold> (INT)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Sleight of Hand</Bold> (DEX)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Stealth</Bold> (DEX)
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Survival</Bold> (WIS)
+                            </Paragraph>
+                        </ListItem>
+                    </List>
+                </FlowDocument>
+            </RichTextBox>
+            <TextBlock FontWeight="Bold" Foreground="#FF316956" TextWrapping="Wrap" Background="#FFDFF8D0" TextAlignment="Center" Height="85" Padding="10,10,10,10" Width="236"><Run Text="Listę zaklęć dla konkretnej klasy znajdziesz tutaj: "/><Run Text=" "/><Hyperlink NavigateUri="https://www.5esrd.com/spellcasting/spell-lists/" RequestNavigate="Hyperlink_RequestNavigate"
+                       Foreground="#FF316956" TextDecorations="Underline"><Run Text="https://www.5esrd.com/spellcasting/spell-lists/"/></Hyperlink></TextBlock>
+        </StackPanel>
+
+    </Grid>
+</Window>

@@ -1,0 +1,363 @@
+﻿<Window x:Class="DndGUI.TworzeniePostaciWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DndGUI"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        mc:Ignorable="d"
+        Title="Tworzenie Postaci" Height="550" Width="700">
+    <Window.Background>
+        <ImageBrush ImageSource="/Images/o2.png" 
+                    Stretch="UniformToFill"
+                    Opacity="0.8"
+                    />
+    </Window.Background>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="515*"/>
+            <RowDefinition Height="69*"/>
+        </Grid.RowDefinitions>
+        <Grid Margin="10,10,10,10" Grid.RowSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="162"/>
+                <ColumnDefinition Width="Auto" MinWidth="300"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="48" MinHeight="48"/>
+                <RowDefinition Height="48" MinHeight="48"/>
+                <RowDefinition Height="48" MinHeight="49"/>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="Auto" MinHeight="126"/>
+                <RowDefinition Height="Auto" MinHeight="0"/>
+            </Grid.RowDefinitions>
+
+            <Label Content="Nazwa postaci" 
+                   Grid.Column="0" 
+                   Height="34"
+                   HorizontalAlignment="Left" 
+                   Width="145" Foreground="#FFDFF8D0" Background="{x:Null}" BorderBrush="{x:Null}" FontWeight="Bold" FontSize="16" Margin="28,0,0,0"/>
+
+            <TextBox x:Name="txtNazwaPostaci"
+             Grid.Row="0"
+             Foreground="#FFDFF8D0"
+             FontWeight="Bold"
+             TextWrapping="Wrap"
+             BorderThickness="2"
+             Margin="10,7,10,7" Grid.Column="1" 
+             Background="#FF89C06F" 
+             BorderBrush="#FFDFF8D0" 
+             FontSize="14"/>
+
+
+            <Label Content="Klasa" 
+            Grid.Row="1" Grid.Column="0" 
+            Height="34" 
+            HorizontalAlignment="Left" 
+            Width="75" BorderBrush="{x:Null}"
+                   Background="{x:Null}" 
+                   Foreground="#FFDFF8D0" 
+                   FontWeight="Bold" FontSize="16" Margin="98,0,0,0"/>
+
+            <ComboBox  x:Name="cmbRasaPostaci" SelectedIndex="0"
+             Background="#FFDFF8D0" BorderBrush="{x:Null}"
+             Foreground="#FF316956"
+             FontWeight="Bold" Grid.Column="1" Margin="10,7,10,7" Grid.Row="2">
+                <ComboBoxItem Content="Human"/>
+                <ComboBoxItem Content="Elf"/>
+                <ComboBoxItem Content="Dwarf"/>
+                <ComboBoxItem Content="Halfling"/>
+                <ComboBoxItem Content="Dragonborn"/>
+                <ComboBoxItem Content="Gnome"/>
+                <ComboBoxItem Content="Half-Orc"/>
+                <ComboBoxItem Content="Half-Elf"/>
+                <ComboBoxItem Content="Tiefling"/>
+            </ComboBox>
+
+            <Label Content="Rasa" 
+            Grid.Row="2" Height="34" 
+             HorizontalContentAlignment="Center" 
+             VerticalContentAlignment="Center" Width="60" 
+             HorizontalAlignment="Left" BorderBrush="{x:Null}" 
+             Background="{x:Null}" Foreground="#FFDFF8D0" 
+             FontWeight="Bold" FontSize="16" Margin="108,0,0,0"/>
+
+
+            <ComboBox Grid.Row="1" SelectedIndex="11"
+             Margin="10,7,10,7" Grid.Column="1" 
+             x:Name="cmbKlasaPostaci"
+             SelectionChanged="CmbKlasaPostaci_SelectionChanged"
+             Background="#FFDFF8D0" BorderBrush="{x:Null}"
+             Foreground="#FF316956"
+             FontWeight="Bold">
+                <ComboBoxItem Content="Barbarian"/>
+                <ComboBoxItem Content="Bard"/>
+                <ComboBoxItem Content="Cleric"/>
+                <ComboBoxItem Content="Druid"/>
+                <ComboBoxItem Content="Fighter"/>
+                <ComboBoxItem Content="Monk"/>
+                <ComboBoxItem Content="Paladin"/>
+                <ComboBoxItem Content="Ranger"/>
+                <ComboBoxItem Content="Rogue"/>
+                <ComboBoxItem Content="Sorcerer"/>
+                <ComboBoxItem Content="Warlock"/>
+                <ComboBoxItem Content="Wizard"/>
+            </ComboBox>
+
+            <Label Content="Umiejętności" 
+           Grid.Row="4" Height="34" 
+                   BorderBrush="{x:Null}" Background="{x:Null}" 
+                   Foreground="#FF30584E" FontWeight="Bold" FontSize="16" Margin="48,4,5,0" VerticalAlignment="Top"/>
+
+            <Label Content="Zaklęcia" 
+           Grid.Row="5" Height="34" Margin="85,2,5,0" 
+           VerticalAlignment="Top" 
+           BorderBrush="{x:Null}" Background="{x:Null}" 
+           Foreground="#FF2E594A" FontWeight="Bold" FontSize="16"/>
+
+            <Button Content="Losuj statystyki" 
+            Grid.Row="6" Grid.Column="2" Width="137" 
+            Height="36"
+            FontSize="16" HorizontalAlignment="Left" 
+            Margin="45,128,0,0" 
+            BorderThickness="2"
+            Click="RollButton_Click"
+            Foreground="#FFDFF8D0" Background="#FF89C06F" 
+            FontWeight="Bold" 
+            BorderBrush="#FFDFF8D0"
+            VerticalAlignment="Top"/>
+
+            <hc:TextBox Grid.Column="2" 
+             HorizontalAlignment="Left" 
+             Height="36" Margin="45,6,0,0" 
+             Grid.Row="5" TextWrapping="Wrap" 
+             Text="DEX" VerticalAlignment="Top"
+             Background="#FF89C06F"
+             Foreground="#FFDFF8D0" 
+             FontWeight="Bold" BorderBrush="#FFDFF8D0"
+             BorderThickness="2"
+             Width="60"
+             TextAlignment="Center"
+                        />
+
+
+            <hc:TextBox Grid.Column="2" TextAlignment="Center"
+                HorizontalAlignment="Left" 
+                Height="36" Margin="45,41,0,0" 
+                Grid.Row="5" TextWrapping="Wrap" 
+                Background="#FF89C06F"
+                      Foreground="#FFDFF8D0" 
+                  FontWeight="Bold" BorderBrush="#FFDFF8D0"
+                  BorderThickness="2"
+                Text="CONST" VerticalAlignment="Top"
+                Width="60"/>
+
+            <hc:TextBox Grid.Column="2" TextAlignment="Center"
+                HorizontalAlignment="Left" 
+                Height="36" Margin="45,76,0,0" 
+                Grid.Row="5" TextWrapping="Wrap"
+                Foreground="#FFDFF8D0" 
+                  FontWeight="Bold" BorderBrush="#FFDFF8D0"
+                  BorderThickness="2"
+                Background="#FF89C06F"
+                Text="STR" VerticalAlignment="Top"
+                Width="60"/>
+
+            <hc:TextBox Grid.Column="2" TextAlignment="Center"
+                HorizontalAlignment="Left" 
+                Height="36" Margin="44,7,0,0" 
+                Grid.Row="4" TextWrapping="Wrap" 
+                Text="INT" VerticalAlignment="Top"
+                Foreground="#FFDFF8D0" 
+                  FontWeight="Bold" BorderBrush="#FFDFF8D0"
+                  BorderThickness="2"
+                Background="#FF89C06F"
+                Width="60"/>
+
+            <hc:TextBox Grid.Column="2" TextAlignment="Center"
+                Height="36" Margin="44,43,81,0" 
+                Grid.Row="4" TextWrapping="Wrap" 
+                Foreground="#FFDFF8D0" 
+                  FontWeight="Bold" BorderBrush="#FFDFF8D0"
+                  BorderThickness="2"
+                Background="#FF89C06F"
+                Text="CHAR" VerticalAlignment="Top"/>
+
+            <hc:TextBox Grid.Column="2" TextAlignment="Center"
+                HorizontalAlignment="Right" 
+                Height="36" Margin="0,79,81,0" 
+                Background="#FF89C06F"
+                Grid.Row="4" TextWrapping="Wrap" 
+                Foreground="#FFDFF8D0" 
+                FontWeight="Bold" BorderBrush="#FFDFF8D0"
+                BorderThickness="2"
+                Text="WIS" VerticalAlignment="Top"
+                Width="60"/>
+
+            <Button Grid.Column="2" Content="Zapisz postać" 
+                    HorizontalAlignment="Left" 
+                    x:Name="btnZapiszPostac"
+                    IsEnabled="False"
+                    Height="40" Margin="44,8,0,0" 
+                    Grid.Row="3" Width="138"
+                    BorderThickness="2"
+                    FontSize="16" 
+                    Click="ZapiszButton_Click"
+                    Background="#FF89C06F" Foreground="#FF316956" 
+                    FontWeight="Bold" BorderBrush="#FF316956" VerticalAlignment="Top"/>
+
+            <hc:TextBox Grid.Column="2" 
+                        x:Name="losDex"
+                        IsReadOnly="True"
+                        HorizontalAlignment="Left" 
+                        Height="36" Margin="138,5,0,0" 
+                        Foreground="#FFDFF8D0" 
+                        FontWeight="Bold" BorderBrush="#FFDFF8D0"
+                        BorderThickness="2"
+                        Background="#FF89C06F"
+                        Grid.Row="5" TextWrapping="Wrap" 
+                        Text="0" VerticalAlignment="Top" 
+                        Width="44"/>
+
+            <hc:TextBox Grid.Column="2" 
+                x:Name="losConst"
+                        IsReadOnly="True"
+                HorizontalAlignment="Left" 
+                Height="36" Margin="138,41,0,0" 
+                Grid.Row="5" TextWrapping="Wrap" 
+                Text="0" VerticalAlignment="Top" 
+                Foreground="#FFDFF8D0" 
+                FontWeight="Bold" BorderBrush="#FFDFF8D0"
+                BorderThickness="2"
+                Background="#FF89C06F"
+                Width="44"/>
+
+            <hc:TextBox Grid.Column="2" 
+                x:Name="losStr"
+                        IsReadOnly="True"
+                HorizontalAlignment="Left" 
+                Height="36" Margin="138,76,0,0"
+                Foreground="#FFDFF8D0" 
+                FontWeight="Bold" BorderBrush="#FFDFF8D0"
+                BorderThickness="2"
+                Background="#FF89C06F"
+                Grid.Row="5" TextWrapping="Wrap" 
+                Text="0" VerticalAlignment="Top" 
+                Width="44"/>
+
+            <hc:TextBox Grid.Column="2" 
+                IsReadOnly="True"
+                x:Name="losInt"
+                HorizontalAlignment="Left" 
+                Foreground="#FFDFF8D0" 
+                FontWeight="Bold" BorderBrush="#FFDFF8D0"
+                BorderThickness="2"
+                Background="#FF89C06F"
+                Height="36" Margin="138,7,0,0" 
+                Grid.Row="4" TextWrapping="Wrap" 
+                Text="0" VerticalAlignment="Top" 
+                Width="44" TextChanged="losInt_TextChanged"/>
+
+            <hc:TextBox Grid.Column="2" 
+                x:Name="losChar"
+                        IsReadOnly="True"
+                HorizontalAlignment="Left" 
+                Height="36" Margin="138,43,0,0" 
+                Grid.Row="4" TextWrapping="Wrap"
+                Foreground="#FFDFF8D0" 
+                FontWeight="Bold" BorderBrush="#FFDFF8D0"
+                BorderThickness="2"
+                Background="#FF89C06F"
+                Text="0" VerticalAlignment="Top" 
+                Width="44" TextChanged="losChar_TextChanged"/>
+
+            <hc:TextBox Grid.Column="2" 
+                HorizontalAlignment="Left" 
+               x:Name="losWis"
+                        IsReadOnly="True"
+                Height="36" Margin="138,79,0,0" 
+                Grid.Row="4" TextWrapping="Wrap"
+                Foreground="#FFDFF8D0" 
+                FontWeight="Bold" BorderBrush="#FFDFF8D0"
+                BorderThickness="2"
+                Background="#FF89C06F"
+                Text="0" VerticalAlignment="Top" 
+                Width="44"/>
+
+            <TextBox x:Name="txtUmiejetnosc2" 
+                Grid.Row="4"
+                Foreground="#FF30584E"
+                FontWeight="Bold"
+                TextWrapping="Wrap"
+                BorderThickness="2"
+                Margin="10,46,10,49" Grid.Column="1" 
+                Background="#FFDFF8D0" BorderBrush="#FF30584E"/>
+
+            <TextBox x:Name="txtUmiejetnosc3" 
+                Grid.Row="4"
+                Foreground="#FF30584E"
+                FontWeight="Bold"
+                TextWrapping="Wrap"
+                BorderThickness="2"
+
+                Margin="10,85,10,10" Grid.Column="1" 
+                Background="#FFDFF8D0" BorderBrush="#FF30584E"/>
+
+            <TextBox x:Name="txtSpell1" 
+                Grid.Row="5"
+                Foreground="#FF30584E"
+                FontWeight="Bold"
+                TextWrapping="Wrap"
+                BorderThickness="2"
+                Margin="10,3,10,129" Grid.Column="1" 
+                Background="#FFDFF8D0" BorderBrush="#FF30584E"/>
+
+            <TextBox x:Name="txtUmiejetnosc1" 
+                Grid.Row="4"
+                Foreground="#FF30584E"
+                FontWeight="Bold"
+                TextWrapping="Wrap"
+                BorderThickness="2"
+
+                Margin="10,7,10,88" Grid.Column="1" 
+                Background="#FFDFF8D0" BorderBrush="#FF30584E"/>
+
+            <TextBox x:Name="txtSpell2" 
+                Grid.Row="5"
+                Foreground="#FF30584E"
+                FontWeight="Bold"
+                TextWrapping="Wrap"
+                BorderThickness="2"
+
+                Margin="10,41,10,91" Grid.Column="1" 
+                Background="#FFDFF8D0" BorderBrush="#FF30584E"/>
+
+            <TextBox x:Name="txtSpell3" 
+                Grid.Row="5"
+                Foreground="#FF30584E"
+                FontWeight="Bold"
+                TextWrapping="Wrap"
+                BorderThickness="2"
+
+                Margin="10,80,10,52" Grid.Column="1" 
+                Background="#FFDFF8D0" BorderBrush="#FF30584E"/>
+
+            <TextBox x:Name="txtSpell4" 
+                Grid.Row="5"
+                Foreground="#FF30584E"
+                FontWeight="Bold"
+                TextWrapping="Wrap"
+                BorderThickness="2"
+
+                Margin="10,117,10,15" Grid.Column="1" 
+                Background="#FFDFF8D0" BorderBrush="#FF30584E"/>
+
+            <Image Grid.Column="2" HorizontalAlignment="Left" Height="138" 
+                   Margin="44,7,0,0" Grid.RowSpan="3" VerticalAlignment="Top" 
+                   Width="141"
+                   Source="Images/dragon.png"/>
+        </Grid>
+    </Grid>
+</Window>

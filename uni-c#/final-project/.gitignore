@@ -1,0 +1,16 @@
+# Pliki tymczasowe Visual Studio
+.vs/
+[Bb]in/
+[Oo]bj/
+out/
+
+# Pliki użytkownika
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Pliki kompilacji
+*.exe
+*.pdb
+*.dll

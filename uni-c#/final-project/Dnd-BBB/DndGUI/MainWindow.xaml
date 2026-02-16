@@ -1,0 +1,174 @@
+﻿<Window x:Class="DndGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DndGUI"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        mc:Ignorable="d"
+        Title="DungeonsAndDragons Character Manager" Height="380" Width="600">
+    <Window.Background>
+        <ImageBrush ImageSource="Images\o2.png" 
+                Stretch="UniformToFill"
+                Opacity="0.8"/>
+    </Window.Background>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="37*"/>
+            <RowDefinition Height="130*"/>
+
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" MinWidth="182"/>
+
+            <ColumnDefinition/>
+
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0" Grid.RowSpan="2" Margin="5">
+            <StackPanel>
+                <TextBox 
+        Margin="5,15"
+        Foreground="#FFDFF8D0" 
+        FontSize="20"
+        HorizontalAlignment="Center"
+        Text="Menu"
+        Height="35" 
+        FontWeight="Bold"
+        Width="216" 
+        TextAlignment="Center" 
+        VerticalContentAlignment="Center"
+        BorderBrush="#FFDFF8D0"
+        BorderThickness="2"
+        Background="#FF89C06F" IsReadOnly="True"/>
+
+                <Expander Header="Postać"
+        FontSize="16"
+        Background="#FF89C06F"
+        Margin="5"
+        FontWeight="Bold"
+        Foreground="#FFDFF8D0"
+        Padding="10,5"
+        BorderBrush="#FFDFF8D0"
+        BorderThickness="2"
+        Width="212">
+
+                    <StackPanel Margin="0,0,0,0">
+                        <Button Content="Tworzenie postaci" 
+                Width="212"
+                Height="30"
+                FontSize="12"
+                Click="TworzeniePButton_Click"
+                Background="#FF89C06F"
+                BorderThickness="2"
+                BorderBrush="#FFDFF8D0"
+                Foreground="#FFDFF8D0" 
+                FontWeight="Bold"/>
+
+                        <Button Content="Edycja postaci"
+                Width="212"
+                Height="30"
+                Click="EdycjaPButton_Click"
+                Background="#FF89C06F"
+                BorderThickness="2"
+                FontSize="12"
+                BorderBrush="#FFDFF8D0"
+                Foreground="#FFDFF8D0"
+                FontWeight="Bold"/>
+                    </StackPanel>
+                </Expander>
+
+                <Expander Header="Drużyna" 
+        FontSize="16"
+        Background="#FF89C06F"
+        Margin="5" 
+        Padding="10,5"
+        Foreground="#FFDFF8D0"
+        BorderBrush="#FFDFF8D0"
+        FontWeight="Bold"
+        BorderThickness="2"
+        Width="212">
+
+                    <StackPanel Margin="0,0,0,0">
+                        <Button Content="Tworzenie drużyny"
+                Width="212"
+                Height="30"
+                Click="TworzenieDButton_Click" 
+                FontSize="12" 
+                BorderBrush="#FFDFF8D0"
+                BorderThickness="2"
+                Background="#FF89C06F" 
+                Foreground="#FFDFF8D0" 
+                FontWeight="Bold"/>
+
+                        <Button Content="Zarządzanie drużyną"
+                Width="212"
+                Height="30"
+                Click="EdycjaDButton_Click"
+                BorderThickness="2"
+                FontSize="12" 
+                BorderBrush="#FFDFF8D0" 
+                Background="#FF89C06F"
+                Foreground="#FFDFF8D0"
+                FontWeight="Bold"/>
+
+                    </StackPanel>
+                </Expander>
+                <Button Content="Informacje" 
+             Margin="0,5,0,0" Padding="0"
+             Background="#FF336856"
+             Width="151" 
+             Height="30"
+             FontWeight="Bold" 
+             BorderBrush="#FF8BC26C"
+             BorderThickness="2"
+             FontSize="14"
+             Click ="InfoButton_Click" 
+             Foreground="#FF85BC6C"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Column="1" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" MinHeight="77"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <TextBox IsReadOnly="True"
+           Margin="17,20,14,22"
+           FontSize="20"
+           Text="Wprowadzenie"
+           FontWeight="Bold"
+           Height="35" 
+   
+           TextAlignment="Center" 
+           VerticalContentAlignment="Center"
+           BorderBrush="#FFDFF8D0" 
+           BorderThickness="2" 
+           Background="#FF85BC6C" 
+           Foreground="#FFDFF8D0"/>
+            <Border Grid.Row="1"/>
+
+        </Grid>
+        <Grid Grid.Column="1" Grid.RowSpan="2" Margin="4,31,-4,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="57*"/>
+                <ColumnDefinition Width="68*"/>
+                <ColumnDefinition Width="176*"/>
+                <ColumnDefinition Width="62*"/>
+            </Grid.ColumnDefinitions>
+            <TextBox IsReadOnly="True"
+           Margin="10,44,15,0"
+           Padding="10,10"
+           TextAlignment="Center" 
+           VerticalContentAlignment="Center"
+           BorderBrush="#FF89C06F"
+           BorderThickness="2" Background="#FFDFF8D0" 
+           Foreground="#FF85BC6C" FontWeight="Bold"
+           TextWrapping="Wrap"
+           VerticalScrollBarVisibility="Auto"
+           Text="Witaj w DnD Character Manager! 
+                W tej aplikacji stworzysz swoją postać jak i drużynę, która będzie Ci towarzyszyć w następnej sesji gry Dungeons and Dragons. W jej trakcie będziesz mieć możliwość zmiany statystyk postaci jak i składu drużyny. Jeśli masz jakieś wątpliwości/zaczynasz dopiero przygodę z DnD, polecamy zapoznać się ze ściągą w postaci &quot;Informacje&quot;." Height="263" VerticalAlignment="Top" FontSize="16" Grid.ColumnSpan="4"/>
+        </Grid>
+    </Grid>
+</Window>
