@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
@@ -27,6 +28,100 @@ namespace OsobaZespol
     /// </summary>
     public class Zespol : ICloneable, IZapisywalna
     {
+        #region EF
+        [Key]
+        public int ZespolId { get; set; }
+        public virtual KierownikZespolu KierownikZespolu { get; set; }
+        public virtual List<CzlonekZespolu> CzlonkowieZespolu { get; set; }
+
+        // ZAPIS DO BAZY DANYCH
+        public void SaveToDB()
+        {
+            using (var db = new ZespolDbContext()) 
+            {
+                Console.WriteLine("Zapisywanie zespołu...");
+                db.SaveChanges();
+                Console.WriteLine("Zapisano pomyślnie.");
+            }
+        }
+
+        public void Q1()
+        {
+            using (var db = new ZespolDbContext())
+            {
+                var query1 = from b in db.Zespoly
+                             orderby b.NazwaZespolu
+                             select b;
+
+                Console.WriteLine("Wszystkie zespoły w bazie:");
+                foreach (var item in query1)
+                {
+                    Console.WriteLine(item.NazwaZespolu);
+                }
+            }
+        }
+
+        public void Q2()
+        {
+            using (var db = new ZespolDbContext())
+            {
+                var query2 = from b in db.Czlonkowie
+                         join z in db.Zespoly on b.ZespolId equals z.ZespolId
+                         where z.ZespolId == 1
+                         select new { b, z.NazwaZespolu };
+
+                Console.WriteLine("Wszyscy członkowie z pierwszego zespołu:");
+                foreach (var item in query2)
+                {
+                    Console.WriteLine($"{item.NazwaZespolu}, {item.b.Imie}, {item.b.Nazwisko}");
+                }
+            }
+                
+        }
+
+        public void Q3()
+        {
+            using (var db = new ZespolDbContext())
+            {
+                int maxId = db.Zespoly.Max(z => z.ZespolId);
+                    var queryC = from c in db.Czlonkowie
+                                    where c.ZespolId == maxId && c.FunkcjaWZespole == "Programista"
+                                    select c;
+
+                foreach (var p in queryC)
+                {
+                    Console.WriteLine($"Programista: {p.Imie} {p.Nazwisko}");
+                }
+            }
+                
+        }
+
+        public static Zespol ReadZespolFromDB()
+        {
+            using (var db = new ZespolDbContext())
+            {
+                Zespol z = new Zespol();
+                int zespolId = db.Zespoly.Max(res => res.ZespolId);
+
+                var zbaza = db.Zespoly.Find(zespolId);
+
+                if (zbaza != null)
+                {
+                    z.ZespolId = zbaza.ZespolId;
+                    z.NazwaZespolu = zbaza.NazwaZespolu;
+                    z.KierownikZespolu = zbaza.KierownikZespolu;
+                    z.CzlonkowieZespolu = zbaza.CzlonkowieZespolu;
+                }
+                return z;
+            }
+        }
+
+        #endregion EF
+
+        // Enable-Migrations
+        // Update-Database --Verbose
+
+
         private int liczbaAktywnychCzlonkowZespolu;
         private string nazwaZespolu;
         private KierownikZespolu kierownikZespolu;
@@ -322,11 +417,11 @@ namespace OsobaZespol
         /// <summary>
         /// Kierownik zespołu.
         /// </summary>
-        public KierownikZespolu KierownikZespolu { get => kierownikZespolu; set => kierownikZespolu = value; }
+        //public KierownikZespolu KierownikZespolu { get => kierownikZespolu; set => kierownikZespolu = value; }
 
         /// <summary>
         /// Lista członków zespołu.
         /// </summary>
-        public List<CzlonekZespolu> CzlonkowieZespolu { get => czlonkowieZespolu; set => czlonkowieZespolu = value; }
+        //public List<CzlonekZespolu> CzlonkowieZespolu { get => czlonkowieZespolu; set => czlonkowieZespolu = value; }
     }
 }

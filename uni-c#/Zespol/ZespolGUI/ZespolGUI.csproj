@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Zespol\Zespol.csproj" />
+    <ProjectReference Include="..\Zespol\ZespolData.csproj" />
   </ItemGroup>
 
 </Project>

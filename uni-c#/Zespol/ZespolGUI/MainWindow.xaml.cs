@@ -9,21 +9,22 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using OsobaZespol;
 
+
+using OsobaZespol;
 namespace ZespolGUI
 {  
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        Zespol zespol;
+        OsobaZespol.Zespol zespol;
         bool czyZmieniono = false;
         public MainWindow()
         {
             InitializeComponent();
 
-            zespol = (Zespol)Zespol.OdczytajXML("zespol.xml");
+            zespol = (OsobaZespol.Zespol)OsobaZespol.Zespol.OdczytajXML("zespol.xml");
             if (zespol is object)
             {
                 LstCzlonkowie.ItemsSource = new ObservableCollection<CzlonekZespolu>(zespol.CzlonkowieZespolu);
@@ -114,7 +115,7 @@ namespace ZespolGUI
 
         private void ZaladujZespol(string sciezka)
         {
-            zespol = (Zespol)Zespol.OdczytajXML(sciezka);
+            zespol = (OsobaZespol.Zespol)OsobaZespol.Zespol.OdczytajXML(sciezka);
             LstCzlonkowie.ItemsSource = new ObservableCollection<CzlonekZespolu>(zespol.CzlonkowieZespolu);
             TxtNazwa.Text = zespol.NazwaZespolu;
             TxtKierownik.Text = zespol.KierownikZespolu.ToString();

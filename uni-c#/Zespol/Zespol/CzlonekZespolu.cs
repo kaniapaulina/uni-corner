@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,13 @@ namespace OsobaZespol
     /// </summary>
     public class CzlonekZespolu : Osoba, IComparable<CzlonekZespolu>, ICloneable
     {
+        #region EF
+        [Key]
+        public int CzłonekZespoluld { get; set; }
+        public int ZespolId { get; set; }
+        public virtual Zespol Zespol { get; set; }
+        #endregion EF
+
         DateTime dataWstapienia;
         string funkcjaWZespole;
         bool aktywny;

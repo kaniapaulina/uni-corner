@@ -33,7 +33,7 @@
 
             */
 
-            CzlonekZespolu cz1 = new CzlonekZespolu("Beata", "Nowak", "1992-10-22", "0099041398765", EnumPlec.K, "2020-05-01", "Projektant", true);
+            CzlonekZespolu cz1 = new CzlonekZespolu("Beata", "Nowak", "1992-10-22", "99041398765", EnumPlec.K, "2020-05-01", "Projektant", true);
             CzlonekZespolu cz2 = new CzlonekZespolu("Jan", "Janowski", "2003-03-15", "92031507772", EnumPlec.M, "2015-03-01", "Programista", false);
             CzlonekZespolu cz3 = new CzlonekZespolu("Anna", "Mysza", "1991-07-22", "91072235964", EnumPlec.K, "2019-07-31", "Projektant", true);
             CzlonekZespolu cz4 = new CzlonekZespolu("Witold", "Adamski", "1992-10-22", "92102266738", EnumPlec.M, "2020-01-01", "Sekretarz", false);
@@ -72,9 +72,9 @@
             Zespol z2 = (Zespol)z1.Clone();
             Console.WriteLine(z2);
 
-            Console.WriteLine("\n ======= Głęboka kopia zespołu:");
-            Zespol z3 = z1.DeepCopy();
-            Console.WriteLine(z3);
+            //Console.WriteLine("\n ======= Głęboka kopia zespołu:");
+            //Zespol z3 = z1.DeepCopy();
+            //Console.WriteLine(z3);
 
             Console.WriteLine("\n ======= Zapisywanie zespołu do pliku XML:");
             if (z1.ZapiszXML("zespol.xml")) { Console.WriteLine("Udalo sie!"); }
@@ -82,6 +82,8 @@
             Console.WriteLine("\n ======= Odczytywanie zespołu z pliku XML:");
             Zespol z4 = Zespol.OdczytajXML("zespol.xml");
             Console.WriteLine(z4);
+
+            z1.SaveToDB();
 
         }
     }
