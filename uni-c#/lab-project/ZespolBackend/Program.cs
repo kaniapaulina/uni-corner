@@ -1,4 +1,4 @@
-﻿namespace OsobaZespol
+﻿ namespace ZespolBackend
 {
     // Definicja wyliczenia EnumPlec - zadeklarowana w głownym pliku programu jako public by była dostępna w innych plikach
     public enum EnumPlec { K = 0, M = 1 };
@@ -40,7 +40,7 @@
             CzlonekZespolu cz5 = new CzlonekZespolu("Jan", "But", "1992-05-16", "92051613915", EnumPlec.M, "2019-06-01", "Programista", true);
 
             // Adam Kowalski 01.07.1990  90070142412 M 5 (tel. 705-324-001)
-            KierownikZespolu k1 = new KierownikZespolu("Adam", "Kowalski", "01.07.1990", "90070142412", EnumPlec.M, 5, 405324001);
+            KierownikZespolu k1 = new KierownikZespolu("Adam", "Kowalski", "1990-01-05", "90070142412", EnumPlec.M, 5, 405324001);
 
 
             Console.WriteLine(cz1);

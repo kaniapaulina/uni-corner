@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Zespol\ZespolData.csproj" />
+    <ProjectReference Include="..\ZespolBackend\ZespolBackend.csproj" />
   </ItemGroup>
 
   <ItemGroup>

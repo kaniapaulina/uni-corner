@@ -1,7 +1,7 @@
-﻿<Application x:Class="ZespolGUI.App"
+﻿<Application x:Class="ZespolFrontend.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:ZespolGUI"
+             xmlns:local="clr-namespace:ZespolFrontend"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          

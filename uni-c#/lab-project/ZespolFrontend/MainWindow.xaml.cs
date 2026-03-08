@@ -10,21 +10,24 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using ZespolBackend;
 
-using OsobaZespol;
-namespace ZespolGUI
-{  
+namespace ZespolFrontend
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        OsobaZespol.Zespol zespol;
+        Zespol zespol;
         bool czyZmieniono = false;
         public MainWindow()
         {
             InitializeComponent();
 
-            zespol = (OsobaZespol.Zespol)OsobaZespol.Zespol.OdczytajXML("zespol.xml");
+            zespol = (Zespol)Zespol.OdczytajXML("zespol.xml");
             if (zespol is object)
             {
                 LstCzlonkowie.ItemsSource = new ObservableCollection<CzlonekZespolu>(zespol.CzlonkowieZespolu);
@@ -39,7 +42,7 @@ namespace ZespolGUI
             bool? result = okno.ShowDialog();
             if (result == true)
             {
-                TxtKierownik.Text = zespol.KierownikZespolu .ToString();
+                TxtKierownik.Text = zespol.KierownikZespolu.ToString();
             }
         }
 
@@ -107,15 +110,18 @@ namespace ZespolGUI
 
         private void ButtonZnajdz_Click(object sender, RoutedEventArgs e)
         {
-            string funkcja = txtSzukanaFunkcja.Text.ToLower();
-            var wyniki = zespol.CzlonkowieZespolu.Where(c => c.FunkcjaWZespole.ToLower().Contains(funkcja)).ToList();
+            string funkcja = txtSzukanaFunkcja.Text.ToLower().Trim();
+            //var wyniki = zespol.CzlonkowieZespolu.Where(c => c.FunkcjaWZespole.ToLower().Contains(funkcja)).ToList();
+            var wyniki = zespol.CzlonkowieZespolu
+        .Where(c => c.FunkcjaWZespole != null && c.FunkcjaWZespole.ToLower().Contains(funkcja))
+        .ToList();
 
-            LstCzlonkowie.ItemsSource = new ObservableCollection<CzlonekZespolu>(zespol.CzlonkowieZespolu);
+            LstCzlonkowie.ItemsSource = new ObservableCollection<CzlonekZespolu>(wyniki);
         }
 
         private void ZaladujZespol(string sciezka)
         {
-            zespol = (OsobaZespol.Zespol)OsobaZespol.Zespol.OdczytajXML(sciezka);
+            zespol = (Zespol)Zespol.OdczytajXML(sciezka);
             LstCzlonkowie.ItemsSource = new ObservableCollection<CzlonekZespolu>(zespol.CzlonkowieZespolu);
             TxtNazwa.Text = zespol.NazwaZespolu;
             TxtKierownik.Text = zespol.KierownikZespolu.ToString();
@@ -143,7 +149,7 @@ namespace ZespolGUI
                 }
                 else if (result == MessageBoxResult.Cancel)
                 {
-                    e.Cancel = true; 
+                    e.Cancel = true;
                 }
             }
         }

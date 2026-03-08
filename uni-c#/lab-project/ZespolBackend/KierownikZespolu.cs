@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
 
-namespace OsobaZespol
+namespace ZespolBackend
 {
     /// <summary>
     /// Reprezentuje kierownika zespołu. Dziedziczy po <see cref="Osoba"/> i wspiera klonowanie.
@@ -72,7 +72,7 @@ namespace OsobaZespol
         /// <returns>Tekst zawierający imię, nazwisko, datę urodzenia, PESEL, doświadczenie i numer telefonu.</returns>
         public override string ToString()
         {
-            return $"{Imie} {Nazwisko} {DataUrodzenia:yyyy-mm-dd} {Pesel} {doswiadczenieKierownika} ({telefonKontaktowy:000-000-000})";
+            return $"{Imie} {Nazwisko} {DataUrodzenia:yyyy-MM-dd} {Pesel} {doswiadczenieKierownika} ({telefonKontaktowy:000-000-000})";
         }
-    } 
+    }
 }

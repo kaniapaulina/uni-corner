@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OsobaZespol
+namespace ZespolBackend
 {
     public class PESELComparator : IComparer<CzlonekZespolu>
     // IComparer jest uzywany jako argument w metodach sortujacych

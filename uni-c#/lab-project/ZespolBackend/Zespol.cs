@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace OsobaZespol
+namespace ZespolBackend
 {
     /// <summary>
     /// Interfejs do zapisywania obiektu do pliku (XML).
@@ -28,20 +29,44 @@ namespace OsobaZespol
     /// </summary>
     public class Zespol : ICloneable, IZapisywalna
     {
+        
         #region EF
         [Key]
         public int ZespolId { get; set; }
-        public virtual KierownikZespolu KierownikZespolu { get; set; }
-        public virtual List<CzlonekZespolu> CzlonkowieZespolu { get; set; }
+        public int KierownikZespoluId { get; set; }
+
+        [ForeignKey("KierownikZespoluId")]
+        public virtual KierownikZespolu Kierownik { get; set; }
+        public virtual List<CzlonekZespolu> Czlonkowie { get; set; }
+
+        #endregion EF
 
         // ZAPIS DO BAZY DANYCH
         public void SaveToDB()
         {
-            using (var db = new ZespolDbContext()) 
+            using (var db = new ZespolDbContext())
             {
-                Console.WriteLine("Zapisywanie zespołu...");
-                db.SaveChanges();
-                Console.WriteLine("Zapisano pomyślnie.");
+                try
+                {
+                    var exists = db.Zespoly.Any(z => z.ZespolId == this.ZespolId);
+
+                    if (!exists)
+                    {
+                        db.Zespoly.Add(this);
+                    }
+                    else
+                    {
+                        db.Zespoly.Update(this);
+                    }
+
+                    db.SaveChanges();
+                    Console.WriteLine("Zapisano pomyślnie do SQL!");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Błąd zapisu: {ex.Message}");
+                    if (ex.InnerException != null) Console.WriteLine($"Detale: {ex.InnerException.Message}");
+                }
             }
         }
 
@@ -66,9 +91,9 @@ namespace OsobaZespol
             using (var db = new ZespolDbContext())
             {
                 var query2 = from b in db.Czlonkowie
-                         join z in db.Zespoly on b.ZespolId equals z.ZespolId
-                         where z.ZespolId == 1
-                         select new { b, z.NazwaZespolu };
+                             join z in db.Zespoly on b.ZespolId equals z.ZespolId
+                             where z.ZespolId == 1
+                             select new { b, z.NazwaZespolu };
 
                 Console.WriteLine("Wszyscy członkowie z pierwszego zespołu:");
                 foreach (var item in query2)
@@ -76,7 +101,7 @@ namespace OsobaZespol
                     Console.WriteLine($"{item.NazwaZespolu}, {item.b.Imie}, {item.b.Nazwisko}");
                 }
             }
-                
+
         }
 
         public void Q3()
@@ -84,16 +109,16 @@ namespace OsobaZespol
             using (var db = new ZespolDbContext())
             {
                 int maxId = db.Zespoly.Max(z => z.ZespolId);
-                    var queryC = from c in db.Czlonkowie
-                                    where c.ZespolId == maxId && c.FunkcjaWZespole == "Programista"
-                                    select c;
+                var queryC = from c in db.Czlonkowie
+                             where c.ZespolId == maxId && c.FunkcjaWZespole == "Programista"
+                             select c;
 
                 foreach (var p in queryC)
                 {
                     Console.WriteLine($"Programista: {p.Imie} {p.Nazwisko}");
                 }
             }
-                
+
         }
 
         public static Zespol ReadZespolFromDB()
@@ -109,14 +134,13 @@ namespace OsobaZespol
                 {
                     z.ZespolId = zbaza.ZespolId;
                     z.NazwaZespolu = zbaza.NazwaZespolu;
-                    z.KierownikZespolu = zbaza.KierownikZespolu;
-                    z.CzlonkowieZespolu = zbaza.CzlonkowieZespolu;
+                    z.KierownikZespolu = zbaza.kierownikZespolu;
+                    z.CzlonkowieZespolu = zbaza.czlonkowieZespolu;
                 }
                 return z;
             }
         }
 
-        #endregion EF
 
         // Enable-Migrations
         // Update-Database --Verbose
@@ -126,6 +150,26 @@ namespace OsobaZespol
         private string nazwaZespolu;
         private KierownikZespolu kierownikZespolu;
         private List<CzlonekZespolu> czlonkowieZespolu; // lista o typu danych CzlonekZespolu
+
+        /// <summary>
+        /// Liczba aktywnych członków zespołu.
+        /// </summary>
+        public int LiczbaAktywnychCzlonkowZespolu { get => liczbaAktywnychCzlonkowZespolu; set => liczbaAktywnychCzlonkowZespolu = value; }
+
+        /// <summary>
+        /// Nazwa zespołu.
+        /// </summary>
+        public string NazwaZespolu { get => nazwaZespolu; set => nazwaZespolu = value; }
+
+        /// <summary>
+        /// Kierownik zespołu.
+        /// </summary>
+        public KierownikZespolu KierownikZespolu { get => kierownikZespolu; set => kierownikZespolu = value; }
+
+        /// <summary>
+        /// Lista członków zespołu.
+        /// </summary>
+        public List<CzlonekZespolu> CzlonkowieZespolu { get => czlonkowieZespolu; set => czlonkowieZespolu = value; }
 
         /// <summary>
         /// Tworzy nowy, pusty zespół.
@@ -251,7 +295,7 @@ namespace OsobaZespol
         {
             Zespol kopia = (Zespol)this.Clone();
             kopia.nazwaZespolu = this.nazwaZespolu;
-            kopia.KierownikZespolu = (KierownikZespolu)this.KierownikZespolu.Clone();
+            kopia.kierownikZespolu = (KierownikZespolu)this.kierownikZespolu.Clone();
             kopia.czlonkowieZespolu = new List<CzlonekZespolu>(czlonkowieZespolu.Select(
                 x => (CzlonekZespolu)x.Clone()));
 
@@ -403,25 +447,5 @@ namespace OsobaZespol
             mlist = czlonkowieZespolu.FindAll(c => c.FunkcjaWZespole.Equals(funkcja));
             return mlist;
         }
-
-        /// <summary>
-        /// Liczba aktywnych członków zespołu.
-        /// </summary>
-        public int LiczbaAktywnychCzlonkowZespolu { get => liczbaAktywnychCzlonkowZespolu; set => liczbaAktywnychCzlonkowZespolu = value; }
-
-        /// <summary>
-        /// Nazwa zespołu.
-        /// </summary>
-        public string NazwaZespolu { get => nazwaZespolu; set => nazwaZespolu = value; }
-
-        /// <summary>
-        /// Kierownik zespołu.
-        /// </summary>
-        //public KierownikZespolu KierownikZespolu { get => kierownikZespolu; set => kierownikZespolu = value; }
-
-        /// <summary>
-        /// Lista członków zespołu.
-        /// </summary>
-        //public List<CzlonekZespolu> CzlonkowieZespolu { get => czlonkowieZespolu; set => czlonkowieZespolu = value; }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OsobaZespol
+namespace ZespolBackend
 {
     /// <summary>
     /// Abstrakcyjna klasa bazowa reprezentująca osobę fizyczną.
@@ -60,7 +60,7 @@ namespace OsobaZespol
             {
                 if (value.Length != 11)
                 {
-                    throw new wrongPeselException("PESEL musi mieć dokładnie 11 znaków.");
+                    throw new WrongPeselException("PESEL musi mieć dokładnie 11 znaków.");
                 }
                 pesel = value;
             }
@@ -189,7 +189,7 @@ namespace OsobaZespol
                 text = "lat";
             }
 
-            return $"{imie} {nazwisko} [{age} {text}] ({plec}), ur. {dataUrodzenia.ToShortDateString():dd-mm-yyyy} ({pesel}), {adres}";
+            return $"{imie} {nazwisko} [{age} {text}] ({plec}), ur. {dataUrodzenia.ToShortDateString():dd-MM-yyyy} ({pesel}), {adres}";
         }
 
         /// <summary>

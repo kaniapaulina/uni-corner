@@ -1,6 +1,6 @@
-﻿using OsobaZespol;
+﻿using ZespolBackend;
 
-namespace TestZespol
+namespace ZespolTest
 {
     [TestClass]
     public class Test1
@@ -71,7 +71,7 @@ namespace TestZespol
             //cz.PESEL = niepoprawnypesel;
 
             // Assert - gdy to ponizej jest uzywane to komentujemy to co jest powyzej
-            Assert.ThrowsException<wrongPeselException>(() => cz.Pesel = niepoprawnypesel);
+            Assert.ThrowsException<WrongPeselException>(() => cz.Pesel = niepoprawnypesel);
         }
 
         [TestMethod]

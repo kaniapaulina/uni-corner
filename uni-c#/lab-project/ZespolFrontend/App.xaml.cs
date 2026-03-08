@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace ZespolGUI
+namespace ZespolFrontend
 {
     /// <summary>
     /// Interaction logic for App.xaml

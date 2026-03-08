@@ -154,9 +154,27 @@ def zad7():
     value = [n for n in range(97, 123)]
     letters = list(string.ascii_lowercase)
     for i in range(len(value)):
-        asciivalue[value[i]] = letters[i]
+        asciivalue[letters[i]] = value[i]
     print(asciivalue)
     print("")
 
     print("Podpunkt c:")
     asciivalue_elevated = {}
+    for i in range(len(value)):
+        asciivalue_elevated[letters[i]] = {value[i]: [value[i]**2, value[i]**3]}
+    print(asciivalue_elevated)
+    print("")
+
+# Zbiory
+# ZADANIE 8 - tworzenie setu
+def zad8():
+    smak = ["śmietankowe", "pistacjowe", "truskawkow", "jagodowe", "cytrynowe"]
+    rozmiar = ["duże", "małe"]
+    dodatek = ["polewa czekoladowa", "polewa karmelowa", "posypka czekoladowa", "posypka kolorowa"]
+
+    s = set()
+    for i in range(len(smak)):
+        for j in range(len(rozmiar)):
+            for k in range(len(dodatek)):
+                s.add((smak[i], rozmiar[j], dodatek[k]))
+    print(s)

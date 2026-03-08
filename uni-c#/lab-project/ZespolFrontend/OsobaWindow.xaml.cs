@@ -1,9 +1,7 @@
-﻿using OsobaZespol;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,7 +13,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace ZespolGUI
+using ZespolBackend;
+
+namespace ZespolFrontend
 {
     /// <summary>
     /// Logika interakcji dla klasy OsobaWindow.xaml
@@ -42,7 +42,17 @@ namespace ZespolGUI
                 TxtDataUrodzenia.Text = $"{osobaKierownik.DataUrodzenia:dd-MMM-yyyy}";
                 TxtDoswiadczenie.Text = osobaKierownik.DoswiadczenieKierownika.ToString();
                 ComboBox.Text = (osobaKierownik.Plec == EnumPlec.K) ? "Kobieta" : "Mężczyzna";
-            } else { TxtFunkcja.IsEnabled = true; }
+            }
+            else if (osoba is CzlonekZespolu czlonek)
+            {
+                TxtFunkcja.IsEnabled = true;
+                TxtPESEL.Text = czlonek.Pesel;
+                TxtImie.Text = czlonek.Imie;
+                TxtNazwisko.Text = czlonek.Nazwisko;
+                TxtFunkcja.Text = czlonek.FunkcjaWZespole;
+                ComboBox.Text = (czlonek.Plec == EnumPlec.K) ? "Kobieta" : "Mężczyzna";
+            }
+            else { TxtFunkcja.IsEnabled = true; }
         }
 
         private void BtnZatwierdz_Click(object sender, RoutedEventArgs e)
@@ -63,13 +73,19 @@ namespace ZespolGUI
                 {
                     osoba.Plec = EnumPlec.M;
                 }
+                if (osoba is CzlonekZespolu czlonek)
+                {
+                    czlonek.FunkcjaWZespole = TxtFunkcja.Text;
+                    czlonek.Aktywny = true; // domyślnie
+                }
+
                 DialogResult = true;
             }
             else
             {
                 DialogResult = false;
             }
-                
+
         }
     }
 }

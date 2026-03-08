@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OsobaZespol
+namespace ZespolBackend
 {
     /// <summary>
     /// Reprezentuje członka zespołu. Dziedziczy po <see cref="Osoba"/>.
@@ -17,6 +18,7 @@ namespace OsobaZespol
         [Key]
         public int CzłonekZespoluld { get; set; }
         public int ZespolId { get; set; }
+        [ForeignKey("ZespolId")]
         public virtual Zespol Zespol { get; set; }
         #endregion EF
 
@@ -101,7 +103,7 @@ namespace OsobaZespol
         /// <returns>Tekst zawierający imię, nazwisko, status aktywności, daty i PESEL.</returns>
         public override string ToString()
         {
-            return $"{Imie} {Nazwisko} {(aktywny ? "(A)" : "")} {DataUrodzenia:yyyy-mm-dd} {Pesel}, Funkcja: {funkcjaWZespole} ({dataWstapienia:dd-MMM-yyyy})";
+            return $"{Imie} {Nazwisko} {(aktywny ? "(A)" : "")} {DataUrodzenia:yyyy-MM-dd} {Pesel}, Funkcja: {funkcjaWZespole} ({dataWstapienia:dd-MMM-yyyy})";
         }
     }
 }
