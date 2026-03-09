@@ -60,3 +60,58 @@ corrplot(cor(data))
 plot(as.factor(data$exp), data$sales)
 
 pairs(data) #wykresy rozrzutu
+
+model <- lm(sales ~ ., data)
+summary(model)
+
+# ===== krok 3: wspolliniowosc
+install.packages("car")
+
+library(car)
+
+vif(model) #problem jesli wieksze niz 5
+model <- lm(sales ~ weekend + temp + wind + rain + exp + beach + flavors + parking + price, data)
+summary(model)
+
+# przeksztalcenie zmiennej
+# I - interpretacja jako ta operacja, wykona to dzialanie a potem wezmie jako zmienna
+model <- lm(sales ~ weekend + temp + wind + rain + I((exp-median(exp))^2) + beach + flavors + parking + price, data)
+summary(model)
+
+# zmienna kategoryczna
+model <- lm(sales ~ weekend + temp + wind + rain + as.factor(exp) + beach + flavors + parking + price, data)
+summary(model)
+
+# ======================================================
+# ===== METODA HELLWIGA
+# ======================================================
+
+# rj^2
+R0 <- cor(data)[11, -11] #ostatni wiersz bez ostatniej kolumny
+R <- cor(data)[-11, -11] #bez ostatniego wierszu i kolumny (sales)
+
+R0
+R
+
+expand.grid(c(1:3), c(1:3), c(1:3)) # wszytskie mozliwe kombinacje macierz
+comb <- expand.grid(rep(list(c(T, F)), 10))
+View(comb)
+
+k <- c(1:10)[unlist(comb[500,])]
+names(R0)
+colnames(data)
+names(R0)[k]
+
+dane <- vector()
+for(j in 1:1023) { # mk = 1023, jc(1, mk)
+  k <- c(1:10)[unlist(comb[j,])] # k - numer kombinacji, np 3, 4 i 10 są TRUE
+  H <- 0
+  for(i in k) {
+    mianownik <- sum(abs(R[k, i])) #korelacja miedzy i i i jest rowne 1, wiec nie dodaje jedynki
+    H <- H + R0[i]^2/mianownik
+  }
+  dane[i] <- H
+}
+H
+max(dane)
+
