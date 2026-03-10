@@ -3,8 +3,10 @@ import random
 import string
 
 # INPUT OUTPUT
-# Zadanie 1 - Działania matematyczne
 def zad1():
+    """
+    Zadanie 1.Napisz program proszący użytkownika o podanie dwóch liczb a i b. Wypisz w konsoli ich sumę, różnicę, iloczyn, iloraz oraz pierwiastek(a+b)
+    """
     a = int(input("Podaj liczbe a: "))
     b = int(input("Podaj liczbe b: "))
 
@@ -14,8 +16,10 @@ def zad1():
     print(f"Iloraz: {a/b}")
     print(f"Wyrażenie: {math.sqrt(a+b)}")
 
-# ZADANIE 2 - Zgadywanka
 def zad2():
+    """
+    Zadanie 2.Napisz program zgadywanka, który polega na wylosowaniu przez komputer liczby od 1 do 5, a użytkownik zgaduje jaka to liczba.
+    """
     goal = random.randint(1, 5)
     guess = int(input("Zgadnij liczbe z przedziału 1-5: "))
 
@@ -23,8 +27,15 @@ def zad2():
     else: print(":(")
 
 # LISTY
-# ZADANIE 3 -  Operacje na listach
 def zad3():
+    """
+    Zadanie 3.Wygeneruj 10 elementową listę (nums) zawierającą całkowite liczby losowe z przedziału [2,8]. Napisz program
+        a) wypisujący wszystkie elementy listy nums wraz z indeksami
+        b) usuwający z listy nums liczby nieparzyste,
+        c) zamieniający wartości elementów nieparzystych w nums na ich indeksy (uwaga jeśli wartości się powtarzają to brany będzie indeks której wartości?)
+        d) usunie z listy nums wszystkie wystąpienia liczb 2 i 3,
+        e) po każdej liczbie podzielnej przez 3 w liście nums wstawi nowy dodatkowy element o wartości 15.
+    """
     """
     nums = []
     for i in range(10):
@@ -83,8 +94,13 @@ def zad3():
     print(f"Po: {nums_test2}")
 
 # TUPLE
-# ZADANIE 4 - operacje na krotkach
 def zad4():
+    """
+    Zadanie 4.Wygeneruj 10 elementową tuplę (tnums) zawierającą całkowite liczby losowe z przedziału [2,15]. Napisz program:
+        a) wypisujący wszystkie elementy tupli tnums wraz z indeksami
+        b) wyznaczający średnie: harmoniczną, geometryczną i arytmetyczną z liczb zawartych w tupli tnums,
+        c) zliczy wszystkie wystąpienia liczby 3 i 5 w tupli tnums
+    """
     tnums = tuple([random.randint(2, 15) for _ in range(10)])
     print(tnums)
 
@@ -112,8 +128,19 @@ def zad4():
     print("Podpunkt c:")
     print(f"Powtorzenia 3: {tnums.count(3)}, powtorzenia 5: {tnums.count(5)}")
 
-# ZADANIE 5 - lista przedmiotów i studentów
 def zad5():
+    """
+    Zadanie 5.Utwórz listę przedmiotów do losowania
+    sub = [mat, stat, ang, python, BI, … inne]
+
+    Utwórz listę studentów do losowania
+    names =[Ania, Kasia, Marek, Franek, Zosia, Magda, Adam, Michał, …]
+
+    Utwórz o tej samej liczności co lista names listę identyfikatorów:
+    ids = [23222, 23223, 23224, 23225, …]
+
+    Wygeneruj listę studentów group =[ student1, student2, student3, …] przy czym student to tupla: student= (id, name, subjects), gdzie subjects to lista przedmiotów, które student zaliczył (może być różnej długości)
+    """
     sub = ["Calculus", "Algebra", "Discrete Math", "Statistics", "Probability", "Econometrics"]
     names = ["Ania", "Hania", "Bania", "Kania", "Frania", "Brania", "Flania", "Prania", "Dania", "Tania", "Vania"]
     ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
@@ -137,8 +164,13 @@ def zad5():
     print(group)
 
 # SŁOWNIKI
-# ZADANIE 7 - Działania na słownikach
 def zad7():
+    """
+    Zadanie 7.
+        a) Napisz program, który na podstawie listy: student_grades = [("Alice", 5), ("Bob", 4), ("Eve", 3), ("AAA", "BBB")] utworzy słownik z listy par student – ocena tak, aby usunąć wszystkie oceny, które nie są liczbami.
+        b) Utwórz słownik, który mapuje małe litery na ich wartości ASCII.
+        c) Utwórz zagnieżdżony słownik, w którym zewnętrzny słownik mapuje liczbę do innego słownika zawierającego kwadraty i sześciany.
+    """
     student_grades = [("Alice", 5), ("Bob", 4), ("Eve", 3), ("AAA", "BBB")]
     student = {}
 
@@ -165,9 +197,15 @@ def zad7():
     print(asciivalue_elevated)
     print("")
 
-# Zbiory
-# ZADANIE 8 - tworzenie setu
+# ZBIORY
 def zad8():
+    """
+    Zadanie 8. Dana jest lodziarnia, która sprzedaje lody o różnych smakach:
+    smak = [śmietankowe, pistacjowe, truskawkowe, jagodowe, cytrynowe]
+    Lody mogą być w dwóch rozmiarach: rozmiar = [duże , małe]
+    Lody mogą mieć dodatki: dodatek = [polewa czekoladowa, polewa karmelowa, posypka czekoladowa, posypka kolorowa] Utwórz zbiór zawierający wszystkie możliwe tuple postaci: (duże, śmietankowe, posypka kolorowa)
+
+    """
     smak = ["śmietankowe", "pistacjowe", "truskawkow", "jagodowe", "cytrynowe"]
     rozmiar = ["duże", "małe"]
     dodatek = ["polewa czekoladowa", "polewa karmelowa", "posypka czekoladowa", "posypka kolorowa"]
