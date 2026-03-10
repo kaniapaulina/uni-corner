@@ -33,30 +33,25 @@ namespace ZespolBackend
         #region EF
         [Key]
         public int ZespolId { get; set; }
-        public int KierownikZespoluId { get; set; }
-
-        [ForeignKey("KierownikZespoluId")]
         public virtual KierownikZespolu Kierownik { get; set; }
         public virtual List<CzlonekZespolu> Czlonkowie { get; set; }
 
         #endregion EF
 
         // ZAPIS DO BAZY DANYCH
+        
         public void SaveToDB()
         {
             using (var db = new ZespolDbContext())
             {
                 try
                 {
+                    
                     var exists = db.Zespoly.Any(z => z.ZespolId == this.ZespolId);
 
                     if (!exists)
                     {
                         db.Zespoly.Add(this);
-                    }
-                    else
-                    {
-                        db.Zespoly.Update(this);
                     }
 
                     db.SaveChanges();
@@ -85,7 +80,7 @@ namespace ZespolBackend
                 }
             }
         }
-
+        
         public void Q2()
         {
             using (var db = new ZespolDbContext())
@@ -120,6 +115,7 @@ namespace ZespolBackend
             }
 
         }
+        
 
         public static Zespol ReadZespolFromDB()
         {

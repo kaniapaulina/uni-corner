@@ -18,7 +18,6 @@ namespace ZespolBackend
         [Key]
         public int CzłonekZespoluld { get; set; }
         public int ZespolId { get; set; }
-        [ForeignKey("ZespolId")]
         public virtual Zespol Zespol { get; set; }
         #endregion EF
 
