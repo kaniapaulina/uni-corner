@@ -1,0 +1,136 @@
+body {
+    font-family: Datatype Mono, monospace;
+    margin: 10px;
+}
+
+header, footer {
+    text-align: center;
+    vertical-align: center;
+    background-color: darkgrey;
+    color: white;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.container-main {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-top: 2.5%;
+    padding-bottom: 2.5%;
+}
+
+.container-main > div {
+    min-height: 100vh;
+    padding-top: 2.5%;
+    padding-bottom: 2.5%;
+}
+
+#sec1 {
+    background-color: lightblue;
+}
+
+#sec2 {
+    background-color: lightgreen;
+}
+
+#sec3 {
+    background-color: lightcoral;
+}
+
+#sec4 {
+    background-color: lightyellow;
+}
+
+.images {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.singular-image {
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.singular-image:hover {
+    background-color: lightgrey;
+    border: 1px solid #777;
+}
+
+img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.list-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-content: flex-start;
+}
+
+#sec4 h3 {
+    text-align: center;
+    margin-top: 10px;
+}
+
+#sec4 table {
+    width: 30%;
+    border-collapse: collapse;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+.github-wrapper {
+    margin: 100px;
+    text-align: center;
+    margin-top: 20px;
+    border: 1px solid black;
+    background-color: lightgray;
+    border-radius: 15px;
+}
+
+.github-wrapper:hover {
+    background-color: white;
+    border: 1px solid #777;
+    box-shadow: 0cm 6px 12px rgba(0,0,0,0.2);
+}
+
+#githublink {
+    font-size: 1.5em;
+    font-weight: bold;
+    border: 1px solid black;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+#githublink:hover {
+    background-color: lightblue;
+    border: 1px solid #777;
+    box-shadow: 0cm 4px 8px rgba(0,0,0,0.1);
+}
+
+a {
+    color: black;
+    text-decoration: none;
+}
+
+a:hover {
+    color: blue;
+}
+
+a:visited {
+    color: gray;
+}
