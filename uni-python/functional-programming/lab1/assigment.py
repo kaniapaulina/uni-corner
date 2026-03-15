@@ -156,3 +156,166 @@ def szyfr_cezara(m, key):
 
 def caesar_cypher(m, key):
     return ''.join([chr(((ord(char) - 65 + key) % 26) + 65) if char.isupper() else chr(((ord(char) - 97 + key) % 26) + 97) if char.islower() else char for char in m])
+
+def zad8():
+    """
+    Zadanie 8. Wygeneruj listę zawierającą wielokrotności liczb od 1 do 10 dla wartości od 1 do 100, ale tylko te wielokrotności, które są mniejsze niż 50.
+    """
+    wielokrotnosc = [x for x in range(1, 11)]
+    result = []
+    n = 1
+    for i in range(len(wielokrotnosc)):
+        for j in range(wielokrotnosc[i], 101, wielokrotnosc[i]):
+            if j < 50:
+                result.append(j)
+    print(result)
+
+def zad9():
+    """
+    Zadanie 9. Wygeneruj listę zawierającą liczby Fibonacci'ego do wartości 100, ale tylko te liczby, które są parzyste.
+    """
+    n = 0
+    m = 1
+    fib = []
+    result = []
+    while m < 80:
+        m, n = m + n, m
+        fib.append(m)
+        if m%2 == 0:
+            result.append(m)
+    print(f"Ciąg Fibonacci'ego: {fib}")
+    print(result)
+
+def zad10():
+    """
+    Zadanie 10. Z danej listy zdań stwórz listę zawierającą słowa o długości co najmniej 4 znaków, przekształcone na wielkie litery.
+    """
+    lista_zdan = ["I am Paulina", "This is a cool Program that transforms a sentence into words"]
+    result = []
+    for element in lista_zdan:
+        element += " "
+        slowo = []
+        for chr in element:
+            if chr != " ":
+                slowo.append(chr)
+            else:
+                if len("".join(slowo)) >= 4:
+                    result.append("".join(slowo).upper())
+                slowo = []
+    #print([n for n in result if len(n)>=4])
+    print(result)
+
+def zad10_alt():
+    lista_zdan = ["I am Paulina", "This is a cool Program that transforms a sentence into words"]
+    print(lista_zdan)
+
+    resulta = []
+    for element in lista_zdan:
+        formatted = element.split()
+        resulta.append(formatted)
+    print(resulta)
+
+    resultb = []
+    for sentence in resulta:
+        for word in sentence:
+            if len(word)>=4:
+                x = word.upper()
+                resultb.append(x)
+
+    print(resultb)
+
+def zad11():
+    """
+    Zadanie 11. Utwórz słownik, w którym kluczami są liczby, a wartościami ich kwadraty. Jako klucze należy uwzględniać wyłącznie liczby parzyste.
+    """
+    numbers = [n for n in range(20) if n%2==0]
+    dict_num = {}
+    for n in numbers:
+        dict_num[n] = n**2
+    print(dict_num)
+
+def zad12():
+    """
+    Zadanie 12. Utwórz słownik, w którym kluczami będą liczby, a wartościami ich kwadraty, ale uwzględnij tylko wpisy, w których kwadrat jest większy niż 10.
+    """
+    numbers = [n for n in range(20) if n**2>10]
+    dict_num = {}
+    for n in numbers:
+        dict_num[n] = n ** 2
+    print(dict_num)
+
+def zad13():
+    """
+    Zadanie 13. Mając istniejący słownik, zamień klucze i wartości.
+    """
+    istniejacy_slownik = {
+        "jeden": 1,
+        "dwa": 2,
+        "trzy": 3,
+        "cztery": 4
+    }
+    nowy_slownik = {}
+    for key, value in istniejacy_slownik.items():
+        nowy_slownik[value] = key
+    print(istniejacy_slownik)
+    print(nowy_slownik)
+
+def zad14():
+    """
+    Zadanie 14. Utwórz słownik, który mapuje małe litery na ich wartości ASCII.
+    """
+    litery = [n for n in string.ascii_lowercase]
+    small_letters = {}
+    for i in range(0, len(litery)):
+        small_letters[litery[i]] = ord('a') + i
+    print(small_letters)
+
+def zad15():
+    """
+    Zadanie 15. Utwórz zagnieżdżony słownik, w którym zewnętrzny słownik mapuje liczbę do innego słownika zawierającego kwadraty i sześciany.
+    """
+    slownik = {}
+    for i in range(10):
+        slownik[i] = {
+            i**2: i**3
+        }
+    print(slownik)
+
+
+# Funkcja do szybkiego testowania
+def play():
+    match int(input("Podaj numer zadania: ")):
+        case 1:
+            zad1()
+        case 2:
+            zad2()
+        case 3:
+            zad3()
+        case 4:
+            zad4()
+        case 5:
+            zad5()
+        case 6:
+            zad6()
+        case 7:
+            zad7()
+        case 8:
+            zad8()
+        case 9:
+            zad9()
+        case 10:
+            zad10()
+        case 11:
+            zad11()
+        case 12:
+            zad12()
+        case 13:
+            zad13()
+        case 14:
+            zad14()
+        case 15:
+            zad15()
+        case _:
+            print("Podałes zły numer")
+
+play()

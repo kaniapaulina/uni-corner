@@ -154,6 +154,7 @@ def zad5():
         del names[names.index(name)]
 
         subjects = []
+        # random.sample(sequence, k - number of elements to select)
         subidx = random.sample(range(0, len(sub)), random.randint(1, len(sub)-1))
         for j in subidx:
             element = sub[j]
@@ -216,3 +217,25 @@ def zad8():
             for k in range(len(dodatek)):
                 s.add((smak[i], rozmiar[j], dodatek[k]))
     print(s)
+
+def play():
+    match int(input("Podaj numer zadania: ")):
+        case 1:
+            zad1()
+        case 2:
+            zad2()
+        case 3:
+            zad3()
+        case 4:
+            zad4()
+        case 5:
+            zad5()
+        case 7:
+            zad7()
+        case 8:
+            zad8()
+
+        case _:
+            print("Podałes zły numer")
+
+play()
