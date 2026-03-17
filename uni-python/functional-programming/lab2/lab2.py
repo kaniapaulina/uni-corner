@@ -1,3 +1,5 @@
+import datetime
+import itertools
 
 # import itertools
 from itertools import accumulate
@@ -143,7 +145,8 @@ def zad7():
     """
     Pobieranie danych z daty: Napisz funkcję lambda, która z podanej daty systemowej wypisze rok, miesiąc i dzień.
     """
-    return None
+    funkcja_daty = lambda: datetime.date.today()
+    print(funkcja_daty())
 
 def zad8():
     """
@@ -169,11 +172,19 @@ def zad10():
     """
     Wbudowana funkcja enumerate pobiera iteratable i zwraca iterator po parach (indeks, wartość) dla każdej wartości w źródle. Napisz funkcję, która wczytuje od użytkownika listę imion, a następnie wypisuje je w podanym obok formacie.
     """
+    imienia = ["Ania", "Hania", "Frania"]
+    for i in enumerate(imienia, start=1):
+        print(f"{i[0]}: {i[1]}")
 
 def zad11():
     """
     Wykorzystując metody z modułu itertools utwórz listę złożoną z maksymalnych elementów wybranych z kolejnych 1, 2, 3, 4, … elementów listy. Na przykład, dla listy [5, 3, 6, 2, 1, 9, 1] wynikiem będzie lista [5, 5, 6, 6, 6, 9, 9] (5 = max(5), 5 = max(5, 3), 6 = max(5, 3 ,6), 6 = max(5, 3, 6, 2), itd.).
     """
+    przyklad = [5, 3, 6, 2, 1, 9, 1]
+    print(przyklad)
+    result = list(itertools.accumulate(przyklad, max))
+    print(result)
+
 
 def zad12():
     """
@@ -187,9 +198,10 @@ def zad13():
     """
     Za pomocą funkcji map() i filter() wypisz dużymi literami wszystkie palindromy na liście.
     """
-    w = list( map(lambda word : word.upper() if word == word[::-1] else x,slowa))
+    slowa = ["kajak", "ala", "wilk", "radar", "dama", "zegar"]
+    w = list( map( lambda word : word.upper() if word == word[::-1] else word, slowa ) )
     print(w)
-    w = list(map(str.upper,filter(lambda word : word == word[::-1],slowa)))
+    #w = list(map(str.upper() if (lambda word : word == word[::-1], slowa)))
     print(w)
 
 def zad14():
@@ -207,27 +219,126 @@ def zad15():
     """
     Wypisz pary elementów z dwóch list : numbers = [1, 2, 3, 4, 5, 6], letters = ['a', 'b', 'c', 'd', 'e', 'f'] w postaci wynik: 1 : 'a', 2 : 'b', …
     """
+    numbers = [1, 2, 3, 4, 5, 6]
+    letters = ['a', 'b', 'c', 'd', 'e', 'f']
+    result = dict(zip(numbers, letters))
+    print(result)
+
+    for para in zip(numbers, letters):
+        print(f"{para[0]}: {para[1]}")
+    for n, l in zip(numbers, letters):
+        print(f"{n}: {l}")
 
 def zad16():
     """
     Zaimplementuj iterator zwracający n elementów ciągu Fibonacciego. Zauważ, że iterator jest klasą, która przyjmuje w konstruktorze n, implementuje protokół iteratora (__iter__, __next__), po wyczerpaniu danych zgłasza StopIteration.
     """
+    class FibonacciIterator:
+        def __init__(self, n):
+            self.n = n
+            self.a = 0
+            self.b = 1
+            self.count = 0
+
+        def __iter__(self):
+            return self
+        def __next__(self):
+            if self.count >= self.n:
+                raise StopIteration
+            value = self.a
+            self.a, self.b = self.b, self.a + self.b
+            self.count += 1
+            return value
+
+    fib = FibonacciIterator(10)
+    for x in fib:
+        print(x)
 
 def zad17():
     """
     Zaimplementuj funkcję pipeline(data, *functions), która będzie reprezentowała strumień transformacji, czyli przyjmie argumenty data jako obiekt iterable i do nich zaaplikuje kolejne transformacje z *functions. Wynik ma być zwracany jako iterator (lazy) bez zapisywania wyników w liście.
     """
+    def pipeline(data, *functions):
+        result = data
+        for function in functions:
+            result = map(function, result)
+        return result
+
+    def square(x): return x ** 2
+
+    def increment(x): return x + 1
+
+    numbers = [1, 2, 3]
+    test = pipeline(numbers, square, increment)
+
+    print(test)
+    print(next(test))
+    print(next(test))
+    print(next(test))
 
 # GENERATORY
 def zad18():
     """
     Zaimplementuj generator, który zwraca pierwszą potęgę (wykładnik), dla którego 2^n jest większe od zadanej wartości k.
     """
+    def funkcja(k):
+        n = 0
+        while True:
+            result = 2**n
+            if result > k:
+                yield n
+                break
+            n += 1
+
+    for i in funkcja(2):
+        print(i)
 
 def zad19():
     """
     Zaimplementuj klasę reprezentującą węzeł drzewa binarnego (Node) oraz iterator przechodzący drzewo w porządku in-order. Porządek inorder oznacza: lewe poddrzewo → korzeń → prawe poddrzewo. Wykorzystaj generatory (generator yield i yield from), bez ręcznego pisania klasy iteratora. Wpisz drzewo i wypisz wierzchołki. Dla podanego drzewa powinien wypisać ciąg 1,2,3,4,5,6,7
     """
+
+    class TreeNode:
+        def __init__(self, data):
+            self.data = data
+            self.left = None
+            self.right = None
+
+    root = TreeNode(4)
+
+    nodeA = TreeNode(2)
+    nodeB = TreeNode(6)
+    root.left = nodeA
+    root.right = nodeB
+
+    nodeC = TreeNode(1)
+    nodeD = TreeNode(3)
+    nodeA.left = nodeC
+    nodeA.right = nodeD
+
+    nodeE = TreeNode(5)
+    nodeF = TreeNode(7)
+    nodeB.left = nodeE
+    nodeB.right = nodeF
+
+    def inOrder(node):
+        if node is None:
+            return None
+        inOrder(node.left)
+        print(node.data, end=" ")
+        inOrder(node.right)
+
+    def inOrderGenerator(node):
+        if node is None:
+            yield None
+        yield from inOrderGenerator(node.left)
+        yield from inOrderGenerator(node.right)
+
+    inOrder(root)
+
+    for i in inOrderGenerator(root):
+        print(i)
+
 
 def zad20():
     """
@@ -238,16 +349,35 @@ def zad21():
     """
     Zaimplementuj generator perfect_numbers zwracający liczby doskonałe mniejsze od n.
     """
+    def perfect_numbers(n):
+        # for x in range(n-1, 1, -1): ...
+        x = n - 1
+        while (x > 0):
+            suma = 1
+            for i in range(2, int(x/2)+1):
+                if x % i == 0:
+                    suma += i
+            if suma == x:
+                yield x
+            x -= 1
+
+    for i in perfect_numbers(500):
+        print(i)
 
 def zad22():
     """
     Napisz generator, który generuje kolejne potęgi dwójki od 1 do n (n ma być parametrem generatora). Do potęgowania wykorzystaj przesunięcie bitowe.
     """
+    def potega_bitowa(n):
+        for i in range(1, n + 1):
+            yield 2 << i
+
+    for i in potega_bitowa(4):
+        print(i)
 
 def zad23():
     """
-    Napisz generator, który będzie zwracał kolejne cyfry liczby podanej od użytkownika.
-Wyznacz kilka pierwszych elementów generatora. Wyznacz sumę wszystkich cyfr.
+    Napisz generator, który będzie zwracał kolejne cyfry liczby podanej od użytkownika. Wyznacz kilka pierwszych elementów generatora. Wyznacz sumę wszystkich cyfr.
     """
 
 def zad24():
@@ -260,3 +390,59 @@ def zad25():
     Napisz generator, który przyjmuje inny generator i zwraca tylko liczby parzyste z jego wyników.
     """
 
+def play():
+    match int(input("Podaj numer zadania: ")):
+        case 1:
+            zad1()
+        case 2:
+            zad2()
+        case 3:
+            zad3()
+        case 4:
+            zad4()
+        case 5:
+            zad5()
+        case 6:
+            zad6()
+        case 7:
+            zad7()
+        case 8:
+            zad8()
+        case 9:
+            zad9()
+        case 10:
+            zad10()
+        case 11:
+            zad11()
+        case 12:
+            zad12()
+        case 13:
+            zad13()
+        case 14:
+            zad14()
+        case 15:
+            zad15()
+        case 16:
+            zad16()
+        case 17:
+            zad17()
+        case 18:
+            zad18()
+        case 19:
+            zad19()
+        case 20:
+            zad20()
+        case 21:
+            zad21()
+        case 22:
+            zad22()
+        case 23:
+            zad23()
+        case 24:
+            zad24()
+        case 25:
+            zad25()
+        case _:
+            print("Podałes zły numer")
+
+play()
