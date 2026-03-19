@@ -15,9 +15,26 @@
 # dobór postaci modelu: problem - dopasowanie liniowego modelu gdy rzeczywiście zależność jest nieliniowa, losowość błędów (niedoszacowane), przerwy strukturalne (w naszym zbiorze danych mamy grupy gdzie y w inny sposób zależy od x)
 # normalność reszt (niekonieczne założenie)
 
+# czyli e - zalozenia o resztach (błędach), jeśli one są złamane,to p-value są błędne a prognozy - bezwartościowe. Główne problemy to:
+
+# - współliniowość - czy zmienne objaśniające się nie dublują
+#     vif(model) - wynik > 5 to czerwona flaga, model jest niestabilny
+
+# - normalność reszt - chcemy aby błędy miały rozkład normalny N(0, sigma)
+#     shapiro.test(r) - p > 0.05 oznacza że reszty mają rozkład normalny, jeśli nie to testy         tStudenta i F mogą być niewiarygodne
+
+# - homoskedastyczność / heteroskedastyczność - błąd powinin być "stały". Jeśli przy małej       sprzedaży mylisz się o 5zł, a przy dużej o 500zł, masz heteroskedastyczność
+#     bptest(model) - hipoteza zerowa to homoskedastyczność (stała wariancja). Gdy p<0.05 to         błędy są niejednorodne i jest problem
+
+# - postać liniowa - czy nie pominąłeś ważnych potęg zmiennych
+#     reset(model) - jeśli p<0.05 model jest źle wyspecyfikowany
+
+# - stabilność / autokorelacja - czy błędy są losowe
+#     runs.test(r) - jeśli p < 0.05 oznacza, że błędy nie są losowe
+
 # Teoretyczny model - sytuacja idealna
 
-model_t <- lm(sales ~ temp*weekend + beach + rain + other + price + I((exp-4)^2) + I((flavors-7)^2), data)
+model_t <- lm(sales ~ temp*weekend + beach + rain + other + price + I((exp-4)^2), data)
 summary(model_t)
 
 # === WSPÓŁLINIOWOŚĆ
@@ -35,9 +52,11 @@ hist(r)
 plot(model_t$fitted.values, model_t$residuals)
 # wniosek -> mniej wiecej ta sama rozpietość reszt jest git, ale gdy się grupuje pojawiają się błędy
 plot(model_t) 
-# wykres 1: najbardziej odlegle punkty zostaly podpisane
-# wykres 2: Q-Q Residuals badanie normalności reszt
-# wykres 3: Scale-Location przypadki oddalające się od regresji
+
+# wykres 1: Residuals vs Fitted: Szukamy braku wzorca. Jeśli widzisz "lejek" – masz heteroskedastyczność. Jeśli widzisz wygięcie – postać modelu jest zła. najbardziej odlegle punkty zostaly podpisane
+# wykres 2: Q-Q Residuals badanie normalności reszt, Normal Q-Q: Kropki powinny leżeć na przekątnej. Jeśli "odlatują" na końcach – brak normalności.
+# wykres 3: Scale-Location przypadki oddalające się od regresji, heteroskedastyczność
+# wykres 4: Residuals vs Leverage: Szukamy punktów, które mają zbyt duży wpływ na wynik (tzw. punkty wpływowe).
 
 library(lmtest)
 gqtest(model_t, 0.7) # test Goldfelda-Quanta, na 70%
@@ -60,7 +79,8 @@ library(randtests)
 runs.test(r)
 
 # === PRZERWY STRUKTURALNE
-# test CHOW - Wikipedia
+# test CHOW - sprawdzamy, czy jedna prosta regresja pasuje do całego zbioru, czy powinniśmy mieć dwie osobne proste
+# Interpretacja: jesli p_val jest małe (<0.05) to istnieje przerwa strukturalna
 
 boxplot(sales ~ exp, data) # wykres pudelkowy, przerwa strukturalna gdzies po środku
 
@@ -88,6 +108,28 @@ n2 <- nrow(model2)
 
 wynik <- ((sse-(sse1+sse2))/k)/((sse1+sse2)/(n1+n2-2*k))
 p_val <- 1-pf(wynik, k, n1+n2-2*k)
+
+# Poprawnie chow test - z wikipedii
+chow_test <- function(formula, d1, d2) {
+  d <- rbind(d1, d2)
+  mC <-lm(formula, d)
+  Sc <- sum(mC$residuals^2)
+  
+  m1 <- lm(formula, d1)
+  S1 <-sum(m1$residuals^2)
+  
+  m2 <- lm(formula, d2)
+  S2 <- sum(m2$residuals^2)
+  
+  k <- length(mC$coefficients)
+  
+  stat <- ((Sc-S1-S2)/k)/((S1+S2)/(nrow(d)-2*k))
+  p_val <-1-pf(stat, k, nrow(d)-2*k)
+  print(paste("Statystyka: ", round(stat, 3)))
+  print(paste("P-Value: ", round(p_val, 3)))
+}
+
+chow_test(data, g1, g2)
 
 test_summary <- function(model) {
   r <- model$residuals

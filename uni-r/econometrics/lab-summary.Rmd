@@ -1,0 +1,150 @@
+---
+title: "Nauka do Kolokwium"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+```{r, warning=FALSE, message=FALSE}
+library(dplyr)
+```
+
+# Laboratoria 1
+
+---
+
+## Zadanie 1
+
+Budujemy model idealny - zależność jest sztywna, każda osoba w rodzinie zjada dokładnie jedną pomarańcze plus jedną zapasowa
+
+```{r, out.width="50%"}
+# Zależność wprost proporcjonalna
+
+set.seed(111)
+data <- data.frame(
+  family_size = rpois(50, 3)
+) %>% mutate(oranges = family_size+1) # ilość pomarańcz = ilość osób w rodzinie + dzika pomarańcza
+
+plot(data$family_size, data$oranges)
+abline(a=1, b=1, col="red")
+cor(data$family_size, data$oranges)
+```
+
+---
+
+#### Model Ekonometryczny
+
+Każdy model regresji zapisujemy jako:
+
+$$y = \beta_0 + \beta_1 x + \epsilon$$ 
+
+$y$: Zmienna objaśniana (ile pomarańczy kupiono). 
+
+$x$: Zmienna objaśniająca (wielkość rodziny). 
+
+$\beta_0$: Wyraz wolny (ile kupujemy "na start", gdy $x=0$). 
+
+$\beta_1$: Współczynnik nachylenia (o ile wzrośnie $y$, gdy $x$ wzrośnie o 1).
+
+$\epsilon$: Błąd losowy (wszystko to, czego nie wiemy o preferencjach ludzi)
+
+---
+
+## Zadanie 2
+
+Wprowadzamy trochę losowości - ludzie mają różne preference
+
+- 0 - nie lubi pomarańczy z prawdopodobieństwem 30%
+- 1 - chce 1 pomarańcze z prawdopodobieństwem 50%
+- 2 - chce 2 pomarańcze z prawdopodobieństwem 20%
+
+```{r}
+get_preference = function(family_size){
+  sapply(family_size, function(x) {
+    sum(sample(c(0, 1, 2), size = x, replace = T, prob = c(0.3, 0.5, 0.2)))
+  })
+}
+
+set.seed(123)
+data <- data %>% mutate(oranges = get_preference(family_size+1))
+
+plot(data$family_size, data$oranges)
+abline(a=1, b=1, col="red")
+
+cor(data$family_size, data$oranges)
+```
+
+---
+
+#### Metoda Najmniejszych Kwadratów (MNK / OLS)
+
+Komputer szuka takiej linii (współczynników $a$ i $b$), aby "pomyłka" modelu była jak najmniejsza. Ponieważ błędy mogą być dodatnie lub ujemne, podnosimy je do kwadratu, żeby się nie znosiły:
+
+$$\sum (y_i - \hat{y}_i)^2 \rightarrow \min$$
+
+Gdzie $y_i$ to prawdziwa wartość, a $\hat{y}_i$ to wartość z naszej wyrysowanej prostej. Zielona linia w Twoim kodzie to właśnie ta "najlepsza z możliwych" prosta.
+
+---
+
+lm (Linear Model) mówi komputerowi: "Znajdź mi takie parametry $a$ (wyraz wolny) i $b$ (nachylenie), dla których suma kwadratów błędów będzie najmniejsza z możliwych".
+
+```{r}
+# y = a + bx + e
+# Metoda najmniejszych kwadratow: 
+# (y - a - bx)^2 -> min
+
+# teoretyczna prognoza: rodzina kupi tyle pomarańczy co członków + 1
+data$y_drop = data$family_size + 1
+
+# e - błedy, reszty (residuals), czyli tyle pomarańczy ile rodzina faktycznie zakupiłą
+data$e = data$oranges - data$y_drop
+
+# suma do kwadratu, by bledy przeciwnych znakow sie nie eliminowały 
+sum(data$e^2)
+
+# MNK - model w którym oranges zależą od family_size
+model <- lm(oranges ~ family_size, data)
+
+plot(data$family_size, data$oranges)
+abline(a=1, b=1, col="red")
+abline(a=model$coefficients[1], b=model$coefficients[2], col="green")
+
+sum(model$residuals^2)
+
+summary(data)
+summary(model)
+
+# t = (m - m0)/S*sqrt(n) ~ tS(n-1) (rozkład t-Studenta, test istotności)
+print(1.0823/0.3473) # Estimate/Std. Error
+# Interpretacja: Jeśli wynik tego dzielenia (t-value) jest duży (zazwyczaj powyżej 2), to znaczy, że wpływ zmiennej jest "silniejszy" niż szum informacyjny. Oznacza to, że wielkość rodziny istotnie statystycznie wpływa na liczbę pomarańczy.
+
+# Współczynnik determinacji: R^2 (R-Squared) - uzasadnia jaki procent zmienności Twojego y (pomarańczy) udało się wyjaśnić za pomocą x (wielkości rodziny).
+# Im bliżej 1, tym model lepiej opisuje rzeczywistość
+
+# Test Łącznej istotności wszystkich zmiennych: F-Statistic
+# Interpretacja: Patrzysz na wartość p-value przy statystyce F. Jeśli jest mniejsza niż 0.05, to twój model ma sens i wnosi jakąś informację
+```
+
+#### Współczynniki (Coefficients)
+
+Intercept (Wyraz wolny $\beta_0$): 1.0823
+
+- Teoria: To wartość $y$, gdy $x = 0$.
+
+- Interpretacja: "Singiel" (rodzina o rozmiarze 0, co w tym modelu jest teoretyczne) lub po prostu "na start" kupuje się średnio ok. 1.08 pomarańczy.
+
+family_size (Nachylenie $\beta_1$): 0.8135
+
+- Teoria: O ile zmieni się $y$, gdy $x$ wzrośnie o 1.
+
+- Interpretacja: Jeśli do rodziny dołączy jedna dodatkowa osoba, to przewidywana liczba kupowanych pomarańczy wzrośnie średnio o 0.81 sztuki.
+
+#### Testy istotności (t value & Pr(>|t|)) - czy dane nie są przypadkowe
+
+Std. Error: "Niepewność" Szacunku -> t value: Estimate / Std.Error
+
+Pr(>|t|) (p-value):
+
+- Interpretacja: Ponieważ ta liczba jest dużo mniejsza niż 0.05. Oznacza to, że wielkość rodziny ma statystycznie istotny wpływ na liczbę pomarańczy. Liczba gwiazdek obok mówi, że to nie jest przypadek

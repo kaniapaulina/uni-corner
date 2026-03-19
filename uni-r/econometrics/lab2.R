@@ -52,12 +52,10 @@ boxplot(data$wind)
 # ===== krok 2: przegląd zależności między zmiennymi
 cor(data)
 
-install.packages("corrplot")
 library(corrplot)
-
 corrplot(cor(data))
 
-plot(as.factor(data$exp), data$sales)
+plot(as.factor(data$exp), data$sales) #sprzedaż wzgledem kategorii doswiadczenia
 
 pairs(data) #wykresy rozrzutu
 
@@ -65,11 +63,9 @@ model <- lm(sales ~ ., data)
 summary(model)
 
 # ===== krok 3: wspolliniowosc
-install.packages("car")
-
 library(car)
 
-vif(model) #problem jesli wieksze niz 5
+vif(model) #problem jesli wieksze niz 5, sygnal alarmowy ze istnieje pewna wspolliniowosc i model nie wie ktorej zmiennej przypisac zasluge za wynik
 model <- lm(sales ~ weekend + temp + wind + rain + exp + beach + flavors + parking + price, data)
 summary(model)
 
@@ -78,23 +74,31 @@ summary(model)
 model <- lm(sales ~ weekend + temp + wind + rain + I((exp-median(exp))^2) + beach + flavors + parking + price, data)
 summary(model)
 
+
 # zmienna kategoryczna
-model <- lm(sales ~ weekend + temp + wind + rain + as.factor(exp) + beach + flavors + parking + price, data)
+model <- lm(sales ~ weekend + temp + wind + rain + as.factor(exp) + beach + flavors + parking + price, data) #sprawdza dla kazdej kategorii doswiadczenia, jeden rok, dwa lata itd
 summary(model)
+
+# Analiza Summary:
+# Adjusted R-squared: Używaj wersji "Adjusted" (skorygowanej), gdy porównujesz modele z różną liczbą zmiennych. Jeśli dodasz nową zmienną, a Adjusted R-squared spadnie – wyrzuć ją, model stał się gorszy (przeuczony)
+# Istotność zmiennych ($p-value$): Czy po dodaniu interakcji lub kwadratu, inne zmienne przestały być istotne?
 
 # ======================================================
 # ===== METODA HELLWIGA
 # ======================================================
+# czyli jak matematycznie wybrać optymalny zestaw zmiennych które:
+# Mają jak najwyższą korelację ze zmienną objaśnianą (sales).
+# Mają jak najniższą korelację między sobą (nie dublują informacji).
 
 # rj^2
 R0 <- cor(data)[11, -11] #ostatni wiersz bez ostatniej kolumny
-R <- cor(data)[-11, -11] #bez ostatniego wierszu i kolumny (sales)
+R <- cor(data)[-11, -11] #bez ostatniego wierszu i bez ostatniej kolumny (sales)
 
-R0
-R
+R0 # wektor korelacji
+R # macierz korelacji
 
 expand.grid(c(1:3), c(1:3), c(1:3)) # wszytskie mozliwe kombinacje macierz
-comb <- expand.grid(rep(list(c(T, F)), 10))
+comb <- expand.grid(rep(list(c(T, F)), 10)) # gigantyczna macierz prawdy dla kazdej zmiennej
 View(comb)
 
 k <- c(1:10)[unlist(comb[500,])]
@@ -107,11 +111,11 @@ for(j in 1:1023) { # mk = 1023, jc(1, mk)
   k <- c(1:10)[unlist(comb[j,])] # k - numer kombinacji, np 3, 4 i 10 są TRUE
   H <- 0
   for(i in k) {
-    mianownik <- sum(abs(R[k, i])) #korelacja miedzy i i i jest rowne 1, wiec nie dodaje jedynki
-    H <- H + R0[i]^2/mianownik
+    mianownik <- sum(abs(R[k, i])) #korelacja miedzy "i" i "i" jest rowne 1, wiec nie dodaje jedynki
+    H <- H + R0[i]^2/mianownik #indywidualna pojemnosc dodana do sumy
   }
-  dane[i] <- H
+  dane[j] <- H
 }
-H
+H #maksymalna pojemnosc informacyjna
 max(dane)
 

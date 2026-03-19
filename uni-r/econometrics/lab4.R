@@ -1,11 +1,12 @@
 # ======================================================
 # Ekonometria
 # Laboratoria 4 - 09.03.2026
-# ======================================================
+# ====================================================== 
 
 # ======================================================
 # ===== Zadanie 1 =====
 # ======================================================
+# Naprawianie modelu, w którym testy diagnostyczne "wybuchły", zadanie na odporne błędy standardowe orazregresje ważoną (wls)
 
 # DIAGNOZOWANIE
 
@@ -31,7 +32,7 @@ corrplot(cor(data))
 # dodajemy mniej znaczącą zmienną by porpawić model
 
 model <- lm(sales ~ weekend + beach + rain + exp + temp + flavors + parking, data)
-test_summary(model) # niestety dalej słabp wypada model
+test_summary(model) # niestety dalej słabo wypada model
 
 # Nieliniowe zależności
 plot(data$exp, data$sales) #ty zaleznosci, ksztalt wklesły
@@ -76,12 +77,12 @@ p <- predict(model, newdata = data.frame (
 
 #fit - poprzednia wartosc, se.fit - blad standardowy, df - liczba stopni swobody
 
-# bledy ex ante
+# bledy ex ante - prognoza zanim się wydarzy
 # Przedzial ufnosci dla prognozy (99%)
 l <- p$fit - p$se.fit*qnorm(0.995) #dolny przedzial prognozy
 u <- p$fit + p$se.fit*qnorm(0.995) #górny przedzial prognozy
 
-# bledny ex post
+# bledny ex post - sprawdzamy model na danych historycznych
 # dzielimy dane na zbiór treningowy i testowy
 library(dplyr)
 set.seed(333)
@@ -100,30 +101,29 @@ p <- predict(model, newdata = test, se.fit = T)
 e <- test$sales - p$fit
 hist(e)
 
-# Mean Absolute Error
+# Mean Absolute Error - snredni blad, o ile sztuk srednio sie myli mode;
 MAE = mean(abs(e))
 
-# Root MEan Squared Error
+# Root MEan Squared Error - karze model za duze pomylki
 RMSE = sqrt(mean(e^2)) #bardziej wrazliwy na wartosci odstajace
 
-# Mean ABsolute Percentage Error
+# Mean ABsolute Percentage Error - jesli MAPE = 5% to model sie myli srednio o 5%
 MAPE = mean(abs(e/test$sales))*100 #wyrazone w procentach
-
+    
 # dzielimy zbiór na np. 10 części
 # za każdym razem jedna z tych części jest zbiorem testowym, a reszta trafia do zbioru treningowego
 # estymujemy i prognozujemy
 # błedy prognozy
 
-MAE <- vector()
-RMSE <- vector()
-MAPE <- vector()
 
-add <- 0
 s <- sample(1:400, 400)
 data_r <- data[s,]
-df = data.frame()
+
+errors <- data.frame(MAE = NULL, RMSE = NULL, MAPE = NULL)
+# alternitevly: MAE <- vector()  
+
 for(i in 1:10) {
-  train <- data_r[1+add:40+add,]
+  train <- data_r[((i-1)*40):(40*i),]
   test <- data_r %>% anti_join(train)
   
   model <- lm(sales ~ weekend + beach + rain + I(abs(exp-median(exp))^2) + temp + flavors + parking, train)
@@ -131,13 +131,17 @@ for(i in 1:10) {
   p <- predict(model, newdata = test, se.fit = T)
   e <- test$sales - p$fit
   
-  MAE[i] <- mean(abs(e))
-  RMSE[i] <- sqrt(mean(e^2))
-  MAPE[i] <- mean(abs(e/test$sales))*100
-  add <- add + 40
+  df <- data.frame(
+    MAE <- mean(abs(e)),
+    RMSE <- sqrt(mean(e^2)),
+    MAPE <- mean(abs(e/test$sales))*100
+  )
+  
+  errors <- rbind(errors, df)
+  # MAE[i] <- ...
 }
 
-
+mean(errors$MAPE)
 
 
 
