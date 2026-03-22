@@ -58,6 +58,7 @@ coeftest(model, vcovHC(model)) # wynik z testu zmodyfikowany tak aby bledy byly 
 data$e <- model$residuals^2 #wariancja reszt
 
 me <- lm(e ~ weekend + beach + rain + exp + temp + flavors, data)
+me$fitted.values
 data$w <- me$fitted.values
 
 model <- lm(sales ~ weekend + beach + rain + exp + temp + flavors, data, weights = 1/w)

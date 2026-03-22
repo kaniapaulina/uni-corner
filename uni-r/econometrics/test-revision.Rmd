@@ -1,0 +1,1162 @@
+---
+title: "Materials"
+author: "Paulina Kania"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    theme: united
+---
+
+---
+
+## Laboratoria 1
+
+---
+
+### Zadanie 1
+
+mamy relację sztywną: $oranges = family\_size + 1$.
+
+```{r, warning=FALSE, message=FALSE, out.width="60%"}
+library(dplyr)
+
+set.seed(111)
+data <- data.frame(
+  family_size = rpois(50, 3)
+) %>% mutate(oranges = family_size+1) # ilość pomarańcz = ilość osób w rodzinie + dzika pomarańcza
+
+plot(data$family_size, data$oranges)
+abline(a=1, b=1, col="red")
+cor(data$family_size, data$oranges)
+```
+
+**Teoria:** Tutaj korelacja wynosi $1$. Każda zmiana $X$ (wielkość rodziny) powoduje przewidywalną zmianę $Y$. W ekonometrii takie modele prawie nie istnieją, bo ludzie nie są robotami.
+
+---
+
+### Zadanie 2
+
+Tu wprowadzono funkcję get_preference. To jest kluczowy moment – dodajemy składnik losowy ($\varepsilon$).
+
+**Praktyka:** Ludzie mają różne gusta (30% nie lubi pomarańczy, itd.). To sprawia, że kropki na wykresie nie leżą już w idealnej linii prostej.
+
+```{r}
+# wprowadzam trochę losowości - ludzie mają różne preference
+# 0 - nie lubi pomarańczy z prawdopodobieństwem 30%
+# 1 - chce 1 pomarańcze z prawdopodobieństwem 50%
+# 2 - chce 2 pomarańcze z prawdopodobieństwem 20%
+
+get_preference = function(family_size){
+  sapply(family_size, function(x) {
+    sum(sample(c(0, 1, 2), size = x, replace = T, prob = c(0.3, 0.5, 0.2)))
+  })
+}
+
+set.seed(123)
+data <- data %>% mutate(oranges = get_preference(family_size+1))
+
+plot(data$family_size, data$oranges)
+abline(a=1, b=1, col="red")
+
+cor(data$family_size, data$oranges)
+```
+
+#### Fundament Ekonometrii: **Metoda Najmniejszych Kwadratów (MNK)**
+
+funkcja celu: $(y - a - bx)^2 \rightarrow min$.
+
+**Teoria:** R szuka takiej prostej (współczynników $a$ i $b$), aby suma kwadratów odległości między rzeczywistymi punktami ($y$) a prostą regresji ($\hat{y}$) była jak najmniejsza.
+
+Dlaczego kwadrat? żeby błędy dodatnie (ktoś kupił więcej) i ujemne (ktoś kupił mniej) nie znosiły się nawzajem.
+
+
+```{r}
+# y = a + bx + e
+# Metoda najmniejszych kwadratow: 
+# (y - a - bx)^2 -> min
+
+# teoretyczna prognoza: rodzina kupi tyle pomarańczy co członków + 1
+data$y_drop = data$family_size + 1
+
+# e - błedy, reszty (residuals), czyli tyle pomarańczy ile rodzina faktycznie zakupiłą
+data$e = data$oranges - data$y_drop
+
+# suma do kwadratu, by bledy przeciwnych znakow sie nie eliminowały 
+sum(data$e^2)
+
+# MNK - model w którym oranges zależą od family_size
+model <- lm(oranges ~ family_size, data)
+
+plot(data$family_size, data$oranges)
+abline(a=1, b=1, col="red")
+abline(a=model$coefficients[1], b=model$coefficients[2], col="green")
+
+sum(model$residuals^2)
+
+summary(data)
+summary(model)
+
+# t = (m - m0)/S*sqrt(n) ~ tS(n-1) (rozkład t-Studenta, test istotności)
+print(1.0823/0.3473) # Estimate/Std. Error
+
+```
+
+#### Interpretacja Wyników **summary(model)**
+
+**Estimate (Intercept)** - Wyraz wolny ($a$) - Ile pomarańczy kupi "rodzina" o rozmiarze 0 (często bez sensu ekonomicznego, ale statystycznie potrzebne).
+
+**Estimate (family_size)** - Współczynnik kierunkowy ($b$) - Kluczowe! O ile sztuk wzrośnie zakup pomarańczy, jeśli rodzina powiększy się o 1 osobę.
+
+**Std. Error** - Błąd standardowy - Jak bardzo mylimy się w oszacowaniu powyższych parametrów.
+
+**t-value** - Statystyka t - Testujemy hipotezę $H_0: b = 0$ (brak wpływu). Interpretacja: Jeśli wynik tego dzielenia (t-value) jest duży (zazwyczaj powyżej 2), to znaczy, że wpływ zmiennej jest "silniejszy" niż szum informacyjny. Oznacza to, że wielkość rodziny istotnie statystycznie wpływa na liczbę pomarańczy.
+
+**Pr(>|t|)** - p-value - Prawdopodobieństwo, że wynik jest dziełem przypadku. Jeśli $< 0.05$, zmienna jest istotna statystycznie.
+
+**R^2 (R-Squared)** - Współczynnik determinacji - uzasadnia jaki procent zmienności Twojego y (pomarańczy) udało się wyjaśnić za pomocą x (wielkości rodziny). Im bliżej 1, tym model lepiej opisuje rzeczywistość
+
+**F-Statistics** - Test Łącznej istotności wszystkich zmiennych - Interpretacja: Patrzysz na wartość p-value przy statystyce F. Jeśli jest mniejsza niż 0.05, to twój model ma sens i wnosi jakąś informację
+
+---
+
+### Zadanie 3
+
+Trzy kluczowe koncepcje: zmienne binarne (zero-jedynkowe), interakcje oraz współliniowość
+
+**Wersja I**
+
+**Teoria:** Współczynnik przy sale ($\beta_2$) mówi nam o ile średnio zmienia się liczba pomarańczy, gdy pojawia się wyprzedaż, zakładając, że wielkość rodziny jest stała.
+
+**Wizualizacja:** To tak, jakbyś miał dwie równoległe linie na wykresie – jedną dla dni z wyprzedażą i drugą dla dni bez niej. Odległość między nimi to właśnie wpływ wyprzedaży.
+
+```{r}
+# wyprzedaż:
+# wersja I (liniowa): jeśli jest wyprzedaż, ludzie biorą jedną pomarańczę więcej
+# wersja II: interakcyjna - więcej pomarańczy na każdego kupującego
+
+set.seed(456)
+# na 70% nie ma wyprzedaży, na 30% jest
+data$sale = sample(c(0, 1), 50, replace = T, prob = c(0.7, 0.3))
+
+# Wersja I:
+# Addytywna: wyprzedaż to stały bonus, każdy kupuje o jedną pomarańcze wiecej
+data$oranges = get_preference(data$family_size+1) + data$sale
+
+#model <- lm(oranges ~ . -y_drop -e, data) # kropka to wszystkie zmienne minus tych których nie używamy
+model <- lm(oranges ~ family_size+sale, data)
+#model <- lm(oranges ~ -1 + family_size, data)
+
+summary(model) #o jeden czlonek rodziny wiecej -> o .96 wieksze zakupy
+```
+
+**Wersja II*
+
+**Praktyka:** Wersja I zakładała, że każdy kupuje o 1 sztukę więcej. Wersja II (interakcyjna) zakłada, że wyprzedaż działa silniej na duże rodziny (kupują "agresywniej").
+
+**Interpretacja:** Jeśli współczynnik interakcji ($\beta_3$) jest dodatni i istotny, to znaczy, że wyprzedaż zmienia nachylenie prostej. Im większe $X$, tym silniejszy efekt wyprzedaży.
+
+```{r}
+# Wersja II
+# Mnożnik: Im wieksza rodzina tym wieksza reakcja na wyprzedaz
+# y = a + bx + cz + e
+data$oranges = get_preference(data$family_size + 1)*( 1+ data$sale)
+
+model <- lm(oranges ~ family_size*sale, data)
+#z kazda osoba wiecej w rodzinie mamy o 0.75 zakupow wiecej a gdy jest wyprzedaz to o 0.86
+# Wspolczynnik interakcji jest dodatni, przy wyprzedazy duze rodziny kupują agresynwiej pomarancze
+summary(model)
+```
+
+**Współliniowość (Collinearity)** - To sytuacja, w której jedna zmienna objaśniająca jest prawie identyczna (lub jest liniową kombinacją) innej zmiennej.
+
+```{r}
+# Wspołliniowość (Collinearity) - gdy jedna zmienna jest kombinacją innej
+data$z = 4 + 3*data$family_size
+model <- lm(oranges ~ family_size + sale + z, data)
+summary(model) # NA - pelna wspolliniowosc, nie da sie tego obliczyc
+
+data$z = 4 + 3*data$family_size + rnorm(50, 0.5)
+model <- lm(oranges ~ family_size + sale + z, data)
+summary(model)
+```
+
+---
+
+### Zadanie 4
+
+**Błąd I Rodzaju (Alfa $\alpha$)** - W statystyce zawsze przyjmujemy poziom istotności (zazwyczaj $\alpha = 0,05$).
+
+**Teoria:** To jest Twoje przyzwolenie na ryzyko. Mówisz: "Akceptuję 5% szansy na to, że uznam coś za prawdę, mimo że to tylko przypadek".
+
+
+**Praktyka:** Jeśli badasz wpływ temperatury na pomarańcze, a w rzeczywistości temperatura nie ma żadnego znaczenia, to w 5 na 100 badań i tak wyjdzie Ci, że "wpływa" (bo akurat tak pechowo ułożyły się liczby w próbie).
+
+```{r}
+set.seed(789)
+
+#czy temperatura wplywa na to czy ludzie kupuja pomarancze
+data$temp = rnorm(50, 15, 5)
+
+model <- lm(oranges ~ family_size*sale + temp, data)
+summary(model)$coefficients[3,4] #p-value, wysokie wiec wnioskujemy ze nie jest istotnie powiązana
+
+# SYMULACJA "Błędu I Rodzaju" - Zadanie do samodzielnej pracy tzw. eksperyment Monte Carlo
+
+# Błąd I Rodzaju (False Positive): odrzucasz hipotezę zerową, mimo że jest ona prawdziwa. Innymi słowy: twierdzisz, że coś działa, podczas gdy to tylko zbieg okoliczności.
+
+# P-hacking - Jeśli będziesz testował wystarczająco dużo zmiennych, to czysta matematyka gwarantuje, że w końcu któraś z nich "wyjdzie" jako istotna
+
+# ZADANIE
+# symulacja 1000 razy
+# losowanie zmiennej niepowiązanej z y
+# estymacja modelu
+# liczymy ile razy p-value tej zmiennej było mniejsze niż 5%
+
+count <- 0
+for(i in 1:1000) {
+  a <- sample(1:100, 50)
+  model <- lm(oranges ~ family_size + a, data)
+  # czy "a" jest istotne
+  if(summary(model)$coefficients[3,4]<0.05) {
+    count <- count + 1
+  }
+}
+print(count)
+#Skoro zmienna a jest losowa, to powinna być nieistotna.
+# Jednak przy progu istotności 5% (0.05), statystycznie w 50 na 1000 przypadków (5%) p-value wyjdzie Ci mniejsze niż 0.05 czystym przypadkiem.
+#Wniosek: Jeśli badacz testuje 20 bzdurnych zmiennych, jedna z nich prawdopodobnie "wyjdzie" jako istotna. To zjawisko nazywa się p-hackingiem.
+```
+
+**P-hacking i Eksperyment Monte Carlo**
+
+1. Pętla for: Powtarza badanie 1000 razy.
+
+2. Zmienna a: Jest generowana całkowicie losowo (sample(1:100, 50)). Wiemy na 100%, że nie ma ona nic wspólnego z pomarańczami.
+
+3. Warunek if: Sprawdza, czy p-value dla tej "bzdurnej" zmiennej spadło poniżej 0,05.
+
+Wynik: Licznik count zazwyczaj pokaże wartość bliską 50 (czyli 5% z 1000).
+
+$\rightarrow$ Wniosek: Nawet jeśli zmienna jest kompletnie bez sensu, statystyka "oszuka" Cię w 5% przypadków, jeśli będziesz wystarczająco uporczywie szukać.
+
+---
+
+### Zadanie 5
+
+```{r}
+# Regresja pozorna (zalezne od trendow czasowych) - Spurious Regression
+# Tworzysz dwie zmienne x i y, które nie mają ze sobą NIC wspólnego, ale obie mają tzw. trend (ich wartość w danym momencie zależy od wartości poprzedniej: 0.9*[i-1]).
+
+count <- 0
+for(j in 1:1000) {
+  x <- vector()
+  y <- vector()
+  
+  x[1] = 1
+  y[1] = 1
+  
+  for(i in 2:200) {
+    # AR(1) - Autoregresja rzedu 1
+    x[i] = 0.9*x[i-1] + rnorm(1)
+    y[i] = 0.9*y[i-1] + rnorm(1)
+  }
+  
+  model <- lm(y ~ x)
+  if(summary(model)$coefficients[2,4] < 0.05) count <- count + 1
+}
+count
+
+#Wniosek: Korelacja nie oznacza przyczynowości. Dwie rzeczy mogą wydawać się powiązane tylko dlatego, że obie zmieniają się w czasie, Test t-Studenta w przypadku szeregów czasowych z trendem drastycznie zawodzi
+```
+
+**Korelacja $\neq$ Przyczynowość**: Dwie zmienne mogą być silnie skorelowane (wysokie $R^2$, niskie $p-value$) tylko dlatego, że obie rosną lub spadają w czasie (np. liczba bocianów i liczba urodzeń w pewnych okresach).
+
+**Błąd testu t:** W przypadku szeregów czasowych z trendem, standardowe błędy są niedoszacowane, co sprawia, że zmienne wydają się istotne, choć nie są.
+
+```{r, out.width="60%"}
+# wykres
+x <- vector()
+y <- vector()
+
+x[1] = 1
+y[1] = 1
+
+for(i in 2:200) {
+  x[i] = 0.9*x[i-1] + rnorm(1)
+  y[i] = 0.9*y[i-1] + rnorm(1)
+}
+
+plot(x, type="l")
+```
+
+---
+
+## Laboratoria 2
+
+---
+
+### Zadanie 1
+
+```{r}
+n_days <- 20
+
+set.seed(111)
+days <- data.frame(
+  day_nr = 1:n_days,
+  weekend = sample(c(0, 1), n_days, replace = T, prob = c(5, 2)/7), # czy dzień weekendowy?
+  temp = rnorm(n_days, 25, 3), # temperatura
+  wind = rlnorm(n_days, 1.5, 1) # prędkość wiatru
+)
+
+# deszcz: większe prawdopodobieństwo, gdy temperatura jest niższa
+days$rain = sapply(days$temp, function(x) sample(c(0, 1), 1, prob = c(50+x, 50-x)/100)*rpois(1, 5))
+
+set.seed(222)
+n_shops = 20
+
+shops = data.frame(
+  shop = 1:n_shops,
+  exp = rpois(n_shops, 5), # od ilu lat istnieje lodziarnia
+  beach = rlnorm(n_shops, 2.5, 1.5)*10, # odległość od plaży
+  flavors = rpois(n_shops, 3)+4, # liczba oferowanych smaków
+  parking = sample(c(0, 1), n_shops, replace = T) # czy posiada parking
+)
+
+# lodziarnie przy plaży nie mają parkingów
+shops$parking = ifelse(shops$beach < 200, 0, shops$parking)
+
+shops$price = ifelse(shops$beach < 200, 7, 6) + sample(c(-1, 0, 1), n_shops, replace = T) # cena gałki lodów
+shops$other = sapply(shops$beach, function(x) rlnorm(1, log(x/50), 0.5)*10) # odległość od innej lodziarni
+
+data <- merge(days, shops, by = NULL)
+
+# sprzedaż: zależna od temperatury, deszczu, odległości od plaży i konkurencji, ceny, weekendu, renomy i liczby smaków
+data$sales <- 2000 + 10*data$temp - 40*data$rain - 0.1*data$beach + 0.05*data$other - 7*data$price +
+  30*data$weekend + 5*data$temp*data$weekend +
+  10*(data$exp-4)^2 + 5*(data$flavors-7)^2 + rnorm(400, 0, 50)
+
+data <- data[,-c(1, 6)] # usuwam niepotrzebne zmienne
+```
+
+---
+
+### Zadanie 2
+
+SPecyfikacja Modelu
+
+```{r, message=FALSE, warning=FALSE, out.width="60%"}
+# ===== krok 1: przeglad danych
+summary(data)
+
+# ===== krok 2: przegląd zależności między zmiennymi
+cor(data)
+
+library(corrplot)
+corrplot(cor(data))
+
+plot(as.factor(data$exp), data$sales) #sprzedaż wzgledem kategorii doswiadczenia
+
+pairs(data) #wykresy rozrzutu
+
+model <- lm(sales ~ ., data)
+summary(model)
+```
+
+**VIF (Variance Inflation Factor)** – Wykrywacz "Złodziei Istotności"
+
+**Teoria:** VIF mierzy, jak bardzo wariancja (niepewność) współczynnika jest "nadmuchana" przez współliniowość.
+
+**Interpretacja:** Jeśli $VIF > 5$ (lub 10, zależnie od podręcznika), to zmienne są tak silnie powiązane, że R nie potrafi precyzyjnie obliczyć ich indywidualnego wpływu. To tak, jakby dwie osoby trzymały jeden ciężar – nie wiesz, która ma więcej siły.
+
+```{r, message=FALSE, warning=FALSE}
+# ===== krok 3: wspolliniowosc
+library(car)
+
+vif(model) #problem jesli wieksze niz 5, sygnal alarmowy ze istnieje pewna wspolliniowosc i model nie wie ktorej zmiennej przypisac zasluge za wynik
+model <- lm(sales ~ weekend + temp + wind + rain + exp + beach + flavors + parking + price, data)
+summary(model)
+
+# przeksztalcenie zmiennej
+# I - interpretacja jako ta operacja, wykona to dzialanie a potem wezmie jako zmienna
+# Regresja wielomianowa - wygina linie prostą w parabole, wzgledem lat doswiadczenia
+model <- lm(sales ~ weekend + temp + wind + rain + I((exp-median(exp))^2) + beach + flavors + parking + price, data)
+summary(model)
+vif(model)
+
+# zmienna kategoryczna
+model <- lm(sales ~ weekend + temp + wind + rain + as.factor(exp) + beach + flavors + parking + price, data) #sprawdza dla kazdej kategorii doswiadczenia, jeden rok, dwa lata itd
+summary(model)
+vif(model)
+
+# Analiza Summary:
+# Adjusted R-squared: Używaj wersji "Adjusted" (skorygowanej), gdy porównujesz modele z różną liczbą zmiennych. Jeśli dodasz nową zmienną, a Adjusted R-squared spadnie – wyrzuć ją, model stał się gorszy (przeuczony)
+```
+
+---
+
+### Zadanie 3
+
+#### **Metoda Hellwiga**
+
+Metoda Hellwiga służy do doboru zmiennych objaśniających do modelu
+
+1. Wysoką korelacyjną z $Y$: Chcemy zmiennych, które niosą dużo informacji o sprzedaży.
+
+2. Niską korelacją między sobą: Nie chcemy dwóch zmiennych, które mówią o tym samym (np. temperatura i nasłonecznienie), bo to prowadzi do wspomnianej wcześniej współliniowości.
+
+wskaźnik Hellwiga 
+
+($H$):$$h_i = \frac{r_{j}^2}{\sum_{j \in K} |r_{ij}|}$$
+
+Licznik ($r_{j}^2$): Kwadrat korelacji zmiennej $i$ z $Y$. Im lepiej zmienna wyjaśnia $Y$, tym wyższe $h_i$.
+
+Mianownik ($\sum |r_{ij}|$): Suma korelacji zmiennej $i$ ze wszystkimi innymi zmiennymi w danej kombinacji (w tym z samą sobą, co daje 1). Im bardziej zmienna jest "zduplikowana" przez inne, tym większy mianownik i mniejsza jej wartość dla modelu.
+
+```{r}
+# METODA HELLWIGA
+# czyli jak matematycznie wybrać optymalny zestaw zmiennych które:
+# Mają jak najwyższą korelację ze zmienną objaśnianą (sales).
+# Mają jak najniższą korelację między sobą (nie dublują informacji).
+
+# PRZYKŁADOWE:
+# rj^2
+R0 <- cor(data)[11, -11] #ostatni wiersz bez ostatniej kolumny
+R <- cor(data)[-11, -11] #bez ostatniego wierszu i bez ostatniej kolumny (sales)
+
+R0 # wektor korelacji
+R # macierz korelacji
+
+expand.grid(c(1:3), c(1:3), c(1:3)) # wszytskie mozliwe kombinacje macierz
+comb <- expand.grid(rep(list(c(T, F)), 10)) # gigantyczna macierz prawdy dla kazdej zmiennej
+
+
+k <- c(1:10)[unlist(comb[500,])]
+names(R0)
+names(R0)[k]
+
+# ZADANIE
+dane <- vector()
+for(j in 1:1023) { # mk = 1023, jc(1, mk)
+  k <- c(1:10)[unlist(comb[j,])] # k - numer kombinacji, np 3, 4 i 10 są TRUE
+  H <- 0
+  for(i in k) {
+    mianownik <- sum(abs(R[k, i])) #korelacja miedzy "i" i "i" jest rowne 1, wiec nie dodaje jedynki
+    H <- H + R0[i]^2/mianownik #indywidualna pojemnosc dodana do sumy
+  }
+  dane[j] <- H
+}
+H #maksymalna pojemnosc informacyjna
+max(dane) #kombinacja zmiennych, które dostarczają najwiecej unikalnej informacji 
+
+```
+
+---
+
+## Laboratoria 3
+
+---
+
+### Zadanie 1
+
+#### Diagnostyka
+
+Reszta to różnica między tym, co sprzedał sklep ($y$), a tym, co przewidział Twój model ($\hat{y}$).$$e = y - \hat{y}$$
+
+czyli e - zalozenia o resztach (błędach), jeśli one są złamane,to p-value są błędne a prognozy - bezwartościowe. Główne problemy to:
+
+- **współliniowość** - czy zmienne objaśniające się nie dublują
+
+$vif(model)$ - wynik > 5 to czerwona flaga, model jest niestabilny
+
+- **normalność reszt** - chcemy aby błędy miały rozkład normalny N(0, sigma)
+
+$shapiro.test(r)$ - p > 0.05 oznacza że reszty mają rozkład normalny, jeśli nie to testy         tStudenta i F mogą być niewiarygodne
+
+- **homoskedastyczność / heteroskedastyczność** - błąd powinin być "stały". Jeśli przy małej       sprzedaży mylisz się o 5zł, a przy dużej o 500zł, masz heteroskedastyczność
+
+$bptest(model)$ - hipoteza zerowa to homoskedastyczność (stała wariancja). Gdy p<0.05 to         błędy są niejednorodne i jest problem
+
+- **postać liniowa** - czy nie pominąłeś ważnych potęg zmiennych
+
+$reset(model)$ - jeśli p<0.05 model jest źle wyspecyfikowany
+
+- **stabilność / autokorelacja** - czy błędy są losowe
+
+$runs.test(r)$ - jeśli p < 0.05 oznacza, że błędy nie są losowe
+
+```{r, message=FALSE, warning=FALSE, out.width="60%"}
+# Diagnostyka
+
+# Współliniowość:
+# e ~ i.i.d independant identical distributions
+# autokorelacja - miara zależności liniowej między bieżącymi wartościami szeregu czasowego a ich wartościami z przeszłości
+# heteroskedastyczność - niejednorodność wariancji (homoskedastyczność - jednorodność), dla wszytskich obserwacji powinniśmy mieć taką samą skale błedów
+# dobór postaci modelu: problem - dopasowanie liniowego modelu gdy rzeczywiście zależność jest nieliniowa, losowość błędów (niedoszacowane), przerwy strukturalne (w naszym zbiorze danych mamy grupy gdzie y w inny sposób zależy od x)
+# normalność reszt (niekonieczne założenie)
+
+# Teoretyczny model - sytuacja idealna
+
+model_t <- lm(sales ~ temp*weekend + beach + rain + other + price + I((exp-4)^2), data)
+summary(model_t)
+
+# === WSPÓŁLINIOWOŚĆ
+library(car)
+vif(model_t) # test na wspolliniowosc, chcemy wynik < 5
+# wniosek -> jesli wynik przekracza 5, mozna wywnioskowac wspolliniowosc
+
+# === NORMALNOŚĆ RESZTY
+r <- model_t$residuals
+shapiro.test(r) # chcemy p-value > 0.05
+# wniosek -> układ jest pewnie normalny
+hist(r)
+
+# === HETEROSKEDASTYCZNOŚĆ - rozpiętość reszt może wzrastać wraz z y, lub je pogrupować -> istnieje wiele testów
+plot(model_t$fitted.values, model_t$residuals)
+# wniosek -> mniej wiecej ta sama rozpietość reszt jest git, ale gdy się grupuje pojawiają się błędy
+plot(model_t) 
+
+# wykres 1: Residuals vs Fitted: Szukamy braku wzorca. Jeśli widzisz "lejek" – masz heteroskedastyczność. Jeśli widzisz wygięcie – postać modelu jest zła. najbardziej odlegle punkty zostaly podpisane
+# wykres 2: Q-Q Residuals badanie normalności reszt, Normal Q-Q: Kropki powinny leżeć na przekątnej. Jeśli "odlatują" na końcach – brak normalności.
+# wykres 3: Scale-Location przypadki oddalające się od regresji, heteroskedastyczność
+# wykres 4: Residuals vs Leverage: Szukamy punktów, które mają zbyt duży wpływ na wynik (tzw. punkty wpływowe).
+
+library(lmtest)
+# chcemy p-value > 0.05
+gqtest(model_t, 0.7) # test Goldfelda-Quanta, na 70%
+
+bptest(model_t) # test Breusch-Pagana, patrzy czy zmienne objasniające mają istotny wplyw na reszty, jesli tak to reszty nie są takie losowe, jesli nie to reszty są niezalezne i mamy doczynienia z heteroskedastycznością
+
+bptest(model_t, ~ wind, data=data) # czy zmienna wind wplywa na reszty - jesli nie to dobrze bo nie uwzgledniamy jej w modelu -> p-value < 0.05 to zla oznaka
+
+# test White'a
+data$y_drop = model$fitted.values
+bptest(model_t, ~ y_drop + I(y_drop^2) + I(y_drop^3), data=data)
+
+# === LINIOWA POSTAĆ MODELU
+# test Ransey'a (RESET) - sprawdza czy nie pominelismy nieliniowych zaleznosci, jesli p<0.05 to znaczy ze potęgi X  znacznie poprawiłyby model
+reset(model_t) # jesli dorzucimy wyzsze potegi w naszym podstawowym modelu lepiej bedzie opisywac y
+
+# test liczby serii - ile mamy takich serii ze bledy wystepują po tej samej stronie (sa ujemne czy dodatnie), jesli model jest dobrze dobrany to beda wsytepowac duzo serii gdyz bledy są losowe i są porozrzucane po obu stronach
+
+library(randtests)
+runs.test(r)
+
+```
+
+---
+
+### Zadanie 2
+
+$$F = \frac{(SSE_c - (SSE_1 + SSE_2)) / k}{(SSE_1 + SSE_2) / (n_1 + n_2 - 2k)}$$
+
+Gdzie:
+
+$SSE_c$ (Combined): Suma kwadratów reszt dla całego zbioru (model wspólny).
+
+$SSE_1$ i $SSE_2$: Sumy kwadratów reszt dla pierwszej i drugiej grupy.
+
+$k$: Liczba szacowanych parametrów w modelu (łącznie z wyrazem wolnym).
+
+$n_1$ i $n_2$: Liczba obserwacji w poszczególnych grupach.
+
+Wartość tę porównujemy z rozkładem F-Snedecora o stopniach swobody $v_1 = k$ oraz $v_2 = n_1 + n_2 - 2k$.
+
+```{r, out.width="60%"}
+# === PRZERWY STRUKTURALNE
+# test CHOW - sprawdzamy, czy jedna prosta regresja pasuje do całego zbioru, czy powinniśmy mieć dwie osobne proste
+# Interpretacja: jesli p_val jest małe (<0.05) to istnieje przerwa strukturalna
+
+boxplot(sales ~ exp, data) # wykres pudelkowy, przerwa strukturalna gdzies po środku
+
+# ZADANIE
+# dzielimy na dwie grupy
+# liczymy modele
+# bierzemy sumy kwadratow bledow (SSE)
+# liczymy statystykę z wzoru testu Chow
+# znajdujemy p-value
+
+med <- median(data$exp)
+g1 <- data[data$exp<med,]
+g2 <- data[data$exp>=med,]
+
+model <- lm(sales ~ temp*weekend + rain + beach + other + price + I((exp-4)^2) + I((flavors-7)^2), data)
+model1 <- lm(sales ~ temp*weekend + rain + beach + other + price + I((exp-4)^2) + I((flavors-7)^2), g1)
+model2 <- lm(sales ~ temp*weekend + rain + beach + other + price + I((exp-4)^2) + I((flavors-7)^2), g2)
+
+sse <- sum(residuals(model)^2)
+sse1 <- sum(residuals(model1)^2)
+sse2 <- sum(residuals(model2)^2)
+
+k <- length(model$coefficients) #or length(coef(model))
+n1 <- nrow(model1)
+n2 <- nrow(model2)
+
+wynik <- ((sse-(sse1+sse2))/k)/((sse1+sse2)/(n1+n2-2*k))
+p_val <- 1-pf(wynik, k, n1+n2-2*k)
+print(p_val)
+```
+
+```{r}
+# Poprawnie chow test - z wikipedii
+chow_test <- function(formula, d1, d2) {
+  d <- rbind(d1, d2)
+  mC <-lm(formula, d)
+  Sc <- sum(mC$residuals^2)
+  
+  m1 <- lm(formula, d1)
+  S1 <-sum(m1$residuals^2)
+  
+  m2 <- lm(formula, d2)
+  S2 <- sum(m2$residuals^2)
+  
+  k <- length(mC$coefficients)
+  
+  stat <- ((Sc-S1-S2)/k)/((S1+S2)/(nrow(d)-2*k))
+  p_val <-1-pf(stat, k, nrow(d)-2*k)
+  print(paste("Statystyka: ", round(stat, 3)))
+  print(paste("P-Value: ", round(p_val, 3)))
+}
+
+chow_test(data, g1, g2)
+```
+
+---
+
+### Zadanie 3 
+
+```{r, out.width="60%"}
+test_summary <- function(model) {
+  r <- model$residuals
+  print(vif(model)) # Wspolliniowosc
+  print(shapiro.test(r)) # Normalnosc
+  print(bptest(model)) # Heteroskedastycznosc
+  print(reset(model)) # Postać liniowa
+  print(runs.test(r)) # Autokorelacja
+}
+
+test_summary(model_t)
+
+model <- lm(sales ~ temp*weekend + rain + beach + other + price + exp + flavors, data)
+summary(model)
+test_summary(model)
+
+plot(model$fitted.values, model$residuals)      
+plot(model$fitted.values, data$sales)
+lines(data$sales, data$sales)
+
+# poprawiamy postać modelu - opcja idealna gdy niektore testy nie są spelnione
+
+# problem z heteroskedastycznością - odporne bledy standardowe
+# zmodyfikowana regresja - regresja wazona
+```
+
+---
+
+## Laboratoria 4
+
+---
+
+### Zadanie 1
+
+Skupiamy sie na:
+
+- złej postaci funkcyjnej (model liniowy nie pasuje do nieliniowych danych)
+
+- heteroskedastyczności (wariancja błędu nie jest stała).
+
+```{r, message=FALSE, warning=FALSE, out.width="60%"}
+# DIAGNOZOWANIE
+
+library(lmtest)
+library(car)
+library(randtests)
+
+test_summary <- function(model) {
+  r <- model$residuals
+  print(vif(model)) # wspolliniowosc
+  print(shapiro.test(r)) # normalnosc
+  print(bptest(model)) # heteroskedastycznosc
+  print(reset(model)) #postać liniowa
+  print(runs.test(r)) # autokorelacja
+}
+
+model <- lm(sales ~ weekend + beach + rain + exp + temp + flavors, data)
+test_summary(model)
+# ostatnie trzy testy wzkazują na brak rozrzucenia losowosci liczb, heteroskedastyczność i liniowa postać jest nieoptymalna, model jest lepszy z wyzszymi potęgami
+
+library(corrplot)
+corrplot(cor(data))
+# dodajemy mniej znaczącą zmienną by porpawić model
+
+model <- lm(sales ~ weekend + beach + rain + exp + temp + flavors + parking, data)
+test_summary(model) # niestety dalej słabo wypada model
+
+# Nieliniowe zależności
+plot(data$exp, data$sales) #ty zaleznosci, ksztalt wklesły
+plot(abs(data$exp-median(data$exp)), data$sales)
+plot(abs(data$exp-median(data$exp))^2, data$sales)
+plot(abs(data$exp-median(data$exp))^3, data$sales)
+
+model <- lm(sales ~ weekend + beach + rain + I(abs(exp-median(exp))^2) + temp + flavors + parking, data)
+test_summary(model) #poprawiony model- rozwiązuje heteroskedastyczność i wspolliniowość z ostatnich testów
+
+# wracamy do poprzedniego modelu z skedastycznościa, chcemy błędy odporne
+model <- lm(sales ~ weekend + beach + rain + exp + temp + flavors, data)
+test_summary(model)
+```
+
+**Odporne błędy standardowe** (HC - Heteroskedasticity-Consistent)
+
+Użycie $vcovHC(model)$ i $coeftest(...)$ to sposób na "naprawienie" wyników bez zmiany samego modelu.
+
+- Jak to działa? Nie zmieniamy oszacowań parametrów ($\beta$), ale przeliczamy ich błędy standardowe tak, aby uwzględniały fakt, że wariancja reszt "skacze". 
+
+- Efekt: P-value stają się wiarygodne, mimo że w danych występuje heteroskedastyczność.
+
+```{r}
+library(sandwich)
+coeftest(model)
+
+vcovHC(model)
+coeftest(model, vcovHC(model)) # wynik z testu zmodyfikowany tak aby bledy byly odporne
+```
+
+**Regresja ważona (WLS)**
+
+To bardziej radykalne podejście. Zamiast tylko poprawiać wyniki, zmieniamy sposób, w jaki model "patrzy" na dane.
+
+- Idea: Dajemy większą wagę obserwacjom, w których model rzadziej się myli (mała wariancja), a mniejszą wagę tym, które są bardzo niepewne (duża wariancja).
+
+- Wagi: W Twoim kodzie waga to 1/w, gdzie w to przewidywana wariancja błędu.
+
+```{r}
+# Regresja ważona - ostatnia metoda na heteroskedastyczność
+# do modelu regresji dodajemy wagi
+data$e <- model$residuals^2 #wariancja reszt
+
+me <- lm(e ~ weekend + beach + rain + exp + temp + flavors, data)
+data$w <- me$fitted.values
+
+model <- lm(sales ~ weekend + beach + rain + exp + temp + flavors, data, weights = 1/w)
+test_summary(model) # pozbywamy sie heteroskedastycznosci
+```
+
+co to $me <- lm(e ~ ...)$ - problem heteroskedastyczności (czyli zmienności wariancji reszt).
+
+wariancja błędu ($e^2$) zależy od innych zmiennych. Najczęściej wpływają na nią:
+
+1. Wielkość zmiennych objaśniających ($X$): Tak jak w przykładzie z lodami, im większa temperatura lub im większy sklep, tym większy może być rozrzut błędów.
+
+2. Błędy w pomiarach: Jeśli dane dla dużych jednostek są zbierane mniej dokładnie.
+
+3. Niedopasowanie modelu: Jeśli pominęliśmy ważną zmienną (np. lokalizację sklepu), jej wpływ "wpada" do reszt i może powodować ich nienaturalne skupiska.
+
+Zamiast zgadywać, co powoduje błędy, każemy R to obliczyć:me <- lm(e ~ weekend + beach + rain + exp + temp + flavors, data)
+
+W tym kroku:
+
+- Zmienną zależną jest kwadrat reszt ($e^2$) – który traktujemy jako przybliżenie wariancji.
+
+- Sprawdzamy, które z naszych zmiennych ($X$) najlepiej tłumaczą to, że model "pudłuje".
+
+Jeśli np. współczynnik przy temp w modelu me jest wysoki i istotny, to znaczy, że temperatura "napędza" błąd – im cieplej, tym model staje się mniej pewny swoich wyników.
+
+---
+
+### Zadanie 2
+
+```{r}
+# PROGNOZOWANIE
+model <- lm(sales ~ weekend + beach + rain + I(abs(exp-median(exp))^2) + temp + flavors + parking, data)
+test_summary(model)
+
+p <- predict(model, newdata = data.frame (
+  weekend = 0, beach = 300, rain = 0, exp = 0, temp = 20, flavors = 5, parking = 0
+), se.fit = T) #bledy standardowe prognozy
+
+#fit - poprzednia wartosc, se.fit - blad standardowy, df - liczba stopni swobody
+```
+
+Przedział ufności: Ponieważ każda prognoza obarczona jest ryzykiem, wyznaczasz dolną (l) i górną (u) granicę. Używasz do tego qnorm(0.995), co odpowiada 99% poziomowi ufności.
+
+Interpretacja: Z prawdopodobieństwem 99% rzeczywista sprzedaż znajdzie się między l a u.
+
+```{r}
+# bledy ex ante - prognoza zanim się wydarzy
+# Przedzial ufnosci dla prognozy (99%)
+l <- p$fit - p$se.fit*qnorm(0.995) #dolny przedzial prognozy
+u <- p$fit + p$se.fit*qnorm(0.995) #górny przedzial prognozy
+```
+
+**MAE** - Średni błąd bezwzględny - Mówi nam: "Średnio mylimy się o X sztuk"
+
+**RMSE** - Pierwiastek błędu średniokwadratowego - Bardziej "karze" model za duże pomyłki (przez potęgowanie błędów)
+
+**MAPE** - Średni procentowy błąd bezwzględny- Najłatwiejszy do interpretacji: "Mylimy się średnio o X%".
+
+```{r, warning=FALSE, message=FALSE, out.width="60%"} 
+# bledny ex post - sprawdzamy model na danych historycznych
+# dzielimy dane na zbiór treningowy i testowy
+library(dplyr)
+set.seed(333)
+
+train <- data %>% slice_sample(prop = 0.7) #70%
+test <- data %>% anti_join(train)
+
+s <- sample(1:400, 400)
+data_r <- data[s,]
+train <- data_r[1:280,]
+test <- data_r[281:400,]
+
+model <- lm(sales ~ weekend + beach + rain + I(abs(exp-median(exp))^2) + temp + flavors + parking, train)
+
+p <- predict(model, newdata = test, se.fit = T)
+e <- test$sales - p$fit
+hist(e)
+
+# Mean Absolute Error - snredni blad, o ile sztuk srednio sie myli mode;
+MAE = mean(abs(e))
+
+# Root MEan Squared Error - karze model za duze pomylki
+RMSE = sqrt(mean(e^2)) #bardziej wrazliwy na wartosci odstajace
+
+# Mean ABsolute Percentage Error - jesli MAPE = 5% to model sie myli srednio o 5%
+MAPE = mean(abs(e/test$sales))*100 #wyrazone w procentach
+    
+# dzielimy zbiór na np. 10 części
+# za każdym razem jedna z tych części jest zbiorem testowym, a reszta trafia do zbioru treningowego
+# estymujemy i prognozujemy
+# błedy prognozy
+
+
+# ZADANIE
+s <- sample(1:400, 400)
+data_r <- data[s,]
+
+errors <- data.frame(MAE = NULL, RMSE = NULL, MAPE = NULL)
+# alternitevly: MAE <- vector()  
+
+for(i in 1:10) {
+  train <- data_r[((i-1)*40):(40*i),]
+  test <- data_r %>% anti_join(train)
+  
+  model <- lm(sales ~ weekend + beach + rain + I(abs(exp-median(exp))^2) + temp + flavors + parking, train)
+  
+  p <- predict(model, newdata = test, se.fit = T)
+  e <- test$sales - p$fit
+  
+  df <- data.frame(
+    MAE <- mean(abs(e)),
+    RMSE <- sqrt(mean(e^2)),
+    MAPE <- mean(abs(e/test$sales))*100
+  )
+  
+  errors <- rbind(errors, df)
+  # MAE[i] <- ...
+}
+
+mean(errors$MAPE)
+```
+
+---
+
+## Laboratoria 5
+
+---
+
+### Zadanie 1
+
+Modele zmiennej dychotomicznej (0-1)
+
+```{r, out.width="60%"}
+# Metode które nie są wprost liniowe
+# Przypadek 1 - nasz y będzie zmienna kategoryczną (kategoria 0/1) 
+
+x <- seq(-10, 10, 0.5)
+plot(x)
+
+plot(exp(x)/(1+exp(x))) # wartości między 0 a 1
+# jesli y jest > 0.5 damy mu klasę 1, jesli nie to 0 - tak prognozujemy y
+
+# TITANIC.CSV
+# beta0 + beta1*x1 + beta2*x2 + ... + e (błąd losowy)
+data <- read.csv("D:/uni-corner/uni-r/econometrics/lab5and6/titanic.csv", na.strings = "")[, -c(1, 4, 9, 11)] #bez ID, imienia, biletu, kabiny
+
+summary(data) # klasa zmienna numeryczna jesli gdy klasa wzrasta to ta przezywalnosc tez czyli zaleznosc liniowa
+
+data$Pclass <- as.factor(data$Pclass)
+data$Sex <- as.factor(data$Sex)
+data$Embarked <- as.factor(data$Embarked) # :2 - pusty ciąg, przy wczycie danych dodaj na.strings
+
+boxplot(Age ~ Survived, data) #zależność wieku od przeżycia, ciut wiecej osob z wiekszym wiekiem nie przezyli niz przezyli ale nie jest to silna zaleznosc
+```
+
+Interpretacja przez iloraz szans (Odds Ratio): Aby zrozumieć wpływ zmiennej, stosujemy funkcję exp(beta).
+
+- Jeśli $exp(\beta) > 1$: szansa na $Y=1$ rośnie.
+- Jeśli $exp(\beta) < 1$: szansa na $Y=1$ maleje.
+
+Zmiana procentowa: (exp(beta) - 1) * 100 - "Wzrost zmiennej $X$ o jednostkę powoduje zmianę szansy na przeżycie o $Z$ procent".
+
+```{r}
+#glm - generalized linear model, binomial - 0-1 y
+model <- glm(Survived ~ ., family = binomial(link = "logit"), data)
+summary(model)
+
+exp(-1.189637) #wspolczynnik, jaki jest stosunek pradopodobienstwa y=1, kiedy ktos jest w drugiej klasie w porownaniu do sytuacji bazowej
+
+(exp(-2.637859)-1)*100
+(exp(-0.043308)-1)*100 #age, szanse sie zmiejszaja o 4% wzgledem osoby co byla o rok mlodsza
+```
+
+---
+
+### Zadanie 2
+
+**Kryterium AIC (Akaike Information Criterion)**
+
+Kara za skomplikowanie: AIC nagradza model za dobre dopasowanie do danych, ale jednocześnie nakłada "karę" za każdą dodatkową zmienną.
+
+```{r, warning=FALSE, message=FALSE}
+set.seed(123)
+library(dplyr)
+
+train <- data %>% slice_sample(prop = 0.7)
+test <- data %>% anti_join(train)
+
+# glm() - uogolnione modele liniowe
+model <- glm(Survived ~ . - Embarked, family = binomial(link = "logit"), train)
+summary(model)
+
+# AIC = 457.92 - podobne do R^2, kryterium informacyjne - im mniejsze tym lepsze, w porownaniu do skorygowanego R^2
+
+model <- glm(Survived ~ . - Embarked - Parch - Fare, family = binomial(link = "logit"), train)
+summary(model) #zostaly same istotne zmienne
+
+# Prognoza
+p <- predict(model, test, type="response")
+p <- ifelse(p>0.5, 1, 0)
+```
+
+---
+
+### Zadanie 3
+
+```{r}
+# TABLICA POMYŁEK
+# ACC accuracy - ile bylo poprawnych odp / wszystkie obserwacje, odsetek tego co model trafil dobrze
+# PPV precision - jaki odsetek predykowanych jedynek jest faktycznie jedynką
+# TPR sensitivity, TNR swoistość
+
+p
+sum(p, na.rm=TRUE)
+
+cm <- table(test$Survived, p)
+
+accuracy <- (cm[1,1]+cm[2,2])/sum(cm)
+sensitivity <- cm[2,2]/sum(cm[2,])
+specifity <- cm[1,1]/sum(cm[1,])
+precision <- cm[2,2]/sum(cm[,2])
+```
+
+---
+
+### Zadanie 4
+
+**Funkcja produkcji Cobbla-DOuglasa**
+
+Przekształcenie nieliniowej zależności w model liniowy za pomocą logarytmowania (tzw. linearyzacja) to standardowa procedura, która pozwala nam użyć klasycznej Metody Najmniejszych Kwadratów (KMNK).
+
+```{r}
+# Funkcja produkcji
+# y = a*K^b*L^c
+# K - naklady kapitalu/inwestycje
+# L - naklady pracy
+# a, b, c - parametry elastyczności
+
+# regresja liniowa / linearizowalizacja - funkcji produkcji na model liniowy:
+# log(y) = log(a*K^b*L^c)
+# log(y) = log(a) + log(K^b) + log(L^c)
+# log(y) = log(a) + b*log(K) + c*log(L)
+# y' = a' + b*K' + c*L' 
+# K', L' - zmienne objasniajace
+
+data <- read.csv("D:/uni-corner/uni-r/econometrics/lab5and6/dane_produkcja.csv")
+
+model <- lm(log(output) ~ log(investments) + log(employees), data)
+summary(model)
+
+a <- exp(model$coefficients[1])
+# y_dop = 2.55*K^0.94*L^0.06
+# mniej więcej zmiana procentowa
+# elastyczność produkcji względem czynników - jeden czynnik wzrasta o 1% to produkcja wzrośnie o ten parametr w modelu
+# czyli jesli zwiekszymy kapital to produkcja wzrosnie o 94% a jesli zwiekszymy naklady pracy to wzrosnie jedynie o 6%
+```
+
+**Efekty skali** - "Co się stanie z produkcją, jeśli podwoimy wszystkie nakłady jednocześnie?".Używamy do tego funkcji $linearHypothesis()$. Sprawdza ona, czy suma parametrów istotnie różni się od $1$
+
+- Jeśli $b + c = 1$ (Stałe efekty skali): Podwojenie nakładów skutkuje dokładnie podwojeniem produkcji
+
+- Jeśli $b + c > 1$ (Rosnące efekty skali): Produkcja rośnie szybciej niż nakłady (np. o $120%$ przy podwojeniu nakładów)
+
+- Jeśli $b + c < 1$ (Malejące efekty skali): Produkcja rośnie wolniej niż nakłady
+
+Zasada kciuka: Jeśli $p-value > 0.05$, to nie mamy dowodów, żeby odrzucić naszą hipotezę (czyli uznajemy, że jest prawdziwa).
+
+```{r}
+# efekty skali - jeśli nakłady wzrosna iles razy to produkcja tez wzrośnie tez te iles razy - to efekty skali są stałe
+# b + c = 1 - stałe efekty
+# b + c > 1 - rosnące
+# b + c < 1 - malejące
+
+# y(K,L) = a*K^b*L^c
+# y(2K,2L) = a*(2K)^b(2L)^c
+# y(2K,2L) = a*2^b*K^b*2^c*L^c
+# y(2K,2L) = 2^(b+c)*a*K^b*L^c
+# y(2K,2L) = 2^(b+c)*y(K,L)
+# jesli b+c=1 to Y(2K,2L) = 2*y(K,L)
+
+library(car)
+# linearHypothesis - test statystyczny sprawdzający, czy suma parametrów istotnie różni się od jedności. Jeśli p > 0.05, przyjmujemy, że mamy stałe efekty skali
+linearHypothesis(model, "log(investments) + log(employees) = 1") # hipoteza zerowa
+# nie odrzucamy H0 - efekty skali sa stałe
+
+linearHypothesis(model, "log(employees) = 0.05") #czy ten parametr jest istotnie różny od 0.05
+```
+
+---
+
+## Laboratoria 6
+
+---
+
+### Zadanie 1
+
+**Szeregi Czasowe**
+
+W standardowej regresji zakładaliśmy, że błędy są niezależne. W szeregach czasowych mamy jednak autokorelację — dzisiejsza sprzedaż często „pamięta” to, co działo się wczoraj lub tydzień temu.
+
+- Stacjonarność: To stan, w którym średnia i wariancja szeregu nie zmieniają się w czasie. Szereg z trendem (rosnący) jest niestacjonarny.
+
+- Różnicowanie (diff): To operacja $y_t - y_{t-1}$. Pomaga ona „usunąć” trend i sprawić, by dane stały się stacjonarne.
+
+```{r, warning=FALSE, message=FALSE, out.width="60%"}
+# szeregi czasowe
+
+# Prognozujemy sprzedaż w czasie, biorąc pod uwagę fakt, że dzisiejsza sprzedaż zależy od tej sprzed tygodnia (autokorelacja) oraz od trendu.
+
+# czyli
+# Trend - np. sprzedaż z roku na rok rośnie, bo firma się rozwija
+# Autokorelacja – to, ile sprzedasz dzisiaj, jest mocno powiązane z tym, ile sprzedałeś tydzień temu
+
+
+library(dplyr)
+data <- read.csv("D:/uni-corner/uni-r/econometrics/lab5and6/dane3.csv") %>% group_by(week) %>% 
+  summarise(
+    sales = sum(units_sold),
+    price = mean(price_unit),
+    promo = mean(promo_rate),
+    is_holiday_week = mean(is_holiday_week),
+    is_winter = mean(is_winter)
+  )
+
+train <- data[1:120,]
+test <- data[121:150,]
+
+model <- lm(sales ~ . -week, train)
+summary(model)
+
+# Autokorelacja
+plot(data$sales, type = "l")
+
+library(lmtest)
+dwtest(model) # Chcemy wyniku blisko 2. Jeśli jest blisko 0, mamy dodatnią autokorelację (model nie wyłapał zależności czasowej).
+```
+
+Do modelu ARIMA potrzebujemy szeregi stacjonarne
+
+```{r}
+# Stacjonarność: Szereg jest stacjonarny, jeśli jego średnia i wariancja są stałe w czasie. Jeśli masz trend (sprzedaż rośnie z roku na rok), szereg jest niestacjonarny.
+# trend
+data$week = 1:150
+train <- data[1:120,]
+test <- data[121:150,]
+
+model <- lm(sales ~ ., train)
+summary(model)
+dwtest(model) # odrzucam hipoteze o autokorelacji
+
+# autoregresja
+model <- lm(sales ~ . + lag(sales), train)
+summary(model)
+dwtest(model) 
+# pozbywamy sie autoregresji
+
+# róznicowanie danych - usuwa trend, czyli pozwala na anlizę danych, które podążają za wyraźnym trendem
+plot(diff(data$sales), type = 'l')
+# yt - y(t - 1) - aktualny odjąć poprzedni
+
+# stacjonarność - stała wartość oczekiwana i wariancja
+library(tseries)
+# Jeśli p < 0.05, szereg jest stacjonarny (gotowy do modelu ARIMA)
+adf.test(data$sales)
+adf.test(diff(data$sales))
+
+# wykresy autokorelacji
+pacf(data$sales)
+# nasze dane są skorelowane do 3 okresów wstecz - bo te 3 wykraczaja poza te niebieskie linie (przedziały ufności)
+```
+
+model <- arima(data, order=c(p, d, q))
+
+- p (Autoregresja - AR): To liczba opóźnień (poprzednich tygodni), które bezpośrednio wpływają na dzisiejszą sprzedaż. Skoro na wykresie PACF widzieliśmy 3 wystające słupki, to wpisaliśmy tu 3
+
+- d (Integracja/Różnicowanie - I): To liczba razy, ile musieliśmy wykonać operację diff, aby usunąć trend i uspokoić wykres
+
+- q (Średnia krocząca - MA): To liczba poprzednich błędów prognozy, które bierzemy pod uwagę (wygładzanie nagłych skoków)
+
+```{r}
+# AR I MA
+# autoregression integration mean yearly average
+# y = B0 + B1*y(t-1) + ... + E + C1*E(t-1) + C2*E(t-2)
+
+model <- arima(data$sales, order = c(3,0,0))
+summary(model)
+# kryterium informacyjne AIC - im mniejsze tym lepiej
+
+library(forecast)
+model <- auto.arima(data$sales, trace = T, stepwise = F, approximation = F, xreg = as.matrix(data[,3:6]))
+model
+# BIC - kryterium informacyjne
+coeftest(model)
+
+model <- auto.arima(train$sales, trace = T, stepwise = F, approximation = F, xreg = as.matrix(train[,4]))
+model
+
+# autokorelacja
+Box.test(model$residuals)
+# nie ma autokorelacji
+
+# prognoza
+p <- forecast(model, test$sales, xreg = as.matrix(test[,4]))
+p
+
+e <- test$sales-p$mean
+MAE <- mean(abs(e))
+MAE
+
+data$forecast = c(p$fitted, p$mean)
+data$lower = c(rep(NA, 120), p$lower[,1])
+data$upper = c(rep(NA, 120), p$upper[,1])
+
+plot(data$sales, type = 'l') # realne dane
+lines(data$forecast, col = "red") # dopasowane dane
+lines(data$lower, col = "blue") #przedziały ufności
+lines(data$upper, col = "blue") #przedziały ufności
+```
+
+
+
+

@@ -138,9 +138,12 @@ linearHypothesis(model, "log(employees) = 0.05") #czy ten parametr jest istotnie
 
 # Prognozujemy sprzedaż w czasie, biorąc pod uwagę fakt, że dzisiejsza sprzedaż zależy od tej sprzed tygodnia (autokorelacja) oraz od trendu.
 
+# czyli
+# Trend - np. sprzedaż z roku na rok rośnie, bo firma się rozwija
+# Autokorelacja – to, ile sprzedasz dzisiaj, jest mocno powiązane z tym, ile sprzedałeś tydzień temu
 
 library(dplyr)
-data <- read.csv("H:\\Ekonometria\\dane3.csv") %>% group_by(week) %>% 
+data <- read.csv("D:/uni-corner/uni-r/econometrics/lab5and6/dane3.csv") %>% group_by(week) %>% 
   summarise(
     sales = sum(units_sold),
     price = mean(price_unit),
@@ -157,6 +160,7 @@ summary(model)
 
 # autokorelacja
 plot(data$sales, type = "l")
+
 library(lmtest)
 dwtest(model) # Chcemy wyniku blisko 2. Jeśli jest blisko 0, mamy dodatnią autokorelację (model nie wyłapał zależności czasowej).
 
@@ -171,7 +175,7 @@ summary(model)
 dwtest(model) # odrzucam hipoteze o autokorelacji
 
 # autoregresja
-model <- lm(sales ~ . + lag(sales), train)
+model <- lm(sales ~ . + log(sales), train)
 summary(model)
 dwtest(model) 
 # pozbywamy sie autoregresji
@@ -183,13 +187,13 @@ plot(diff(data$sales), type = 'l')
 # stacjonarność - stała wartość oczekiwana i wariancja
 install.packages("tseries")
 library(tseries)
-# Jeśli $p < 0.05$, szereg jest stacjonarny (gotowy do modelu ARIMA)
+# Jeśli p < 0.05, szereg jest stacjonarny (gotowy do modelu ARIMA)
 adf.test(data$sales)
 adf.test(diff(data$sales))
 
 # wykresy autokorelacji
 pacf(data$sales)
-# nasze dane są sorelowane do 3 okresów wstecz - bo te 3 wykraczaja poza te niebieskie linie (przedziały ufności)
+# nasze dane są skorelowane do 3 okresów wstecz - bo te 3 wykraczaja poza te niebieskie linie (przedziały ufności)
 
 # AR I MA
 # autoregression integration mean yearly average
@@ -197,6 +201,7 @@ pacf(data$sales)
 
 model <- arima(data$sales, order = c(3,0,0))
 summary(model)
+model
 # kryterium informacyjne AIC - im mniejsze tym lepiej
 
 library(forecast)
