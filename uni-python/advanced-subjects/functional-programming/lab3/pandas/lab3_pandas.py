@@ -1,6 +1,6 @@
 
 import pandas as pd
-#import numpy as np
+import numpy as np
 
 # ZADANIE 1
 def zad1():
@@ -19,9 +19,9 @@ def zad1():
 
 # ZADANIE 2
 def zad2():
-    google_df = pd.read_csv("ex2/googl_us_m.csv")
-    amazon_df = pd.read_csv("ex2/amzn_us_m.csv")
-    microsoft_df = pd.read_csv("ex2/msft_us_m.csv")
+    google_df = pd.read_csv("ex2/googl_us_d.csv")
+    amazon_df = pd.read_csv("ex2/amzn_us_d.csv")
+    microsoft_df = pd.read_csv("ex2/msft_us_d.csv")
 
     #merged_data_2 = pd.merge(google_df, amazon_df, on='Data', how='inner')
     #merged_data_3 = pd.merge(merged_data_2, microsoft_df, on='Data', how='inner')
@@ -32,10 +32,19 @@ def zad2():
 
     print(google_df.head())
     print(google_df.shape)
+    print(google_df.dtypes)
+    print(google_df.info())
+    print(google_df.describe())
+
+    google_df['Data'] = pd.to_datetime(google_df['Data'])
+    #google_df.fillna(method="ffil")
+    google_df = google_df.ffill()
 
     # ZMIANA CENY ZAMKNIECIA
     for i in range(1, len(google_df)):
-        google_df.at[i, 'Zmiana'] = "%0.2f" % (round(google_df.at[i, 'Zamkniecie']/google_df.at[i-1, 'Zamkniecie'], 2))
+        google_df.at[i, 'Zmiana'] = "%0.2f" % (round(google_df.at[i, 'Zamkniecie']/google_df.at[i-1,'Zamkniecie'], 2))
+
+    google_df['Zmiana - Stopa zwrotu'] = google_df['Zamkniecie'].pct_change()
 
     # SREDNIA RUCHOMA - SMA
     sum = 0
@@ -43,7 +52,19 @@ def zad2():
         sum += google_df.at[i, 'Zamkniecie']
         google_df.at[i, 'SMA'] = sum / (i+1)
 
+    google_df['Srednia Ruchoma'] = google_df['Zamkniecie'].rolling(window=5).mean()
+
+    # WARUNKI, kiedy zmiana była wieksza niż 2%
+    print("\n")
+    print(google_df[google_df['Zmiana - Stopa zwrotu'] > 0.02])
+
+    # NAJWIEKSZA STOPA ZWROTU
+    print("\n")
+    print(google_df['Zmiana - Stopa zwrotu'].idxmax())
+
+    print("\n")
     print(google_df.head())
+    print(google_df.info())
 
     # i am out: 0.05 sec
 
@@ -64,9 +85,37 @@ def zad3():
     statistics = round(wholesale_df.agg(['mean', 'median', 'min', 'max', 'std']), 2)
     print(statistics)
 
+    statistics_region = wholesale_df.groupby('Region').mean()
+    print(statistics_region)
+
+    statistics_alt = wholesale_df.describe()
+    print(statistics_alt)
+
+    korelacja = wholesale_df.corr()
+    print(korelacja)
+
+    klienci_premium = wholesale_df[wholesale_df['Fresh'] > wholesale_df['Fresh'].quantile(0.95)]
+    print(klienci_premium)
 
 
+def zad5():
+    dane = pd.read_excel("Miasta.xlsx", sheet_name=None)
+    print(dane.keys())
 
+    poland_df = dane['Poland']
+    print(poland_df.info())
+    print(poland_df.head())
+
+    statystyki = poland_df.describe()
+    print(statystyki)
+
+    srednie_wojewodztwa = poland_df.groupby('admin_name')['population'].mean()
+    print(srednie_wojewodztwa.sort_values(ascending=False))
+
+    progi = [0, 20000, 100000, np.inf]
+    etykiety = ['small', 'medium', 'big']
+    poland_df['City Size'] = pd.cut(poland_df['population'], bins=progi, labels=etykiety)
+    print(poland_df['City Size'].value_counts())
 
 def play():
     match int(input("Podaj numer zadania: ")):
@@ -76,6 +125,8 @@ def play():
             zad2()
         case 3:
             zad3()
+        case 5:
+            zad5()
         case _:
             print("Podałes zły numer")
 

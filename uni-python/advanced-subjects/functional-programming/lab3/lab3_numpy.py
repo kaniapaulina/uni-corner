@@ -2,7 +2,9 @@ import random
 
 import numpy as np
 from numpy import random
-from pandas.core.computation.expressions import where
+
+from PIL import Image
+from PIL import ImageFilter
 
 
 def zad1():
@@ -22,6 +24,7 @@ def zad1():
     print(det)
 
     print("\n b) \n")
+    # np.linalg.inv rzuci blad jesli macierz jest osobliwa, uzyj np.linalg.pinv()
     inverse = np.linalg.inv(matrix)
     print(inverse)
 
@@ -40,10 +43,7 @@ def zad2():
     """
     tablica = np.array([x for x in random.randint(1, 10, 10)])
 
-    cnt = {}
-    for i in range(1, 11):
-        cnt[i] = 0
-
+    cnt = {i:0 for i in range(1, 11)}
     for x in tablica:
         if x in cnt:
             cnt[x] += 1
@@ -51,12 +51,24 @@ def zad2():
     print(f"{tablica}\n")
     print(cnt)
 
+    print(" - - - ")
+
+    liczba, ilosc = np.unique(tablica, return_counts=True)
+    for i in range(len(liczba)):
+        print(f"{liczba[i]}: {ilosc[i]}")
+    print(" - - - ")
+    wynik = {liczba[i].item():ilosc[i].item() for i in range(len(liczba))}
+    print(wynik)
+
 def zad3():
     """
     Zadanie 3. Napisz funkcję, która zamienia wszystkie wartości ujemne na zero w tablicy numpy oraz wszystkie wartości NaN na średnią z kolumn w tablicy numpy.
     """
     tablica = np.array([x for x in random.randint(-10, 10, (3,3))])
     arr = tablica.copy()
+
+    arr = arr.astype(float)
+    arr[1, 1] = np.nan
     """
     tablica_rows, tablica_cols = np.shape(tablica)
     srednia = [0]*tablica_cols
@@ -77,10 +89,10 @@ def zad3():
     #np.where(tablica < 0, 0, tablica) - dziala
     #np.place(tablica, tablica<0, 0) - dziala
     srednia = np.nanmean(arr, axis = 0)
-    np.where(np.isnan(arr), srednia, arr)
+    wynik = np.where(np.isnan(arr), srednia, arr)
 
     print(srednia)
-    print(tablica)
+    print(wynik)
 
 def zad4():
     """
@@ -107,6 +119,31 @@ def zad5():
         • Znajdź parę kolumn, która ma najwyższą wartość korelacji dodatniej i parę z najwyższą korelacją ujemną.
     """
     tablica = np.array(random.randint(-10, 10, (50, 10)))
+    korelacja = np.corrcoef(tablica, rowvar = False)
+
+    for i in range((korelacja.shape[0])):
+        korelacja[i][i] = 0
+
+    print(korelacja)
+    """
+    max = korelacja[0][0]
+    maxrow = 0
+    maxcol = 0
+    min = korelacja[0][0]
+    minrow = 0
+    mincol = 0
+    for col in range(korelacja.shape[0]):
+        for row in range(korelacja.shape[1]):
+            if abs(korelacja[row][col])>max:
+                max = korelacja[row][col]
+                maxcol = col
+                maxrow = row
+            if abs(korelacja[row][col])<min:
+                min = korelacja[row][col]
+                mincol = col
+                minrow = row
+    """
+    print(np.unravel_index(np.argmax(korelacja), shape=korelacja.shape))
 
 def zad6():
     """
@@ -115,7 +152,38 @@ def zad6():
         • Przekształć obraz do odcieni szarości (wykorzystując odpowiednie wagi dla kanałów R, G, B).
         • Zastosuj rozmycie obrazu przy użyciu splotu macierzy (np. użyj macierzy Gaussa do rozmycia).
     """
+    im = Image.open("jołchan.png")
 
+    img = np.array(im)
+    print(img.shape)
+
+    def grayscale(img):
+        #img = np.dot(img[:, :,  0], 0.2126)
+        #img = np.dot(img[:, :, 1], 0.7152)
+        #img = np.dot(img[:, :, 2], 0.0722)
+        img.astype(np.uint8)
+        wynik = np.dot(img, [0.2126, 0.7152, 0.0722])
+        im = Image.fromarray(wynik)
+        im.show()
+
+    def rozmycie(img):
+        wynik = np.zeros_like(img)
+        for x in range(0, img.shape[0]-1):
+            for y in range(0, img.shape[1]-1):
+                fragment = img[x-1:x+2, y-1:y+2]
+                kernel = np.array([[1/3, 1/3, 1/3], [1/3, 1/3, 1/3], [0, 0, 0]])
+                wynik[x, y] = np.sum(fragment*kernel)
+        wynik.astype(np.uint8)
+        im = Image.fromarray(wynik)
+        im.show()
+
+    def rozmycie_alt(im):
+        img = Image.fromarray(im)
+        blurred = img.filter(ImageFilter.GaussianBlur(radius=5))
+        blurred.show()
+
+    rozmycie(img)
+    rozmycie_alt(img)
 
 def play():
     match int(input("Podaj numer zadania: ")):
