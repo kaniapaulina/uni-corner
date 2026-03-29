@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <title>Zadanie 6 - JavaScript</title>
+    <style>
+      .container { max-width: 720px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; }
+      .tile { width: 200px; margin: 20px; height: 200px; border-radius: 10%; transition-duration: 0.5s; cursor: pointer; }
+      .pink { background-color: rgb(216, 35, 192); }
+      
+      /* KLASA DOCELOWA DLA OBROTU: */
+      .rotated { transform: rotate(45deg); }
+    </style>
+  </head>
+  <body>
+    <div id="main_container" class="container">
+      <div class="tile pink"></div>
+      <div class="tile pink"></div>
+      <div class="tile pink"></div>
+      <div class="tile pink"></div>
+      <div class="tile pink"></div>
+      <div class="tile pink"></div>
+    </div>
+    <script>
+      /* ZADANIE 6:
+        1. Pobierz wszystkie kafelki za pomocą document.querySelectorAll('.tile').
+        2. Przeiteruj się po pobranej liście (np. za pomocą .forEach).
+        3. Dodaj do każdego kafelka zdarzenie addEventListener('click', ...).
+        4. Wewnątrz funkcji obsługującej kliknięcie dodaj kafelkowi (lub usuń, jeśli już ją ma) klasę 'rotated' przy użyciu:
+           element.classList.toggle('rotated');
+      */
+
+      // Twój kod poniżej:
+      const allObj = document.querySelectorAll('.tile');
+      allObj.forEach(self => {
+            self.addEventListener("click", function () {
+              self.classList.toggle('rotated');
+              }
+            )
+          }
+        )
+
+    </script>
+  </body>
+</html>

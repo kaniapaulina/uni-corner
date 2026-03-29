@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <title>Zadanie 2 - JavaScript</title>
+    <style>
+      .button { width: 100px; height: 20px; border: black solid 1px; text-align: center; cursor: pointer; }
+      .button:hover { background-color: grey; font-weight: bold; }
+      #content { width: 300px; height: 20px; font-weight: bold; margin-bottom: 10px; }
+    </style>
+  </head>
+  <body>
+    <div id="content">0</div>
+    <div id="adder" class="button">Naciśnij</div>
+    <script>
+      /* ZADANIE 2:
+        1. Pobierz przycisk i kontener na tekst używając document.getElementById().
+        2. Podepnij nasłuchiwanie zdarzeń (addEventListener('click', ...)) do przycisku.
+        3. Wewnątrz funkcji zwiększaj licznik o 1 i wpisuj go do div'a #content.
+        4. Dodaj instrukcję warunkową (if): po 10 kliknięciach przestań liczyć i wpisz tekst: "Przestań już tyle klikać".
+      */
+      
+      // Twój kod poniżej:
+      const przycisk = document.getElementById("adder");
+      const content = document.getElementById("content");
+
+      przycisk.addEventListener("click", function() {
+        let licznik = parseInt(content.textContent);
+        if (licznik < 10) {
+          licznik++;
+        content.textContent = licznik;
+        }
+        else {
+          licznik = "Przestań już tyle klikać";
+          content.textContent = licznik;
+        }
+        
+      })
+
+    </script>
+  </body>
+</html>

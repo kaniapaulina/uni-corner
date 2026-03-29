@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <title>Zadanie 3 - JavaScript</title>
+    <style>
+      #zegar { width: 300px; height: 50px; font-size: 2em; display: flex; justify-content: center; align-items: center; background-color: black; color: red; animation: colors 5s infinite; }
+      @keyframes colors { 0%, 19%, 100% { color: red; } 20%, 39% { color: rgb(255, 255, 0); } 40%, 59% { color: rgb(50, 255, 0); } 60%, 79% { color: rgb(0, 89, 255); } 80%, 99% { color: rgb(255, 255, 255); } }
+    </style>
+  </head>
+  <body>
+    <div id="zegar">--:--:--</div>
+    <script>
+      /* ZADANIE 3:
+        1. Napisz funkcję pobierającą aktualny czas (new Date()).
+        2. Wyciągnij z niego godziny, minuty i sekundy. Zadbaj o dodanie zera z przodu dla cyfr < 10 (możesz użyć metody .padStart(2, '0')).
+        3. Połącz je w string "HH:MM:SS" i podmień tekst wewnątrz div'a #zegar.
+        4. Użyj metody setInterval(twojaFunkcja, 1000), aby zegar odświeżał się sam co 1 sekundę. Nie używaj rekurencji!
+      */
+
+      // Twój kod poniżej:
+      function aktualizujZegar() {
+        const teraz = new Date()
+        const godziny = teraz.getHours().toString().padStart(2, '0')
+        const minuty = teraz.getMinutes().toString().padStart(2, '0')
+        const sekundy = teraz.getSeconds().toString().padStart(2, '0')
+        const czas = `${godziny}:${minuty}:${sekundy}`
+        
+        document.getElementById('zegar').innerHTML = czas
+      }
+
+      setInterval(aktualizujZegar, 1000)
+    </script>
+  </body>
+</html>

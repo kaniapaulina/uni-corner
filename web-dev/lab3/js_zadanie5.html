@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <title>Zadanie 5 - JavaScript</title>
+  </head>
+  <body>
+    <h1>Zadanie 5 (Konsola)</h1>
+    <script>
+      /* ZADANIE 5:
+        1. Utwórz tablicę (Array): const owoce = ["jabłko", "gruszka", "ananas", "porzeczka", "schabowy"];
+        2. Wypisz ją w konsoli używając klasycznej pętli for.
+        3. Wypisz ją w konsoli używając pętli owoce.forEach(...).
+        4. Napisz funkcję, która wybierze i wypisze w konsoli jeden LOSOWY element z tej tablicy przy każdym wywołaniu. (Wskazówka: użyj Math.random() oraz Math.floor()).
+      */
+
+      // Twój kod poniżej:
+      const owoce = ["jabłko", "gruszka", "ananas", "porzeczka", "schabowy"];
+
+      for(let i=0; i < owoce.length; i++) {
+        console.log(owoce[i])
+      }
+
+      function WriteLine(item) {
+        console.log(item)
+      }
+      
+      owoce.forEach(WriteLine)
+
+      function RandomOwoc() {
+        let index = Math.floor(Math.random() * (owoce.length+1))
+        console.log(owoce[index])
+      }
+
+      RandomOwoc()
+      
+
+    </script>
+  </body>
+</html>

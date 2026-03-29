@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <title>Zadanie 4 - JavaScript</title>
+    <style>
+      .button { display: inline-block; margin: 0 20px; width: 100px; height: 20px; border: black solid 1px; text-align: center; cursor: pointer; }
+      .button:hover { background-color: grey; font-weight: bold; }
+      span, input { display: inline-block; width: 100px; margin: 0 20px; }
+    </style>
+  </head>
+  <body>
+    <span>Imię:</span>
+    <input type="text" id="name" name="imie" size="9" />
+    <br /><br />
+    <span>Nazwisko:</span>
+    <input type="text" id="surname" name="nazwisko" minlength="1" maxlength="30" size="9" />
+    <br /><br />
+    <div id="btn-get" class="button" onclick="Pobierz()">Pobierz</div>
+    <div id="btn-clear" class="button" onclick="Wyczyść()">Wyczyść</div>
+    <script>
+      /* ZADANIE 4:
+        1. Podepnij zdarzenia 'click' pod oba przyciski.
+        2. Przycisk "Pobierz": ma odczytać wartość (wlasnosc .value) z obu inputów.
+           - Jeśli któreś pole jest puste (length === 0), wyrzuć alert(): "Wprowadź dane do formularza".
+           - W przeciwnym razie wyświetl wpisane dane w alercie.
+        3. Przycisk "Wyczyść": ma zmienić zawartość .value obu inputów na pusty string "".
+      */
+
+      // Twój kod poniżej:
+      function Pobierz() {
+        const imie = document.getElementById('name').value
+        const nazwisko = document.getElementById('surname').value
+
+        if(imie.length==0 || nazwisko.length==0) {
+          alert("Wprowadź dane do formularza")
+        }
+        else {
+          alert(`${imie} ${nazwisko}`)
+        }
+      }
+
+      function Wyczyść() {
+        document.getElementById('name').value = ""
+        document.getElementById('surname').value = ""
+      }
+
+    </script>
+  </body>
+</html>

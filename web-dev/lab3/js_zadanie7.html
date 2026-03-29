@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <title>Zadanie 7 - JavaScript</title>
+  </head>
+  <body>
+    <canvas style="border: 1px solid black" id="canwas" width="600" height="600"></canvas>
+    <script>
+      /* ZADANIE 7:
+        Poniższy kod rysuje tylko jeden kwadrat. Zmień go tak, aby narysował siatkę kwadratów na całym płótnie (użyj dwóch pętli for).
+        Dodaj logikę, w której istnieje 50% szans (Math.random()), że w środku dużego kwadratu zostanie narysowany mniejszy kwadrat.
+        Całość zamknij w funkcji i wrzuć do setInterval(), by odświeżała się co 2500ms.
+      */
+
+      function drawCanvas() {
+        let canvas = document.querySelector("canvas");
+        let context = canvas.getContext("2d");
+        
+        // Czyszczenie płótna przed ponownym rysowaniem
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // --- ZMIEŃ PONIŻSZY KOD ---
+        context.lineWidth = 4;
+        for(i=0; i<5; i++) {
+          for(j=0; j<5; j++) {
+            let x = i*110 + 25;
+            let y = j*110 + 25;
+            let width = 90;
+            let height = 90;
+            context.beginPath();
+            context.rect(x, y, width, height);
+
+            let szansa = Math.random();
+            if(szansa<0.5) {
+              context.rect(x+15, y+15, width-30, height-30);
+            }
+
+            context.stroke();
+          }
+        }
+
+        // --------------------------
+      }
+      
+      // Wywołanie startowe i cykliczne:
+      drawCanvas();
+      setInterval(drawCanvas, 2500);
+
+    </script>
+  </body>
+</html>

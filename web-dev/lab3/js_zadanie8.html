@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <title>Zadanie 8 - JavaScript</title>
+    <style>
+      #image_container {
+        width: 500px;
+        height: 500px;
+        background-color: black;
+        background-size: cover;
+        background-position: center;
+        transition: background-image 0.5s ease-in-out; /* Płynne przejścia */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="image_container"></div>
+    <script>
+      /* ZADANIE 8 (Slider bez jQuery!):
+        1. Stwórz tablicę przechowującą ścieżki do Twoich 4 obrazków (np. ['img1.jpg', 'img2.jpg', ...]).
+        2. Stwórz zmienną indeks przechowującą aktualny numer zdjęcia, zacznij od losowego (Math.random() itd.).
+        3. Napisz funkcję, która podmienia tło w divie #image_container.
+           Podpowiedź: div.style.backgroundImage = `url('${tablica[indeks]}')`;
+        4. W funkcji inkrementuj indeks. Jeśli indeks przekroczy długość tablicy, zresetuj go do 0.
+        5. Podepnij tę funkcję pod setInterval(), aby wywoływała się co 2 sekundy.
+      */
+
+      // Twój kod poniżej:
+
+      const images = ['/img/img1.jpg', '/img/img2.jpg', '/img/img3.jpg', '/img/img4.jpg'];
+      let index = Math.floor(Math.random() * (images.length));
+      //const index = 0;
+
+      const change_img = function() {
+        let element = document.getElementById("image_container")
+        element.style.backgroundImage = `url('${images[index]}')`;
+
+        index++;
+        if (index > 3) {
+          index = 0;
+        }
+      }
+
+      setInterval(change_img, 1000)
+
+    </script>
+  </body>
+</html>
