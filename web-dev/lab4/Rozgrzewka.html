@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pl-pl">
+  <head>
+    <title>Rozgrzewka z jQuery</title>
+    <style>
+      #TenPrzycisk {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        background: linear-gradient(45deg, #75ffedcc, #e875ffcc);
+        cursor: pointer;
+        font-weight: bold;
+
+      }
+      .nakladka {
+        background: linear-gradient(45deg, #81ff75cc, #f3e300cc) !important;
+      }
+      #TenPrzycisk:hover {
+        color: white;
+      }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div>
+      <p id="jeden">Tekst, który ma stać się pogrubiony po najechaniu.</p>
+    </div>
+    <div>
+      <p id="dwa">Tekst, który ma stać się jasnoniebieski po najechaniu.</p>
+    </div>
+    <div>
+      <span id="TenPrzycisk" class="nakladka">Przycisk (Kliknij mnie)</span>
+    </div>
+
+    <script>
+      // TUTAJ napisz swój kod jQuery zgodnie z instrukcjami z platformy.
+      // Pamiętaj o użyciu $(document).ready(function() { ... });
+      $(document).ready(function(){
+        alert("Strona została poprawnie załadowana");
+      })
+
+      // Ukrywanie paragrafow
+      $(document).ready(function(){
+        $("#TenPrzycisk").click(function() {
+          $("p").toggle();
+        })
+      })
+
+      // Edycja przycisku
+      $(document).ready(function(){
+        $("#TenPrzycisk").click(function() {
+          $(this).toggleClass("nakladka");
+        });
+      })
+
+      // Edycja Paragrafow
+      $(document).ready(function() {
+        $("#jeden").hover(function() {
+          $(this).css("font-weight", "bold");
+        }, function() {
+          $(this).css("font-weight", "normal");
+        })
+      })
+      $(document).ready(function() {
+        $("#dwa").hover(function() {
+          $(this).css("color", "lightblue");
+        }, function() {
+          $(this).css("color", "black");
+        })
+      })
+    </script>
+  </body>
+</html>

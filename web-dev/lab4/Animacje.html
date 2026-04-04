@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl-pl">
+  <head>
+    <title>Przykładowe animacje</title>
+    <style>
+      .kolo {
+        border-radius: 50%;
+        background-color: lightblue;
+        width: 100px;
+        height: 100px;
+        transition: background-color 3s;
+      }
+
+      .kolo:hover {
+        background-color: darkblue;
+      }
+
+      .centrum {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+      }
+      #kwadrat {
+        width: 100px;
+        height: 100px;
+        background-image: linear-gradient(45deg, lightblue, lightgreen);
+        animation-name: animacja;
+        animation-duration: 6s;
+      }
+      
+      /* Tutaj dodaj swoje reguły @keyframes i animacje */
+      @keyframe animacja {
+        0%   {transform: rotate(0deg);}
+        25%  {transform: rotate(90deg);}
+        50%  {transform: rotate(90deg);}
+        75%  {transform: rotate(90deg);}
+        100% {transform: rotate(90deg);}
+      }
+
+    </style>
+  </head>
+  <body>
+    <hr />
+    
+    <div class="centrum">
+      <div class="kolo"></div>
+    </div>
+    
+    <hr />
+    
+    <div class="centrum">
+      <div id="kwadrat"></div>
+    </div>
+    
+    <hr />
+
+    </body>
+</html>
