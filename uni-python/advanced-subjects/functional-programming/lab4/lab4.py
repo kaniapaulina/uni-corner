@@ -64,8 +64,8 @@ def draw_plot_two():
     )
 
     #return chart
-    chart.save('wykres.html')
-    webbrowser.open('wykres.html')
+    #chart.save('wykres.html')
+    #webbrowser.open('wykres.html')
 
 draw_plot_two()
 
