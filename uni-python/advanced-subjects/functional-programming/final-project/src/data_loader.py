@@ -106,7 +106,7 @@ def get_data(lat, lon, start, end, use_api=True):
     """
     Returns the finished product of data_loader.py
     """
-    file_path = "final-project/krakow_air_data_backup.csv"
+    file_path = "final-project/src/krakow_air_data_backup.csv"
 
     if not use_api:
         return pd.read_csv(file_path, parse_dates=['date'])
