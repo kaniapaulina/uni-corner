@@ -96,7 +96,7 @@ def fetch_all_data(lat, long, start, end):
     """
     df1 = get_air_quality_data(lat, long, start, end)
     df2 = get_weather_data(lat, long, start, end)
-    df_final = pd.merge(clean_data(df1), clean_data(df2), on='date')
+    df_final = pd.merge(df1, df2, on='date')
     df_final['date'] = pd.to_datetime(df_final['date'])
 
     return df_final

@@ -1,3 +1,9 @@
+from functools import reduce
+
+def compose(*funcs):
+    return lambda initial: reduce(lambda acc, f: f(acc),reversed(funcs),initial)
+
+
 def get_statistics(df, stat):
     """
     Function to calculate pollution statistics
@@ -37,3 +43,18 @@ def get_daily_averages(df, *args):
     """
     temp_df = df.set_index('date')
     return temp_df[list(args)].resample('D').mean().reset_index()
+
+
+def sort_by_date(df):
+    return df.sort_values('date')
+
+def filter_pm10_high(df):
+    return df[df['pm10'] > 50]
+
+
+
+get_smog_report = compose(
+    filter_pm10_high,
+    lambda df: df.nlargest(10, 'pm10'),
+    lambda df: df[['date', 'pm10', 'temp']]
+)
