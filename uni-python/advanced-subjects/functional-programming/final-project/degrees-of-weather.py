@@ -17,8 +17,6 @@ def load_all_data():
         clean_data,
         sort_by_date,
     )
-
-    # Uruchamiamy potok
     return process(raw_data)
 
 

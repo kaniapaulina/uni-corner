@@ -33,7 +33,7 @@ start = datetime.datetime(2021, 1, 1)
 end = datetime.datetime(2024, 1, 1)
 
 # Pobieranie danych z FRED
-fred_data = web.DataReader(['T10Y2Y', 'VIXCLS', 'T10YIE', 'DCOILWTICO'], 'fred', start, end)
+fred_data = web.DataReader(['T10Y2Y', 'VIXCLS', 'T10YIE', 'DCOILWTICO'], 'frexdd', start, end)
 
 
 
@@ -47,7 +47,7 @@ yf_data = yf.download(["PLN=X", "CL=F", "GC=F", "^GSPC", "^WIG20", "EURUSD=X", "
 
 # 2. Pobieranie z FRED
 fred_ids = ["T10Y2Y", "POLCPIALLMINMEI", "CPIAUCSLD", "WALCL"]
-fred_data = web.DataReader(fred_ids, "fred", start="2020-01-01")
+fred_data = web.DataReader(fred_ids, "frexdd", start="2020-01-01")
 
 # 3. Łączenie i wyrównanie (resampling do danych miesięcznych dla stabilności Hellwiga)
 df = pd.merge(yf_data, fred_data, left_index=True, right_index=True, how='outer')
@@ -116,7 +116,7 @@ def merge_everything():
 
     # 2. Dołączaj kolejne pliki z folderów
     # Przykład dla FRED:
-    for file in glob.glob("data/fred/*.csv"):
+    for file in glob.glob("data/frexdd/*.csv"):
         temp_df = pd.read_csv(file, index_col=0, parse_dates=True)
         temp_df = temp_df.resample('ME').mean()
         df_main = df_main.join(temp_df, how='left')

@@ -1,5 +1,5 @@
 """"""
-import pandas as pd
+import os
 import datetime
 import yfinance as yf
 import pandas_datareader.data as dr
@@ -42,6 +42,13 @@ une_rt_m (Unemployment by sex and age).
 start_date = datetime.datetime(2019, 1, 1)
 end_date = datetime.datetime(2025, 12, 31)
 
+def make_folders():
+    folders = ['yahoo', 'eurostat', 'world_bank', 'fred']
+    for folder in folders:
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+
 def yahoo_data():
     tickers = ["PLN=X", "CL=F", "GC=F", "^GSPC", "EURUSD=X", "^VIX"]
     for ticker in tickers:
@@ -60,7 +67,7 @@ def yahoo_data():
             print(f"Błąd przy pobieraniu {ticker}: {e}")
 
 def fred_data():
-    ids = ["T10Y2Y", "TRESEGPLM052N", "FPCPITOTLZGUSA", "FPCPITOTLZGPOL"]
+    ids = ["T10Y2Y", "TRESEGPLM052N", "TRESEGUSM052N", "FPCPITOTLZGUSA", "FPCPITOTLZGPOL"]
     for id in ids:
         try:
             url = f"data/fred/{id}.csv"
@@ -107,3 +114,5 @@ def get_data():
     fred_data()
     wb_data()
     eurostat_data()
+
+get_data()
