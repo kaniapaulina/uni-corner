@@ -21,21 +21,45 @@
         align-items: center;
         margin: 20px 0;
       }
+
       #kwadrat {
         width: 100px;
         height: 100px;
         background-image: linear-gradient(45deg, lightblue, lightgreen);
-        animation-name: animacja;
-        animation-duration: 6s;
+        transition: transform 0.3s ease;
+      }
+
+      #kwadrat:hover {
+        animation: animacja 4s;
+        animation-iteration-count: infinite;
       }
       
       /* Tutaj dodaj swoje reguły @keyframes i animacje */
-      @keyframe animacja {
-        0%   {transform: rotate(0deg);}
-        25%  {transform: rotate(90deg);}
-        50%  {transform: rotate(90deg);}
-        75%  {transform: rotate(90deg);}
-        100% {transform: rotate(90deg);}
+      @keyframes animacja {
+        0% {transform: rotate(0deg);}
+        100% {transform: rotate(360deg);}
+      }
+
+      #logo {
+        width: 100%;
+        height: 200px;
+        background-color: lightblue;
+        padding: 2vw 2vh;
+      }
+
+      #logo img {
+        width: auto;
+        height: 100%;
+        object-fit: fill;
+      }
+
+      #logo img:hover {
+        animation: nieanimacja 4s;
+      }
+
+      @keyframes nieanimacja {
+        0% {transform: rotateY(0deg);}
+        100% {transform: rotateY(360deg);}
       }
 
     </style>
@@ -51,6 +75,10 @@
     
     <div class="centrum">
       <div id="kwadrat"></div>
+    </div>
+
+    <div id="logo">
+      <img src="Znak_graficzny_AGH.png">
     </div>
     
     <hr />
