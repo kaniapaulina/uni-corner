@@ -13,11 +13,9 @@ PLN=X (Kurs USD/PLN)
 
 Zmienne Objaśniające:
 Dzienne (Yahoo Finance):
-SD/PLN (Y) - PLN=X - Kurs bazowy dla Twojego projektu.
 Cena Ropy - CL=F - Kontrakty terminowe na ropę Crude Oil WTI.
 Cena Złota - GC=F - Kontrakty terminowe na złoto (bezpieczna przystań).
 S&P 500 - ^GSPC - Główny indeks giełdy w USA.
-WIG20 - ^WIG20 - Główny indeks GPW 
 EUR/USD - EURUSD=X - Kluczowa para walutowa 
 VIX - ^VIX - Indeks zmienności (strachu) z Yahoo.
 
@@ -25,6 +23,7 @@ Miesięczne (FRED):
 Różnica stóp - T10Y2Y 
 T10Y2Y (Yield Curve Spread) - Różnica między rentownością obligacji 10-letnich a 2-letnich USA. To najsłynniejszy wskaźnik nadchodzącej recesji. Używa się go do oceny cyklu koniunkturalnego.
 Rezerwy Walutowe Polski- TRESEGPLM052N
+Rezerwy Walutowe Ameryki- TRESEGPLM052N
 
 Roczne (FRED):
 Inflacja USA - FPCPITOTLZGUSA
