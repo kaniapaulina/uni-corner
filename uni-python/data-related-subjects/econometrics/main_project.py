@@ -173,6 +173,39 @@ def predict(df):
     print(f'RMSE: {RMSE:.2f}')
     print(f'MAPE: {MAPE:.2f}%')
 
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+def predict_ml(df):
+    X = df.iloc[:, :-1]
+    y = df.iloc[:, 0]
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    model = LinearRegression()
+    model.fit(X, y)
+
+    print("Coefficient (Slope):", model.coef_[0])
+    print("Intercept:", model.intercept_)
+
+    y_pred = model.predict(X_test)
+    predictions = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
+    print(predictions.head())
+
+    mae = mean_absolute_error(y_test, y_pred)
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+
+    print("Mean Absolute Error (MAE):", mae)
+    print("Mean Squared Error (MSE):", mse)
+    print("R-squared Score:", r2)
+
+
 
 # === FINAL FUNCTION ===
 def econometrics_project():
@@ -181,10 +214,26 @@ def econometrics_project():
     df = data_reader()
     print(f"\n{df.head()}\n")
 
-    analize_data(df)
-    hellwigs_method(df)
-    using_test_summary(df)
-    predict(df)
+    #analize_data(df)
+    #hellwigs_method(df)
+    #using_test_summary(df)
+    #predict(df)
+    #predict_ml(df)
+
+    model = smf.ols(
+        'Q("PLN=X") ~ Q("CL=F") + Q("EURUSD=X") + Q("GC=F") + Q("^GSPC") + Q("^VIX") + Q("une_rt_m") + Q("T10Y2Y") + Q("TRESEGUSM052N") + Q("TRESEGPLM052N")',
+        data=df).fit()
+    print(model.summary())
+    print("===\n")
+    print(model.rsquared)
+    print("===\n")
+    print(model.params)
+    print("===\n")
+    print(model.bse)
+    print("===\n")
+    print(model.predict())
+    print("===\n")
+    test_summary(model)
 
 
 
