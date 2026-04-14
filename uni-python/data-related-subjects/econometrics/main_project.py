@@ -27,6 +27,14 @@ PLAN DZIAŁAŃ:
 import pandas as pd
 import numpy as np
 from functools import reduce
+from itertools import combinations
+import seaborn as sns
+from matplotlib import pyplot as plt
+from statsmodels import stats
+from statsmodels.stats.diagnostic import het_breuschpagan, linear_reset
+from statsmodels.stats.stattools import durbin_watson
+import statsmodels.formula.api as smf
+from scipy import stats
 
 def compose(*funcs):
     return lambda initial: reduce(lambda acc, f: f(acc),reversed(funcs),initial)
@@ -37,7 +45,7 @@ Zmienna objaśniana:
 - PLN=X - zmiana dollara wyrażona w złotówkach
 
 Zmienne objaśniane: 
-- CL=F,EURUSD=X,GC=F,^GSPC,^VIX,une_rt_m,T10Y2Y,TRESEGUSM052N,TRESEGPLM052N
+- CL=F,EURUSD=X,GC=F,^GSPC,^VIX,une_rt_m,T10Y2Y,TRESEGUSM052N,TRESEGPL M052N
 """
 
 def data_reader():
@@ -56,6 +64,9 @@ def analize_data(df):
     """
     print("=== Projekt: Zmienność kursu dollara w złotówkach ===\n")
 
+    column = ['PLN=X'] + [c for c in df.columns if c != 'PLN=X']
+    df = df.reindex(columns=column)
+
     rows, columns = df.shape
     print(f"Zestaw danych zawiera {rows} obserwacji x {columns} zmiennych i daty jako index\n")
     print(f"Lista dostępnych zmiennych: {df.columns.values.tolist()}\n")
@@ -63,7 +74,12 @@ def analize_data(df):
     stats = df.agg(['mean', 'median', 'std', 'min', 'max', 'kurtosis', 'skew'])
     print(f"Statystyki: \n {stats}\n")
 
-    return df
+    print(f"Korelacja: {df.corr().round(3)}\n")
+
+    fig, ax = plt.subplots()
+    sns.heatmap(data=df.corr(), annot=True, fmt=".2f", ax=ax)
+    ax.set_title("Macierz Korelacji")
+    plt.show()
 
 def log_return(df):
     """
@@ -71,6 +87,91 @@ def log_return(df):
     """
     log = lambda x: np.log(x.astype(float)/x.astype(float).shift(1))
     return df.apply(log, axis=0)
+
+def hellwigs_method(df):
+    numeric_data = df.select_dtypes(include=[np.number])
+    feature_cols = [c for c in numeric_data.columns if c != "PLN=X"]
+
+    corr_matrix = numeric_data.corr()
+    print(corr_matrix)
+
+    R0 = corr_matrix.iloc[1:len(feature_cols)+1, 0]
+    R = corr_matrix.iloc[1:len(feature_cols)+1, 1:len(feature_cols)+1]
+
+    n_vars = len(feature_cols)
+
+    best_H = -np.inf
+    best_combo = []
+
+    for r in range(1, n_vars+1):
+        for combo in combinations(range(n_vars), r):
+            k = list(combo)
+            H=0
+            for i in k:
+                mianownik = sum(abs(R.iloc[i, j]) for j in k)
+                if mianownik > 0:
+                    H += R0.iloc[i]**2/mianownik
+            if H > best_H:
+                best_H = H
+                best_combo = [feature_cols[i] for i in k]
+
+    print(f"From Hellwigs Method the best combo of data is: {best_combo}")
+
+def test_summary(model):
+    r = model.resid
+
+    # Normalność Reszt
+    stat, p = stats.shapiro(r)
+    print(f'\nShapiro-Wilk (normalność reszt):')
+    print(f'  W={stat:.4f}, p={p:.4f}  {"normlanosc" if p > 0.05 else "brak normalności"}')
+
+    x, bp_p, y, z = het_breuschpagan(r, model.model.exog)
+    print(f'\nBreusch-Pagan (heteroskedastyczność):')
+    print(f'  p={bp_p:.4f}  {"homoskedastyczność" if bp_p > 0.05 else "heteroskedastyczność!"}')
+
+    # Postać liniowa (RESET)
+    reset_res = linear_reset(model, power=2, use_f=True)
+    print(f'\nRESET (postać liniowa):')
+    print(f'  p={reset_res.pvalue:.4f}  {"postac liniowa" if reset_res.pvalue > 0.05 else "zła postać modelu!"}')
+
+
+    # Autokorelacja (test serii)
+    dw = durbin_watson(r)
+    print(f'\nDurbin-Watson: {dw:.4f}  (idealnie ~2.0)')
+    print('=' * 55)
+
+def using_test_summary(df):
+    model = smf.ols('Q("PLN=X") ~ Q("CL=F") + Q("EURUSD=X") + Q("GC=F") + Q("^GSPC") + Q("^VIX") + Q("une_rt_m") + Q("T10Y2Y") + Q("TRESEGUSM052N") + Q("TRESEGPLM052N")', data=df).fit()
+    print(model.summary())
+    test_summary(model)
+
+    model = smf.ols(
+        'Q("PLN=X") ~ Q("GC=F") + Q("TRESEGUSM052N")',
+        data=df).fit()
+    print(model.summary())
+    test_summary(model)
+
+def predict(df):
+    idx = np.random.permutation(len(df))
+    data_r = df.iloc[idx].reset_index(drop=True)
+
+    train = data_r.iloc[:1500].copy()
+    test = data_r.iloc[1500:].copy()
+
+    model = smf.ols(
+        'Q("PLN=X") ~ Q("CL=F") + Q("EURUSD=X") + Q("GC=F") + Q("^GSPC") + Q("^VIX") + Q("une_rt_m") + Q("T10Y2Y") + Q("TRESEGUSM052N") + Q("TRESEGPLM052N")',
+        data=df).fit()
+
+    p_fit = model.predict(test)
+    e = test['PLN=X'] - p_fit
+
+    MAE = np.mean(np.abs(e))
+    RMSE = np.sqrt(np.mean(e ** 2))
+    MAPE = np.mean(np.abs(e / test['PLN=X'])) * 100
+
+    print(f'MAE:  {MAE:.2f}')
+    print(f'RMSE: {RMSE:.2f}')
+    print(f'MAPE: {MAPE:.2f}%')
 
 
 # === FINAL FUNCTION ===
@@ -80,15 +181,10 @@ def econometrics_project():
     df = data_reader()
     print(f"\n{df.head()}\n")
 
-    # Potok wszystkich funkcji od prawej do lewej
-    pipeline = compose(
-        analize_data
-    )
-
-    wynik = pipeline(df)
-
-    print(f"\n{wynik.head()}\n")
-
+    analize_data(df)
+    hellwigs_method(df)
+    using_test_summary(df)
+    predict(df)
 
 
 
