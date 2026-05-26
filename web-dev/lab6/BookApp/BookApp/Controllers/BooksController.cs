@@ -37,7 +37,7 @@ namespace BookApp.Controllers
         [HttpGet]
         public IActionResult ViewAll()
         {
-            var books = _context.Books.ToList(); // Pobranie wszystkich autorów z bazy
+            var books = _context.Books.ToList();
             return View(books);
         }
 
@@ -55,7 +55,7 @@ namespace BookApp.Controllers
         {
             if (!ModelState.IsValid)
                 return View(book);
-            _context.Books.Update(book); // Zastępuje stare .Entry(author).State = EntityState.Modified
+            _context.Books.Update(book);
             _context.SaveChanges();
 
             return RedirectToAction(nameof(ViewAll));
