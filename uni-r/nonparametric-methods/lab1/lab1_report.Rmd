@@ -1,0 +1,164 @@
+---
+title: "Laboratoria 1"
+subtitle: "Metody Nieparametryczne w Statystyce"
+date: "2026-05-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Biblioteki
+
+```{r warning=FALSE}
+library(ggplot2)
+set.seed(123)
+```
+
+
+
+# 1. Analiza Mocy Testu
+
+### Zadanie:
+
+Stwórz krzywą mocy testu dla testu jednej średniej.
+Określ kluczowe parametry wejściowe, takie jak odchylenie standardowe populacji (σ), poziom istotności (α) oraz wielkość efektu (Δ).
+
+### Rozwiązanie:
+
+```{r}
+moc_fun <- function(mu) {
+  sapply(
+    1:1000, 
+    function(i) t.test(rnorm(20, mu, 5))$p.value < 0.05
+    ) |> mean()
+}
+
+mu_seq = seq(-5, 5, by=0.5) 
+
+df_mu <- data.frame(mu = mu_seq,
+           moc = sapply(mu_seq, moc_fun)
+           ) 
+
+df_mu |> ggplot(aes(x=mu, y=moc)) + 
+  geom_line() +
+  geom_hline(yintercept = c(0, 0.05, 1), lty=2) + 
+  labs(title = "Wpływ poziomu istotności (Odchylenie standardowe populacji) na moc", 
+       x = "Odchylenie", 
+       y = "Moc", 
+       color = "Odchylenie")
+
+```
+
+
+
+
+# 2. Wpływ poziomu istotności (α)
+
+Przeanalizuj, jak zmienia się krzywa mocy testu dla różnych wartości α (np. 0.01, 0.05, 0.1). Zinterpretuj wyniki – jak poziom istotności wpływa na zdolność testu do wykrycia rzeczywistego efektu?
+
+```{r}
+
+moc_fun <- function(a, mu) {
+  sapply(
+    1:1000, 
+    function(i) t.test(rnorm(20, mu, 5), mu=0)$p.value < a
+    ) |> mean()
+}
+
+a_seq <- c(0.01, 0.05, 0.1)
+mu_seq = seq(-5, 5, by=0.5) 
+
+df_a <- expand.grid(mu=mu_seq, a=a_seq)
+df_a$a_test <- mapply(moc_fun, df_a$a, df_a$mu)
+
+ggplot(df_a, aes(x=mu, y=a_test, color=as.factor(a))) +
+  geom_line() +
+  geom_hline(yintercept = a_seq, lty=2) +
+  labs(title = "Wpływ poziomu istotności (alpha) na moc", 
+       x = "Odchylenie", 
+       y = "Moc", 
+       color = "Alpha")
+
+```
+
+
+
+
+# 3. Wpływ liczebności próby (n)
+
+Zmodyfikuj analizę, badając różne wielkości próby.
+Zbadaj, jak wzrost lub spadek n wpływa na moc testu.
+
+```{r}
+
+moc_fun <- function(n, mu) {
+  sapply(
+    1:1000, 
+    function(i) t.test(rnorm(n, mu, 5), mu=0)$p.value < 0.05
+    ) |> mean()
+}
+
+n_seq = seq(10, 100, by=10)
+mu_seq = seq(-5, 5, by=0.5) 
+
+df_n <- expand.grid(mu=mu_seq, n=n_seq)
+df_n$n_test <- mapply(moc_fun, df_n$n, df_n$mu)
+
+ggplot(df_n, aes(x=mu, y=n_test, color=as.factor(n))) +
+  geom_line() +
+  labs(title = "Wpływ poziomu istotności (liczebność) na moc", 
+       x = "Odchylenie", 
+       y = "Moc", 
+       color = "Liczebność próby")
+
+```
+
+
+
+# 4. Niespełnienie założeń testu
+
+Przeanalizuj przypadek, gdy normalność rozkładu nie jest spełniona (np. dla rozkładów skośnych).
+Porównaj wyniki testu dla próbek pobranych z różnych rozkładów (np. normalnego, skośnego, bimodalnego).
+
+```{r}
+moc_fun <- function(mu, rozklad) {
+  sapply(1:1000, function(i) {
+    dane <- switch(as.character(rozklad),
+                   "normalny"  = rnorm(20, mean = mu, sd = 1),
+                   "chi-sq" = rchisq(20, df = 3) - 3 + mu,
+                   "bimodalny" = c(rnorm(20/2, -1, 0.5), rnorm(20/2, 1, 0.5)) + mu
+    )
+    t.test(dane, mu = 0)$p.value < 0.05
+  }) |> mean()
+}
+
+mu_seq <- seq(0, 2, by = 0.2)
+df_r <- expand.grid(mu = mu_seq, type = c("normalny", "chi-sq", "bimodalny"))
+df_r$r_test <- mapply(moc_fun, df_r$mu, df_r$type)
+
+ggplot(df_r, aes(x=mu, y=r_test, color=type)) + geom_line() +
+  labs(
+    title = "Moc testu a postać rozkładu populacji",
+    x = "Średnia",
+    y = "Moc testu",
+    color = "Rodzaj rozkładu"
+  )
+
+```
+
+
+
+
+
+
+# 5. Wizualizacja zależności
+
+Przedstaw wpływ różnych czynników na moc testu na jednym wykresie lub zestawie wykresów.
+Uwzględnij co najmniej trzy spośród następujących czynników:
+  poziom istotności (α)
+  liczebność próby (n)
+  wielkość efektu (Δ)
+  rodzaj rozkładu populacji
+
