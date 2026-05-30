@@ -31,7 +31,7 @@ data.frame(mu = mu_seq,
 # Zadanie
 # =============================================
 
-library(ggplot2)
+library(tidyverse)
 set.seed(123)
 
 
@@ -41,7 +41,7 @@ set.seed(123)
 m_fun <- function(mu) {
   sapply(
     1:1000, 
-    function(i) t.test(rnorm(20, mu, 5))$p.value < 0.05
+    function(i) t.test(rnorm(20, mu, 5), mu=0)$p.value < 0.05
   ) |> mean()
 }
 
@@ -52,12 +52,17 @@ df_mu <- data.frame(mu = mu_seq,
 ) 
 
 df_mu |> ggplot(aes(x=mu, y=moc)) + 
-  geom_line() +
-  geom_hline(yintercept = c(0, 0.05, 1), lty=2) + 
-  labs(title = "Wpływ poziomu istotności (Odchylenie standardowe populacji) na moc", 
-       x = "Odchylenie", 
-       y = "Moc", 
-       color = "Odchylenie")
+  geom_line(size=1) +
+  geom_hline(yintercept = c(0, 0.05, 1), lty=2, color = "red") + 
+  
+  theme_minimal() +
+  labs(title = "Wpływ ddchylenie standardowego populacji na moc testu t-Studenta", 
+       x = "Wielkość efektu (Średnia populacji przy hipotezie alternatywnej, H0: mu = 0)",
+       y = "Moc testu (Prawdopodobieństwo odrzucenia H0)") +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", size = 14)
+  )
 
 
 
@@ -165,14 +170,16 @@ alpha_seq <- c(0.01, 0.05, 0.10)
 df_symulacja <- expand.grid(mu = mu_seq, n = n_seq, alpha = alpha_seq)
 df_symulacja$moc <- mapply(moc_fun, df_symulacja$n, df_symulacja$mu, df_symulacja$alpha)
 
-df_symulacja$alpha_f <- as.factor(df_symulacja$alpha)
-df_symulacja$n_f     <- factor(df_symulacja$n, levels = n_seq, labels = paste("n =", n_seq))
+df_symulacja$a <- as.factor(df_symulacja$alpha)
+df_symulacja$n <- factor(df_symulacja$n, levels = n_seq, labels = paste("n =", n_seq))
 
-ggplot(df_symulacja, aes(x = mu, y = moc, color = alpha_f, group = alpha_f)) +
+head(df_symulacja)
+
+ggplot(df_symulacja, aes(x = mu, y = moc, color = a, group = a)) +
   geom_line(linewidth = 1) +
   geom_point(size = 1.2) +
   
-  facet_wrap(~ n_f) + 
+  facet_wrap(~ n) + 
   geom_hline(yintercept = c(0.01, 0.05, 0.10), lty = 2, alpha = 0.5) +
   geom_hline(yintercept = 0.90, lty = 2, color = "red", alpha = 0.7) +
   
