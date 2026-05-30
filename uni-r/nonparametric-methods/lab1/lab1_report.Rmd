@@ -248,8 +248,6 @@ df_symulacja$moc <- mapply(moc_fun, df_symulacja$n, df_symulacja$mu, df_symulacj
 df_symulacja$a <- as.factor(df_symulacja$alpha)
 df_symulacja$n <- factor(df_symulacja$n, levels = n_seq, labels = paste("n =", n_seq))
 
-head(df_symulacja)
-
 ggplot(df_symulacja, aes(x = mu, y = moc, color = a, group = a)) +
   geom_line(linewidth = 0.6) +
   
