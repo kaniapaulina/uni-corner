@@ -1,0 +1,280 @@
+---
+title: "Laboratoria 2"
+subtitle: "Metody Nieparametryczne w Statystyce"
+date: "2026-05-12"
+output: html_document
+---
+
+```{r, warning=FALSE}
+set.seed(123)
+library(tidyverse)
+```
+
+# Zadanie 1 - Implementacja Narzędzi
+
+### Zadanie:
+
+Należy samodzielnie zaimplementować:
+
+1. funkcję obliczającą dystrybuantę empiryczną,
+
+2. statystykę testu Kołmogorowa dla hipotezy prostej $H0: X ~ N(mu0, sigma0^2)$ przy zadanych $mu0$ i $sigma0$,
+
+3. statystykę testu $chi^2$ dla tej samej hipotezy, z podziałem na klasy wyznaczone przez kwantyle rozkładu teoretycznego.
+
+### Odpowiedź:
+
+```{r}
+dyst_empiryczna <- function(data) {
+  n <- length(data)
+  sorted <- sort(data)
+  return(sapply(data, function(x) sum(sorted <= x) / n))
+}
+
+dyst_teoretyczna <- function(data, mu, sigma) {
+  return(pnorm(data, mean = mu, sd = sigma))
+}
+
+# Test Kołmogorowa
+# Dla hipotezy prostej H0: X ~ N(mu0, sigma0^2)
+test_kolmogorow <- function(x, mu0, sigma0) {
+  x <- as.numeric(x)
+  x_sorted <- sort(x)
+  n <- length(x)
+  
+  F_emp_right <- dyst_empiryczna(x_sorted)
+  F_emp_left <- c(0, F_emp_right[-n])
+  F_teor <- dyst_teoretyczna(x_sorted, mu0, sigma0)
+  
+  D <- max(abs(F_emp_right - F_teor), abs(F_emp_left - F_teor))
+  return(D)
+}
+
+# Test chi^2 z podziałem na klasy wyznaczone przez kwantyle
+test_chi2<- function(x, mu0, sigma0, k) {
+  x <- as.numeric(x)
+  n <- length(x)
+  
+  prob <- seq(0, 1, length.out = k + 1)
+  edges <- qnorm(prob, mean = mu0, sd = sigma0)
+
+  classes <- cut(x, breaks = edges, include.lowest = TRUE)
+  O_i <- as.numeric(table(classes))
+  
+  E_i <- rep(n / k, k)
+  chi2 <- sum((O_i - E_i)^2 / E_i)
+  
+  return(chi2) 
+}
+
+n <- 100
+dane <- rnorm(n, 0 , 1)
+
+D <- test_kolmogorow(dane, mu0 = 0, sigma0 = 1)
+ks_test <- ks.test(dane, "pnorm", mean = 0, sd = 1)
+
+print(D)
+print(ks_test$statistic)
+
+```
+
+
+---
+
+# Zadanie 2 -  Kalibracja Wartości krytycznych
+
+### Zadanie:
+
+Dla obu testów należy wyznaczyć wartości krytyczne symulacyjnie pod H0.
+
+W analizie należy jasno opisać:
+
+- jak generowane są dane pod $H0$,
+
+- jak duża jest liczba replikacji,
+
+- jak wyznaczana jest wartość krytyczna dla zadanego $alpha$.
+
+### Odpowiedź:
+
+Opis metody:
+
+1. Generowanie danych pod H0:
+
+    - H0: X ~ N(mu0, sigma0^2)
+
+    - Dane generowane są jako niezależne obserwacje z rozkładu normalnego
+
+    - Dla każdej replikacji generujemy n obserwacji
+    
+2. Liczba replikacji: N_replikacji = 10000
+
+    - Zapewnia stabilność estymacji kwantyli rzędu 0.95
+
+    - Błąd standardowy = sqrt(alpha*(1-alpha)/N_replikacji) ≈ 0.002 dla alpha=0.05
+
+    - Kompromis między dokładnością a czasem obliczeń
+  
+3. Wyznaczanie wartości krytycznej dla zadanego alpha:
+
+    - Obliczam statystyki testowe dla N_replikacji prób z H0
+
+    - Sortuje statystyki rosnąco
+
+    - Wartość krytyczna = kwantyl rzędu (1-alpha) z rozkładu empirycznego
+
+    - Czyli wartość, dla której P(statystyka > c) ≈ alpha
+
+```{r}
+# Parametry:
+# n - liczebność próby
+# mu0 - średnia teoretyczna
+# sigma0 - odchylenie standardowe teoretyczne
+# k - liczba klas w teście chi-kwadrat
+# alpha - poziom istotnosci
+# N_mc - liczba replikacji Monte Carlo
+
+wartosci_krytyczne <- function(n, mu0, sigma0, k, alpha = 0.05, N_mc = 10000) {
+  
+  stat_ks <- numeric(N_mc)
+  stat_chi2 <- numeric(N_mc)
+
+  # MONTE CARLO
+  for(i in 1:N_mc) {
+    sztuczne_dane <- rnorm(n, mean = mu0, sd = sigma0)
+    stat_ks[i]   <- test_kolmogorow(sztuczne_dane, mu0, sigma0)
+    stat_chi2[i] <- test_chi2(sztuczne_dane, mu0, sigma0, k)
+  }
+  
+  sorted_ks <- sort(stat_ks)
+  c_ks <- sorted_ks[which(dyst_empiryczna(sorted_ks) >= (1 - alpha))[1]]
+  
+  sorted_chi <- sort(stat_chi2)  
+  c_chi2 <- sorted_chi[which(dyst_empiryczna(sorted_chi) >= (1 - alpha))[1]]
+  
+  return(
+    list(
+      c_ks = c_ks, 
+      c_chi2 = c_chi2, 
+      stat_ks = stat_ks, 
+      stat_chi2 = stat_chi2,
+      N_replikacji = N_mc,
+      alpha = alpha
+      )
+    )
+}
+
+wyniki <- wartosci_krytyczne(n = 150, mu0 = 10, sigma0 = 2, k = 6, alpha = 0.05, N_mc = 10000)
+
+str(wyniki)
+
+par(mfrow = c(1, 2))
+
+hist(wyniki$stat_ks, breaks = 50, col = "lightblue", 
+     main = "Test Kołmogorowa", 
+     xlab = "Statystyka D", 
+     ylab = "Częstość")
+abline(v = wyniki$c_ks, col = "red", lwd = 2, lty = 2)
+legend("topright", 
+       paste("c =", round(wyniki$c_ks, 4)))
+
+hist(wyniki$stat_chi2, breaks = 50, col = "lightpink", 
+     main = "Test chi-kwadrat", 
+     xlab = "Statystyka chi^2", 
+     ylab = "Częstość")
+abline(v = wyniki$c_chi2, col = "red", lwd = 2, lty = 2)
+legend("topright", 
+       paste("c =", round(wyniki$c_chi2, 4)))
+
+```
+
+
+
+
+
+
+---
+
+# Zadanie 3 - Analiza błędu I rodzaju
+
+### Zadanie:
+
+Dla poziomu istotności $alpha = 0.05$ zbadać odsetek odrzuceń prawdziwej hipotezy głównej dla obu testów w zależności od:
+
+- liczebności próby $n$,
+
+- liczby klas $r$ w teście $chi^2$.
+
+Minimalny zakres:
+
+- $n$ z co najmniej trzech poziomów,
+
+- $r$ z co najmniej trzech poziomów.
+
+### Odpowiedź:
+
+```{r}
+```
+
+
+
+
+
+
+
+---
+
+# Zadanie 4 - Analiza mocy testów
+
+### Zadanie:
+
+Porównać moc obu testów dla danych pochodzących z rozkładów nienormalnych, ale przeskalowanych tak, aby miały tę samą wartość oczekiwaną i wariancję co rozkład normalny z H0.
+
+Należy uwzględnić co najmniej dwa typy alternatyw:
+
+- rozkład o grubych ogonach, na przykład t-Studenta,
+
+- rozkład asymetryczny, na przykład standaryzowany chi^2, gamma lub log-normalny.
+
+Analizę mocy przeprowadzić w zależności od:
+
+- liczebności próby,
+
+- parametru rozkładu generującego alternatywę, na przykład liczby stopni swobody lub parametru asymetrii.
+
+### Odpowiedź:
+
+```{r}
+```
+
+
+
+
+
+
+
+---
+
+# Zadanie 5 - Wykresy i Interpretacja
+
+### Zadanie:
+
+Wyniki należy przedstawić na wykresach pokazujących:
+
+- odsetek odrzuceń przy prawdziwej H0,
+
+- moc testów przy różnych alternatywach,
+
+- wpływ n,
+
+- wpływ parametru rozkładu alternatywnego,
+
+- wpływ liczby klas w teście chi^2.
+
+Każdy wykres ma być opisany i zinterpretowany.
+
+### Odpowiedź
+
+```{r}
+```
+
