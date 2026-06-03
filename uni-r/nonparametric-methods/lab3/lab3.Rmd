@@ -1,0 +1,434 @@
+---
+title: "laboratoria 3"
+subtitle: "Metody Nieparametryczne w Statystyce"
+output: html_document
+date: "2026-05-19"
+---
+
+```{r warning=FALSE}
+library(tidyverse)
+dane <- read.csv("sklepy_churn_syntetyczne.csv")
+glimpse(dane)
+```
+
+# 1. Dobór miernika
+
+### Zadanie:
+
+Zaproponuj miernik zmiany zakupów względem historii sklepu.
+Uzasadnij, dlaczego samo porównanie bieżącej wartości zakupów może być mylące.
+W dalszej analizie wykorzystaj wybrany miernik.
+
+### Rozwiązanie:
+
+Wybrany miernik: **zmiana standaryzacyjna** -  sprowadza wartości do tzw. wyniku standardowego, pokazując o ile odchyleń standardowych wynik różni się od średniej.
+
+Samo porównanie bieżącej wartości będzie prawdopodobnie mylącę gdyż każdy sklep operuje na innej skali i bez kontekstu mają małą wartość informacyjną. Dodatkowo standaryzacja stabilizuje wariancję i przybliża rozkład do normalnego do łatwiejszego modelowania.
+
+```{r}
+dane <- dane |>
+  mutate(
+    miernik = zmiana_absolutna / zakup_hist_sd,
+  )
+```
+
+
+
+
+---
+
+# 2. Wizualizacja rozkładów
+
+### Zadanie:
+
+Przedstaw rozkład wybranego miernika w obu grupach sklepów.
+Na podstawie wykresów oceń, czy różnica między grupami wygląda jak proste przesunięcie rozkładu, czy ma bardziej złożony charakter.
+
+### Rozwiązanie:
+
+```{r}
+dane |>
+  group_by(status) |>
+  summarise(
+    n = n(),
+    srednia = mean(miernik),
+    mediana = median(miernik),
+    sd = sd(miernik),
+    q05 = quantile(miernik, 0.05),
+    q95 = quantile(miernik, 0.95),
+    .groups = "drop"
+  )
+
+ggplot(dane, aes(x = miernik, fill=status)) +
+  geom_density(alpha = 0.35) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Rozkład miernika zmiany zakupów",
+    x = "Miernik (standaryzowana zmiana)",
+    y = "Gęstość"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("churn" = "red", "brak churnu" = "blue"))
+```
+
+Rozkłady głownie różnią się poziomem miernika, gdzie występowanie churnu jest przechylone na wartości ujemne z małym lecz wrzucającym się w oczy skokiem przy wartościach od 3 do 4, co jest zjawisko nietypowe. Wykresy dla obu grup mają podobny kształt co sugeruje przesunięcie między grupami.
+
+
+
+```{r}
+ggplot(dane, aes(x = miernik, colour = status)) +
+  stat_ecdf(linewidth = 1) +
+  labs(
+    title = "Dystrybuanta empiryczna",
+    x = "Miernik zmiany",
+    y = "Dystrybuanta empiryczna") +
+  theme_minimal() + 
+  geom_hline(yintercept = 0.5, linetype = "dashed", alpha = 0.5)
+```
+
+Widać wyraźniej dominacje churnu przy wartościach ujemnych miernika. Znaczna część (troszke poniżej 80%) ma wartość mniejszą lub równą 0, gdy dla brak churnu ta wartość występuje dla 50 procent danych. Oznacza to, że sklepy które odeszł doświadczały spadku zakupów przed odejściem.
+
+
+
+
+
+---
+
+# 3. Test t
+
+### Zadanie:
+Porównaj średnie wartości wybranego miernika w obu grupach za pomocą testu t.
+
+Skomentuj:
+
+- jakie pytanie sprawdza ten test,
+
+- jakie założenia są potrzebne,
+
+- czy wynik testu t wystarcza do opisu różnicy między grupami.
+
+### Odpowiedź:
+
+```{r}
+isnotchurn <- dane[dane$churn == 0,]
+ischurn <- dane[dane$churn == 1,]
+
+t_test_wynik <- t.test(miernik ~ churn, dane, var.equal = FALSE)
+print(t_test_wynik)
+```
+
+**Co bada test t?**
+Sprawdza, czy średnie w dwóch grupach są równe.
+
+H0: μ₁ = μ₂ (średnie są równe)
+H1: μ₁ ≠ μ₂ (średnie różnią się)
+
+**Założenia testu t:**
+
+1. Normalność rozkładu w każdej grupie (lub duża próba ≥30)
+
+2. Jednorodność wariancji (dla klasycznego testu t)
+
+3. Niezależność obserwacji
+
+Test t patrzy tylko na średnie. Dwie grupy mogą mieć takie same średnie, ale zupełnie różne rozkłady (np. jedna dwumodalna, druga normalna). Wtedy test t nie wykryje różnicy, mimo że grupy się różnią
+
+Z bardzo małego p-value wynika że średnie dla obu grup są istotnie różne, co wyjaśnia na wykresach zauważone przesunięcie rozkładów. Średnia w grupie "0" (brak churnu) jest wyższa niż w grupie "1" (churn)
+
+
+
+---
+
+# 4. Test serii
+
+### Zadanie:
+
+Zaimplementuj test serii dla dwóch prób bez używania gotowej funkcji testowej jako głównego rozwiązania.
+
+Należy:
+
+- uporządkować obserwacje według wybranego miernika,
+
+- oznaczyć, z której grupy pochodzi każda obserwacja,
+
+- policzyć liczbę serii,
+
+- policzyć wartość oczekiwaną i wariancję liczby serii,
+
+- wyznaczyć statystykę standaryzowaną,
+
+- sformułować wniosek na poziomie istotności 5%.
+
+### Odpowiedź:
+
+```{r}
+dane <- read.csv("sklepy_churn_syntetyczne.csv")
+dane <- dane |>
+  mutate(
+    miernik = zmiana_absolutna / zakup_hist_sd,
+  )
+  
+test_serii <- function(dane) {
+  data <- dane[order(dane[["miernik"]]), ]
+  kody <- data[["churn"]]
+  
+  n1 <- sum(data$churn == 1)
+  n2 <- sum(data$churn == 0)
+  N <- length(kody)
+  
+  R <- 1
+  for(i in 2:N) {
+    if(kody[i] != kody[i-1]) {
+      R <- R + 1
+    }
+  }
+  
+  # Wartość oczekiwana
+  mu <- (2*n1*n2)/N + 1
+  
+  # Wariancja
+  var = (2*n1*n2*(2*n1*n2 - N))/(N^2*(N-1))
+  
+  # Statystyka standaryzowana
+  Z <- (R - mu)/sqrt(var)
+  
+  p_value <- 2*(1-pnorm(abs(-Z)))
+  
+  return(list(
+    R = R,          
+    mu = mu,       
+    var = var,  
+    Z = Z, 
+    p_value = p_value,
+    n1 = n1,
+    n2 = n2,
+    N = N
+  ))
+}
+
+wynik_serii <- test_serii(dane)
+print(wynik_serii)
+
+```
+
+Co bada test serii (Wald-Wolfowitz)?
+Sprawdza, czy dwie próby pochodzą z tego samego rozkładu.
+
+Idea: Sortujemy wszystkie obserwacje według wartości miernika. Jeśli grupy są podobne, obserwacje z obu grup powinny być dobrze wymieszane (wiele serii). Jeśli grupy się różnią, obserwacje z jednej grupy będą skupione razem (mało serii).
+
+H0: Rozkłady są identyczne
+H1: Rozkłady różnią się
+
+Jeśli p-value < 0.05 – odrzucamy H0, co oznacza, że rozkłady miernika w grupach churn i nie-churn różnią się istotnie statystycznie.
+
+Jeśli p-value ≥ 0.05 – brak podstaw do odrzucenia H0, rozkłady są podobne.
+
+Ponieważ p-value < 0.05, odrzucamy hipotezę zerową. Oznacza to, że rozkład standaryzowanej zmiany zakupów różni się istotnie między sklepami, które odeszły, a tymi, które pozostały.
+
+Ujemna wartość statystyki Z (oraz R < μ) wskazuje na skupienie obserwacji – w uporządkowanym według miernika ciągu obserwacje z tej samej grupy występują blisko siebie. Przekłada się to na wniosek: sklepy z wyższymi wartościami miernika (większy wzrost zakupów) częściej kończą współpracę.
+
+
+
+
+---
+
+# 5. Test Wilcoxona / Manna-Whitneya
+
+### Zadanie:
+
+Zaimplementuj test rangowy dla dwóch prób bez używania gotowej funkcji testowej jako głównego rozwiązania.
+
+Należy:
+
+- połączyć obie próby,
+
+- nadać rangi wszystkim obserwacjom,
+
+- policzyć sumę rang dla jednej z grup,
+
+- policzyć statystykę U Manna-Whitneya,
+
+- wyznaczyć statystykę standaryzowaną,
+
+- sformułować wniosek na poziomie istotności 5%.
+
+```{r}
+
+test_wilcoxon <- function(p1, p2, alternatywa) {
+  n1 <- length(p1)
+  n2 <- length(p2)
+  N <- n1 + n2
+  
+  all <- c(p1, p2)
+  group <- c(rep(1, n1), rep(2, n2))
+  
+  df <- data.frame(value = all, group = group)
+  df <- df[order(df$value), ]
+  
+  ranks <- numeric(N)
+  i <- 1
+  while(i <= N) {
+    idx <- which(df$value == df$value[i])
+    if (length(idx)>1) {
+      mean_rank <- mean(i:(i+length(idx)-1))
+      ranks[idx] <- mean_rank
+      i <- i + lenght(idx)
+    } else {
+      ranks[i] <- i
+      i <- i + 1
+    }
+  }
+  
+  df$rank <- ranks
+  
+  r1 <- df$rank[df$group==1]
+  r2 <- df$rank[df$group==2]
+  
+  W <- sum(r1)
+  
+  mu <- (n1 * (N + 1)) / 2
+  sigma2 <- (n1 * n2 * (N + 1)) / 12
+  
+  rem <- table(df$value)
+  k <- sum(rem^3 - rem) / (N * (N - 1))
+  sigma2_k <- sigma2 * (1 - k)
+
+  Z <- (W - mu) / sqrt(sigma2_k)
+
+  if(alternatywa == "two.sided") {
+    p_value <- 2 * (1 - pnorm(abs(Z)))
+  } else if(alternatywa == "greater") {
+    p_value <- 1 - pnorm(Z)
+  } else if(alternatywa == "less") {
+    p_value <- pnorm(Z)
+  }
+  
+  return(list(
+    W = W,
+    mu = mu,
+    sigma2 = sigma2_k,
+    Z = Z,
+    p_value = p_value,
+    n1 = n1,
+    n2 = n2,
+    alternatywa = alternatywa
+  ))
+}
+
+wynik_wilcox <- test_wilcoxon(ischurn$miernik, isnotchurn$miernik, alternatywa = "two.sided")
+print(wynik_wilcox)
+
+```
+
+Co bada test Wilcoxona?
+Sprawdza, czy jedna grupa ma systematycznie wyższe wartości od drugiej (porównuje mediany/rangi).
+
+Idea: Łączymy obie próby, nadajemy rangi (1 dla najmniejszej wartości, 2 dla następnej...), a następnie sumujemy rangi dla jednej grupy. Jeśli grupy są podobne, suma rang powinna być bliska wartości oczekiwanej.
+
+Zalety w porównaniu do testu t:
+
+- Nie wymaga normalności
+
+- Odporny na obserwacje odstające
+
+- Działa dla porządkowych danych
+
+Wady:
+
+- Mniejsza moc niż test t, gdy dane są normalne
+
+Ponieważ p-value < 0.05, odrzucamy hipotezę zerową. Istnieją bardzo silne dowody na to, że rozkład standaryzowanej zmiany zakupów różni się między sklepami, które odeszły, a tymi, które pozostały.
+
+Suma rang dla grupy churn (W = 442,498) jest znacząco mniejsza od wartości oczekiwanej (μ = 750,250). Oznacza to, że sklepy z churnem mają systematycznie niższe wartości miernika niż sklepy bez churnu. Innymi słowy: sklepy, które zakończyły współpracę, doświadczyły spadku standaryzowanej wartości zakupów przed odejściem.
+
+---
+
+# 6. Porównanie metod
+
+### Zadanie:
+Porównaj wnioski z testu t, testu serii oraz testu Wilcoxona / Manna-Whitneya.
+Wyjaśnij, czy wszystkie trzy testy odpowiadają na to samo pytanie.
+
+```{r}
+
+porownanie <- data.frame(
+  Test = c("t-Studenta", "Wilcoxona", "Serii"),
+  `p-value` = c(
+    t.test(miernik ~ churn, data = dane)$p.value,
+    wynik_wilcox$p_value,
+    wynik_serii$p_value
+  ),
+  Decyzja = c("", "", "")
+)
+
+for(i in 1:3) {
+  if(porownanie$p.value[i] < 0.05) {
+    porownanie$Decyzja[i] <- "Odrzucamy H0"
+  } else {
+    porownanie$Decyzja[i] <- "Nie odrzucamy H0"
+  }
+}
+
+print(porownanie)
+
+porownanie %>%
+  ggplot(aes(x = Test, y = `p-value`, fill = Decyzja)) +
+  geom_bar(stat = "identity") +
+  geom_hline(yintercept = 0.05, linetype = "dashed", color = "red") +
+  labs(
+    title = "Porównanie wyników trzech testów",
+    subtitle = "Poziom istotności α = 0.05",
+    y = "p-value"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("Odrzucamy H0" = "lightgreen", 
+                                "Nie odrzucamy H0" = "salmon"))
+
+```
+
+
+
+
+---
+
+# 0. Rozszerzenie
+
+### Zadanie:
+
+Sprawdź, jak wyniki zmieniają się po usunięciu obserwacji skrajnych albo po osobnej analizie dolnego i górnego ogona rozkładu.
+
+Outliery mogą zaburzać wyniki testów, szczególnie testu t (który jest wrażliwy na ekstremalne wartości). Test Wilcoxona jest bardziej odporny, ale też może być wpływany przez skrajne obserwacje.
+
+```{r}
+usun_outliery <- function(x, metoda = 1.5) {
+  Q1 <- quantile(x, 0.25, na.rm = TRUE)
+  Q3 <- quantile(x, 0.75, na.rm = TRUE)
+  IQR <- Q3 - Q1
+  dolna <- Q1 - metoda * IQR
+  gorna <- Q3 + metoda * IQR
+  return(x[x >= dolna & x <= gorna])
+}
+
+before <- length(dane$miernik)
+dane_bez_outlierow <- dane %>%
+  filter(miernik >= quantile(miernik, 0.25) - 1.5*IQR(miernik),
+         miernik <= quantile(miernik, 0.75) + 1.5*IQR(miernik))
+after <- nrow(dane_bez_outlierow)
+
+cat("Usunięto", before - after, "obserwacji skrajnych")
+
+t_przed <- t.test(miernik ~ churn, data = dane)$p.value
+t_po <- t.test(miernik ~ churn, data = dane_bez_outlierow)$p.value
+
+wilcox_przed <- test_wilcoxon(p1, p2)$p_value
+p1_bez <- dane_bez_outlierow$miernik[dane_bez_outlierow$churn == 1]
+p2_bez <- dane_bez_outlierow$miernik[dane_bez_outlierow$churn == 0]
+wilcox_po <- test_wilcoxon(p1_bez, p2_bez)$p_value
+
+porownanie_outlier <- data.frame(
+  Test = c("t-Studenta", "Wilcoxona"),
+  `Przed usunięciem` = c(t_przed, wilcox_przed),
+  `Po usunięciu` = c(t_po, wilcox_po)
+)
+
+```
