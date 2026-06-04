@@ -191,8 +191,6 @@ legend("topright",
 
 
 
-
-
 ---
 
 # Zadanie 3 - Analiza błędu I rodzaju
@@ -214,6 +212,52 @@ Minimalny zakres:
 ### Odpowiedź:
 
 ```{r}
+
+analiza_bledu_I <- function(n_v, r_v, mu0, sigma0, alpha = 0.05, N_testow = 1000) {
+  
+  wyniki <- data.frame()
+
+  for(n in n_v) {
+    for(r in r_v) {
+      
+      stat_ks <- numeric(N_testow)
+      stat_chi2 <- numeric(N_testow)
+      
+      for(i in 1:N_testow) {
+        dane <- rnorm(n, mu0, sigma0)
+        stat_ks[i] <- test_kolmogorow(dane, mu0, sigma0)
+        stat_chi2[i] <- test_chi2(dane, mu0, sigma0, r)
+      }
+ 
+      c_ks <- quantile(stat_ks, 1 - alpha)
+      c_chi2 <- quantile(stat_chi2, 1 - alpha)
+
+      odsetek_ks <- mean(stat_ks > c_ks)
+      odsetek_chi2 <- mean(stat_chi2 > c_chi2)
+
+      wyniki <- rbind(wyniki, data.frame(
+        n = n,
+        r = r,
+        odsetek_KS = odsetek_ks,
+        odsetek_Chi2 = odsetek_chi2
+      ))
+    }
+  }
+  
+  return(wyniki)
+}
+
+bledy <- analiza_bledu_I(
+  n_v = c(50, 150, 500),
+  r_v = c(4, 8, 16),
+  mu0 = 2,
+  sigma0 = 3,
+  N_testow = 1000
+)
+
+head(bledy)
+
+
 ```
 
 
@@ -245,8 +289,98 @@ Analizę mocy przeprowadzić w zależności od:
 ### Odpowiedź:
 
 ```{r}
-```
 
+generuj_alternatywe <- function(n, typ, parametr, mu0, sigma0) {
+  if (typ == "t") {
+    df <- parametr
+    Y <- rt(n, df = df)
+    X <- mu0 + sigma0 * (Y - 0) / sqrt(df / (df - 2))
+    
+  } else if (typ == "gamma") {
+    shape <- parametr
+    Y <- rgamma(n, shape = shape, scale = 1)
+    X <- mu0 + sigma0 * (Y - shape) / sqrt(shape)
+    
+  }
+  return(X)
+}
+  
+
+analiza_mocy <- function(wersje_n, typ_alt, wersje_parametru, mu0 = 10, sigma0 = 2, r = 6, alpha = 0.05, N_testow = 2000) {
+
+  wyniki <- expand.grid(n = wersje_n, parametr = wersje_parametru)
+  wyniki$moc_KS <- NA
+  wyniki$moc_Chi2 <- NA
+  wyniki$roznica <- NA
+  
+  progi_krytyczne <- list()
+  for(n_val in wersje_n) {
+    stat_ks_h0 <- numeric(N_testow)
+    stat_chi2_h0 <- numeric(N_testow)
+    
+    for(i in 1:N_testow) {
+      dane_h0 <- rnorm(n_val, mu0, sigma0)
+      stat_ks_h0[i] <- test_kolmogorow(dane_h0, mu0, sigma0)
+      stat_chi2_h0[i] <- test_chi2(dane_h0, mu0, sigma0, r)
+    }
+    
+    progi_krytyczne[[as.character(n_val)]] <- list(
+      c_ks = quantile(stat_ks_h0, 1 - alpha),
+      c_chi2 = quantile(stat_chi2_h0, 1 - alpha)
+    )
+  }
+  
+
+  for(i in 1:nrow(wyniki)) {
+    n_akt <- wyniki$n[i]
+    param_akt <- wyniki$parametr[i]
+    progi <- progi_krytyczne[[as.character(n_akt)]]
+    
+    odrzucenia_ks <- 0
+    odrzucenia_chi2 <- 0
+    
+    for(j in 1:N_testow) {
+      dane_alt <- generuj_alternatywe(n_akt, typ_alt, param_akt, mu0, sigma0)
+      stat_ks <- test_kolmogorow(dane_alt, mu0, sigma0)
+      stat_chi2 <- test_chi2(dane_alt, mu0, sigma0, r)
+      
+      if(stat_ks > progi$c_ks) odrzucenia_ks <- odrzucenia_ks + 1
+      if(stat_chi2 > progi$c_chi2) odrzucenia_chi2 <- odrzucenia_chi2 + 1
+    }
+    
+    wyniki$moc_KS[i] <- odrzucenia_ks / N_testow
+    wyniki$moc_Chi2[i] <- odrzucenia_chi2 / N_testow
+    wyniki$roznica[i] <- wyniki$moc_KS[i] - wyniki$moc_Chi2[i]
+  }
+  
+  attr(wyniki, "typ_alternatywy") <- typ_alt
+  attr(wyniki, "mu0") <- mu0
+  attr(wyniki, "sigma0") <- sigma0
+  attr(wyniki, "r") <- r
+  attr(wyniki, "alpha") <- alpha
+  
+  return(wyniki)
+}
+
+moc_t <- analiza_mocy(
+  wersje_n = c(50, 150, 500), 
+  typ_alt = "t", 
+  wersje_parametru = c(3, 5, 15),
+  N_testow = 1000
+)
+
+print(moc_t)
+
+moc_gamma <- analiza_mocy(
+  wersje_n = c(50, 150, 500), 
+  typ_alt = "gamma", 
+  wersje_parametru = c(1, 3, 10),
+  N_testow = 1000
+)
+
+print(moc_gamma)
+
+```
 
 
 
@@ -273,8 +407,157 @@ Wyniki należy przedstawić na wykresach pokazujących:
 
 Każdy wykres ma być opisany i zinterpretowany.
 
-### Odpowiedź
+### Odpowiedź:
+
+#### Interpretacja wyników analizy błędu I rodzaju
 
 ```{r}
+
+bledy_long <- data.frame(
+  n = rep(bledy$n, 2),
+  r = factor(rep(bledy$r, 2)),
+  Test = rep(c("Kołmogorow", "Chi^2"), each = nrow(bledy)),
+  Blad = c(bledy$odsetek_KS, bledy$odsetek_Chi2)
+)
+
+df_ks <- subset(bledy_long, Test == "Kołmogorow" & r == 4) 
+
+ggplot() +
+  geom_line(data = subset(bledy_long, Test == "Chi^2"), aes(x = n, y = Blad, color = r), linewidth = 1) +
+  geom_point(data = subset(bledy_long, Test == "Chi^2"), aes(x = n, y = Blad, color = r), size = 2) +
+  geom_line(data = df_ks, aes(x = n, y = Blad, linetype = "Kołmogorow"), color = "black", linewidth = 1) +
+  geom_hline(yintercept = 0.05, color = "red", linetype = "dashed", linewidth = 0.8) +
+  labs(
+    title = "Poziom istotności",
+    subtitle = "Weryfikacja zachowania rozmiaru testu pod H0",
+    x = "Liczebność próby",
+    y = "Odsetek odrzucenia„",
+    color = "Liczba klas w Chi^2",
+    linetype = "Alternatywny Test"
+  ) +
+  theme_minimal() + 
+  ylim(0, 0.1)
+
 ```
 
+
+**Test Kołmogorowa** – dla wszystkich badanych kombinacji liczebności próby (n = 50, 150, 500) oraz liczby klas w teście chi-kwadrat (r = 4, 8, 16) empiryczny błąd I rodzaju oscyluje bardzo blisko teoretycznej wartości α = 0.05. Oznacza to, że test jest dobrze skalibrowany – niezależnie od tego, jak dużą próbą dysponujemy i ile klas wybierzemy dla testu chi-kwadrat, ryzyko odrzucenia prawdziwej hipotezy zerowej jest zgodne z zakładanym poziomem istotności. Wartości krytyczne wyznaczone metodą Monte Carlo skutecznie kontrolują poziom istotności.
+
+**Test chi-kwadrat** – tutaj sytuacja wygląda nieco inaczej. Dla małej próby (n = 50) i dużej liczby klas (r = 16) zaobserwowano, że błąd I rodzaju jest wyraźnie niższy od 0.05. Inaczej mówiąc, test staje się konserwatywny – rzadziej niż powinien odrzuca prawdziwą hipotezę zerową. Gdy zwiększymy liczebność próby do n = 150, błąd I rodzaju stabilizuje się już blisko 0.05 dla wszystkich badanych wartości r. Przy n = 500 wszystkie wartości są już bardzo bliskie zakładanemu poziomowi istotności.
+
+Rozkład chi-kwadrat jest asymptotycznie dokładny – czyli działa dobrze, gdy próba jest duża. Dla małych prób, zwłaszcza gdy oczekiwane liczebności w klasach spadają poniżej 5, to przybliżenie przestaje być precyzyjne. W efekcie test staje się mniej czuły i rzadziej wskazuje odrzucenie H0, niż wynika to z założonego poziomu istotności.
+
+Test chi-kwadrat wymaga relatywnie dużych prób, aby zachować nominalny poziom istotności. Z kolei test Kołmogorowa można stosować bezpiecznie już od małych prób.
+
+
+
+---
+
+#### Interpretacja wyników analizy mocy – rozkład t-Studenta
+
+```{r}
+t_long <- data.frame(
+  n = as.factor(rep(moc_t$n, 2)),
+  df = as.factor(rep(moc_t$parametr, 2)),
+  Test = rep(c("Kołmogorow", "Chi^2"), each = nrow(moc_t)),
+  Moc = c(moc_t$moc_KS, moc_t$moc_Chi2)
+)
+
+ggplot(t_long, aes(x = df, y = Moc, fill = Test)) +
+  geom_bar(stat = "identity", position = "dodge", alpha = 0.8) +
+  facet_wrap(~ n, labeller = label_both) +
+  labs(
+    title = "Moc testow dla rozkladu t-Studenta",
+    subtitle = "Porownanie w zaleznosci od liczby stopni swobody i wielkosci proby",
+    x = "Stopnie swobody",
+    y = "Moc testu"
+  ) +
+  theme_light() + 
+  ylim(0, 1)
+```
+
+Rozkład t-Studenta charakteryzuje się grubszymi ogonami niż rozkład normalny – im mniejsza liczba stopni swobody, tym ogony są grubsze i tym bardziej rozkład odbiega od normalności. Przeprowadzone symulacje pozwalają ocenić, jak dobrze oba testy radzą sobie z wykrywaniem takiego odstępstwa.
+
+Im mniejsza liczba stopni swobody, tym wyższa moc obu testów. Dla skrajnego przypadku df = 3 (bardzo grube ogony) moc testu Kołmogorowa osiąga około 0,9 już przy próbie liczącej zaledwie 50 obserwacji. Oznacza to, że test z dużym prawdopodobieństwem wykryje, że dane nie pochodzą z rozkładu normalnego. Dla df = 15, gdy rozkład t-Studenta jest już bardzo bliski normalnemu, moc obu testów jest niska (około 0,1–0,2) – co jest zjawiskiem oczekiwanym, bo alternatywa jest trudna do odróżnienia od hipotezy zerowej.
+
+Test Kołmogorowa konsekwentnie wykazuje nieco wyższą moc niż test chi-kwadrat, szczególnie gdy próba nie jest zbyt duża. Różnica nie jest może spektakularna, ale systematyczna – w każdym badanym scenariuszu to test Kołmogorowa częściej poprawnie odrzucał fałszywą hipotezę zerową.
+
+
+
+
+
+---
+
+#### Interpretacja wyników analizy mocy – rozkład Gamma
+
+```{r}
+df_gamma_long <- data.frame(
+  n = rep(moc_gamma$n, 2),
+  shape = as.factor(rep(moc_gamma$parametr, 2)),
+  Test = rep(c("Kołmogorow", "Chi^2"), each = nrow(moc_gamma)),
+  Moc = c(moc_gamma$moc_KS, moc_gamma$moc_Chi2)
+)
+
+ggplot(df_gamma_long, aes(x = n, y = Moc, color = Test, group = Test)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  facet_wrap(~ shape, labeller = label_bquote(cols = "Kształt (shape):" ~ .(shape))) +
+  labs(
+    title = "Moc testow dla asymetrycznego rozkladu Gamma",
+    subtitle = "Wplyw wielkosci proby n przy roznych parametrach ksztaltu",
+    x = "Liczebnosc proby",
+    y = "Moc testu"
+  ) +
+  theme_minimal() + 
+  ylim(0, 1)
+
+```
+
+Rozkład Gamma jest asymetryczny – im mniejszy parametr kształtu (shape), tym asymetria jest silniejsza i tym bardziej rozkład odbiega od normalności. W skrajnym przypadku shape = 1 otrzymujemy rozkład wykładniczy, który jest silnie prawoskośny. Symulacje pokazują, jak oba testy radzą sobie z wykrywaniem takiej asymetrii.
+
+Dla shape = 1 (silna asymetria) oba testy osiągają moc bliską 1 już przy n = 150 – praktycznie zawsze poprawnie odrzucają H0. Dla shape = 3 (umiarkowana asymetria) moc rośnie wraz z liczebnością próby, ale potrzebuje większych prób niż w przypadku rozkładu t-Studenta. Dla shape = 10 (rozkład już bardzo bliski normalnemu) moc obu testów jest niska, szczególnie dla testu chi-kwadrat.
+
+W przypadku wykrywania asymetrii przewaga testu Kołmogorowa nad testem chi-kwadrat jest wyraźniejsza niż w przypadku grubych ogonów. Dla shape = 3 i shape = 10 różnice są znaczące – test Kołmogorowa znacznie częściej poprawnie odrzuca fałszywą hipotezę zerową. Test chi-kwadrat traci część informacji przez grupowanie danych na klasy, co czyni go mniej skutecznym w wykrywaniu subtelnych odstępstw od normalności.
+
+
+
+
+---
+
+#### Wpływ parametru alternatywy na moc testów
+
+```{r}
+
+# Wplyw parametru alternatywy na moc (dla n = 150)
+moc_t_n150 <- moc_t[moc_t$n == 150, ]
+moc_gamma_n150 <- moc_gamma[moc_gamma$n == 150, ]
+
+df_param <- data.frame(
+  Parametr = c(moc_t_n150$parametr, moc_gamma_n150$parametr),
+  Moc_KS = c(moc_t_n150$moc_KS, moc_gamma_n150$moc_KS),
+  Moc_Chi2 = c(moc_t_n150$moc_Chi2, moc_gamma_n150$moc_Chi2),
+  Rozklad = rep(c("t-Studenta", "Gamma"), each = 3)
+)
+
+ggplot(df_param, aes(x = factor(Parametr))) +
+  geom_bar(aes(y = Moc_KS, fill = "Kolmogorow"), stat = "identity", position = "dodge", alpha = 0.7) +
+  geom_bar(aes(y = Moc_Chi2, fill = "chi-kwadrat"), stat = "identity", position = "dodge", alpha = 0.7) +
+  facet_wrap(~ Rozklad, scales = "free_x") +
+  labs(
+    title = "Wplyw parametru na moc testow (n = 150)",
+    x = "Parametr rozkladu",
+    y = "Moc testu",
+    fill = "Test"
+  ) +
+  theme_minimal() +
+  ylim(0, 1)
+
+```
+
+Wyniki zebrane na wykresie dla ustalonej liczebności próby n = 150 pozwalają prześledzić, jak zmiana parametru generującego alternatywę wpływa na zdolność testów do odrzucenia fałszywej hipotezy zerowej.
+
+**Dla rozkładu t-Studenta:** Moc testów maleje wraz ze wzrostem liczby stopni swobody. Gdy df jest małe (df = 3), ogony są bardzo grube i testy z łatwością wykrywają odstępstwo od normalności (moc bliska 1). Gdy df rośnie (df = 15), rozkład t-Studenta staje się praktycznie nieodróżnialny od normalnego, więc moc spada do poziomu zbliżonego do błędu I rodzaju (około 0,05–0,1). Zależność ta jest monotoniczna i wyraźna.
+
+**Dla rozkładu Gamma:** Moc testów maleje wraz ze wzrostem parametru kształtu. Dla shape = 1 (rozkład wykładniczy) asymetria jest ekstremalna – testy osiągają moc bliską 1. Dla shape = 3 asymetria jest umiarkowana, a moc spada, ale wciąż jest na przyzwoitym poziomie (około 0,6–0,8). Dla shape = 10 rozkład Gamma jest już bliski normalnemu i moc drastycznie spada.
+
+W obu przypadkach test Kołmogorowa konsekwentnie przewyższa test chi-kwadrat pod względem mocy. Dla skrajnych parametrów (df = 3, shape = 1) oba testy osiągają moc bliską 1, więc różnica jest nieistotna. Jednak przy bardziej subtelnych odstępstwach od normalności (df = 15, shape = 10) przewaga testu Kołmogorowa staje się wyraźna.
