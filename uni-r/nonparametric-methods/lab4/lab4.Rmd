@@ -1,0 +1,328 @@
+---
+title: "laboratoria 4"
+subtitle: "Metody Nieparametryczne w Statystyce"
+output: html_document
+date: "2026-05-19"
+---
+
+Porównanie dwóch wariantów prognozy popytu
+Dla dostarczonego zbioru danych porównaj jakość dwóch wariantów prognozy popytu.
+
+Dane zawierają rzeczywistą sprzedaż oraz prognozy dwóch modeli dla tych samych obserwacji sklep-produkt-tydzień.
+
+Celem analizy jest ocena, czy jeden z modeli daje systematycznie lepsze prognozy.
+
+```{r, warning=FALSE}
+library(tidyverse)
+
+dane <- read.csv("prognozy_popytu.csv")
+glimpse(dane)
+
+```
+
+---
+
+# 1. Przygotowanie miernika jakości
+
+### Zadanie:
+
+Zaproponuj miernik błędu prognozy.
+
+Możesz wykorzystać błąd bezwzględny, błąd procentowy, błąd ważony albo własną konstrukcję miernika.
+
+Uzasadnij wybór miernika.
+W uzasadnieniu odnieś się do problemów takich jak mała sprzedaż, zerowa sprzedaż, obserwacje skrajne i różna skala produktów.
+
+### Odpowiedź:
+
+```{r}
+
+dane <- dane |> 
+  mutate(
+    wae_bazowy = abs_blad_bazowy / (sprzedaz_rzeczywista + 1),
+    wae_alternatywny = abs_blad_alternatywny / (sprzedaz_rzeczywista + 1)
+  )
+
+```
+
+Błąd bezwzględny jest wrażliwy na skalę produktu ponieważ produkty o dużej sprzedaży dominują w średniej i ją podwyższają a błąd procentowy jest problematyczny przy zerowej sprzedaży przez dzielenie przez zero jak i przy małych wartościach sprzedaży wynik jest zakłócony. Kompromisem więc jest błąd ważony do którego dodaje do sprzedaży jedynke by zapobiec dzieleniu przez zero.
+
+
+---
+
+# 2. Analiza różnic między modelami
+
+### Zadanie:
+
+Dla wybranego miernika porównaj wyniki obu modeli na tych samych obserwacjach.
+
+Przedstaw rozkład różnic jakości między modelami.
+
+Oceń, czy różnice są symetryczne, czy występują obserwacje skrajne oraz czy większość obserwacji wskazuje na przewagę jednego modelu.
+
+### Odpowiedź:
+
+```{r}
+dane <- dane %>%
+  mutate(diff_wae = wae_bazowy - wae_alternatywny) 
+
+dane %>%
+  summarise(
+    n = n(),
+    srednia_roznica = mean(diff_wae),
+    mediana_roznica = median(diff_wae),
+    sd_roznica = sd(diff_wae),
+    procent_alt_lepszy = mean(diff_wae > 0) * 100,
+    procent_bazowy_lepszy = mean(diff_wae < 0) * 100,
+    procent_rowne = mean(diff_wae == 0) * 100
+  )
+
+
+ggplot(dane, aes(x = diff_wae)) +
+  geom_histogram(bins = 100, fill = "darkgreen", alpha = 0.7) +
+  geom_vline(xintercept = 0, color = "red", linetype = "dashed", linewidth = 1) +
+  labs(title = "Rozkład różnic ważonych błędów bezwzględnych (WAE)",
+       x = "WAE(bazowy) - WAE(alternatywny)",
+       y = "Liczba obserwacji") +
+  theme_minimal()
+
+
+ggplot(dane, aes(x = wae_bazowy, y = wae_alternatywny)) +
+  geom_point(alpha = 0.3) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Porównanie ważonych błędów bezwzględnych obu modeli",
+       x = "WAE - model bazowy",
+       y = "WAE - model alternatywny") +
+  coord_fixed() +
+  theme_minimal()
+
+
+ggplot(dane, aes(sample = diff_wae)) +
+  stat_qq() +
+  stat_qq_line(color = "red") +
+  labs(title = "Q-Q plot różnic błędów",
+       subtitle = "Sprawdzenie normalności rozkładu") +
+  theme_minimal()
+
+shapiro.test(dane$diff_wae)
+```
+
+Histogram różnic błedów pokazuje przewage modelu bazowego. Choć na pierwszy rzut oka modele są symetryczne wokół zera widać lekką przewage wykresu po lewej stronie. Cały histogram jest jednak dość wąski i wysoki co sugeruje zbliżoną wielkość różnic.
+
+Na scatterplotcie widać już wyraźniej unoszące się punkty nad linią, które sugerują iż model bazowy jest wydajniejszy. Dużo punktów pod linią x=y są odalone od reszty skupisk co robi ich outlierami, gdzie oba modele prawdopodobnie zawiodły
+
+Ostatecznie Q-Q plot pokazuje dziwną pozycje "ogonów" wykresu które sie odchylają jak w klasycznym wzorcu "heavy tails". Nienormalność rozkłądu potwierdzam testem Shapiro-Wilka. Oznacza to, że w danych występuje więcej skrajnych różnic między modelami, niż oczekiwalibyśmy przy rozkładzie normalnym.
+
+
+
+
+
+---
+
+# 3. Dobór metody
+
+### Zadanie: 
+
+Dobierz metodę statystyczną odpowiednią do struktury danych.
+W analizie uwzględnij, że oba modele są oceniane na tych samych obserwacjach.
+Należy wyjaśnić, na jakie pytanie odpowiada zastosowana metoda.
+
+### Odpowiedź:
+
+Test t dla par obserwacji: Sprawdza, czy średnia różnica błędów jest istotnie różna od zera. Odpowiada na pytanie: "Czy średnio jeden model jest lepszy?" Wymaga założenia normalności różnic.
+
+Test Wilcoxona: Nieparametryczny odpowiednik testu t. Sprawdza medianę różnic. Bardziej odporny na wartości odstające.
+
+Test znaków: Najprostszy test. Sprawdza, czy proporcja przypadków, gdzie model A jest lepszy od B, różni się od 0.5. W pełni odporny na wartości skrajne.
+
+```{r}
+# Test t-Studenta dla par obserwacji
+# H0: średnia różnica = 0 (brak różnicy między modelami)
+# H1: średnia różnica ≠ 0 (istnieje różnica między modelami)
+
+t_test_wae <- t.test(dane$wae_bazowy, dane$wae_alternatywny, paired = TRUE)
+t_test_wae
+
+# Alternatywnie: test Wilcoxona 
+wilcox_test <- wilcox.test(dane$wae_bazowy, dane$wae_alternatywny, paired = TRUE)
+wilcox_test
+
+# Test znaków
+sign_test <- binom.test(
+  x = sum(dane$diff_wae > 0),
+  n = sum(dane$diff_wae != 0)
+)
+sign_test
+```
+
+Jak poprzednio przeanalizowałam, niestety wartość testu t-Studenta może mieć zawyżone p-value ponieważ nie jest spełnione założenie normalności różnic. Test Wilcoxona jest bardziej odporny na wartości odstające i ten mówi iż modele są w większości przypadków podobne. Możemy wywnioskować iż model bazowy średnio występuje lepiej niż model alternatywny przez pojedyncze obserwacje co potwierdza analiza powyższych wykresów
+
+
+
+
+---
+
+# 4. Analiza odporności wniosków
+
+### Zadanie: 
+
+Sprawdź, czy wnioski są stabilne.
+
+Możesz przeanalizować na przykład:
+
+- wpływ obserwacji skrajnych,
+
+- osobno produkty o małej i dużej sprzedaży,
+
+- różne definicje błędu prognozy,
+
+- obserwacje z zerową sprzedażą,
+
+- segmenty sklepów lub kategorii produktowych.
+
+- Wybierz co najmniej dwa kierunki analizy albo zaproponuj własne.
+
+### Odpowiedź:
+
+```{r}
+# Wpływ obserwacji skrajnych
+# Identyfikacja obserwacji odstających
+q1 <- quantile(dane$diff_wae, 0.25)
+q3 <- quantile(dane$diff_wae, 0.75)
+iqr <- q3 - q1
+granica_dolna <- q1 - 1.5 * iqr
+granica_gorna <- q3 + 1.5 * iqr
+
+dane <- dane %>%
+  mutate(outlier = diff_wae < granica_dolna | diff_wae > granica_gorna)
+
+# Procent obserwacji odstających
+mean(dane$outlier) * 100
+
+# Analiza bez obserwacji odstających
+dane_bez_out <- dane %>% filter(!outlier)
+t.test(dane_bez_out$diff_wae, mu = 0)
+
+# Porównanie statystyk z/bez outlierów
+bind_rows(
+  dane %>% 
+    summarise(dane = "Wszystkie", 
+              srednia = mean(diff_wae), 
+              mediana = median(diff_wae)),
+  dane_bez_out %>% 
+    summarise(dane = "Bez odstających", 
+              srednia = mean(diff_wae), 
+              mediana = median(diff_wae))
+)
+
+
+
+# Analiza według wielkości sprzedaży
+dane <- dane %>%
+  mutate(
+    grupa_sprzedazy = case_when(
+      sprzedaz_rzeczywista == 0 ~ "Zerowa",
+      sprzedaz_rzeczywista <= quantile(sprzedaz_rzeczywista[sprzedaz_rzeczywista > 0], 0.33) ~ "Mała",
+      sprzedaz_rzeczywista <= quantile(sprzedaz_rzeczywista[sprzedaz_rzeczywista > 0], 0.67) ~ "Średnia",
+      TRUE ~ "Duża"
+    )
+  )
+ 
+dane %>%
+  group_by(grupa_sprzedazy) %>%
+  summarise(
+    n = n(),
+    srednia_diff = mean(diff_wae),
+    mediana_diff = median(diff_wae),
+    procent_alt_lepszy = mean(diff_wae > 0) * 100,
+    .groups = 'drop'
+  ) %>%
+  arrange(factor(grupa_sprzedazy, levels = c("Zerowa", "Mała", "Średnia", "Duża")))
+
+ggplot(dane, aes(x = grupa_sprzedazy, y = diff_wae)) +
+  geom_boxplot() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Ważone różnice błędów wg wielkości sprzedaży",
+       x = "Grupa sprzedaży",
+       y = "WAE(bazowy) - WAE(alternatywny)") +
+  theme_minimal()
+
+
+
+
+
+# Porównanie różnych mierników
+dane <- dane %>%
+  mutate(
+    ae_bazowy = abs(prognoza_bazowa - sprzedaz_rzeczywista),
+    ae_alt = abs(prognoza_alternatywna - sprzedaz_rzeczywista),
+    
+    ape_bazowy = ifelse(sprzedaz_rzeczywista > 0, abs(prognoza_bazowa - sprzedaz_rzeczywista) / sprzedaz_rzeczywista * 100, NA),
+    ape_alt = ifelse(sprzedaz_rzeczywista > 0, abs(prognoza_alternatywna - sprzedaz_rzeczywista) / sprzedaz_rzeczywista * 100, NA),
+    
+    wae_bazowy = ae_bazowy / (sprzedaz_rzeczywista + 1),
+    wae_alt = ae_alt / (sprzedaz_rzeczywista + 1),
+    
+    diff_ae = ae_bazowy - ae_alt,
+    diff_ape = ape_bazowy - ape_alt,
+    diff_wae = wae_bazowy - wae_alt
+  )
+
+podsumowanie_miernikow <- data.frame(
+  Miernik = c("AE", "APE", "WAE"),
+  Srednia = c(mean(dane$diff_ae), mean(dane$diff_ape, na.rm = TRUE), mean(dane$diff_wae)),
+  Mediana = c(median(dane$diff_ae), median(dane$diff_ape, na.rm = TRUE), median(dane$diff_wae)),
+  Procent_alt_lepszy = c(
+    mean(dane$diff_ae > 0) * 100,
+    mean(dane$diff_ape > 0, na.rm = TRUE) * 100,
+    mean(dane$diff_wae > 0) * 100
+  )
+)
+podsumowanie_miernikow
+
+```
+
+
+
+
+
+
+
+
+---
+
+# 5. Interpretacja
+
+### Zadanie:
+
+Porównaj wyniki i sformułuj wniosek.
+
+W interpretacji odpowiedz na pytania:
+
+- czy jeden model jest systematycznie lepszy,
+
+- czy przewaga dotyczy większości obserwacji, czy tylko wybranych segmentów,
+
+- czy wynik zależy od wyboru miernika błędu,
+
+- jakie są ograniczenia analizy.
+
+Wyniki przedstaw na wykresach i krótko zinterpretuj.
+
+### Odpowiedź:
+
+```{r}
+ggplot(dane, aes(x = diff_ae)) +
+  geom_density(fill = "steelblue", alpha = 0.5) +
+  geom_vline(xintercept = 0, color = "red", linetype = "dashed", size = 1) +
+  geom_vline(xintercept = mean(dane$diff_ae), color = "darkgreen", size = 1) +
+  geom_vline(xintercept = median(dane$diff_ae), color = "orange", size = 1) +
+  annotate("text", x = mean(dane$diff_ae), y = max(density(dane$diff_ae)$y) * 0.9,
+           label = "Średnia", color = "darkgreen", hjust = -0.2) +
+  annotate("text", x = median(dane$diff_ae), y = max(density(dane$diff_ae)$y) * 0.8,
+           label = "Mediana", color = "orange", hjust = -0.2) +
+  labs(title = "Rozkład różnic błędów z zaznaczonymi statystykami",
+       x = "Różnica AE (bazowy - alternatywny)",
+       y = "Gęstość") +
+  theme_minimal()
+```
