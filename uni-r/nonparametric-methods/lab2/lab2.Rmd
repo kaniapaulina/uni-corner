@@ -1,9 +1,12 @@
 ---
 title: "Laboratoria 2"
 subtitle: "Metody Nieparametryczne w Statystyce"
+author: "Paulina Kania"
 date: "2026-05-12"
 output: html_document
 ---
+
+Biblioteki
 
 ```{r, warning=FALSE}
 set.seed(123)
@@ -12,17 +15,7 @@ library(tidyverse)
 
 # Zadanie 1 - Implementacja Narzędzi
 
-### Zadanie:
-
-Należy samodzielnie zaimplementować:
-
-1. funkcję obliczającą dystrybuantę empiryczną,
-
-2. statystykę testu Kołmogorowa dla hipotezy prostej $H0: X ~ N(mu0, sigma0^2)$ przy zadanych $mu0$ i $sigma0$,
-
-3. statystykę testu $chi^2$ dla tej samej hipotezy, z podziałem na klasy wyznaczone przez kwantyle rozkładu teoretycznego.
-
-### Odpowiedź:
+Dystrybuanta empiryzna
 
 ```{r}
 dyst_empiryczna <- function(data) {
@@ -34,9 +27,11 @@ dyst_empiryczna <- function(data) {
 dyst_teoretyczna <- function(data, mu, sigma) {
   return(pnorm(data, mean = mu, sd = sigma))
 }
+```
 
-# Test Kołmogorowa
-# Dla hipotezy prostej H0: X ~ N(mu0, sigma0^2)
+Test Kołmogorowa
+
+```{r}
 test_kolmogorow <- function(x, mu0, sigma0) {
   x <- as.numeric(x)
   x_sorted <- sort(x)
@@ -49,8 +44,11 @@ test_kolmogorow <- function(x, mu0, sigma0) {
   D <- max(abs(F_emp_right - F_teor), abs(F_emp_left - F_teor))
   return(D)
 }
+```
 
-# Test chi^2 z podziałem na klasy wyznaczone przez kwantyle
+Test Chi-kwadrat
+
+```{r}
 test_chi2<- function(x, mu0, sigma0, k) {
   x <- as.numeric(x)
   n <- length(x)
@@ -66,7 +64,9 @@ test_chi2<- function(x, mu0, sigma0, k) {
   
   return(chi2) 
 }
+```
 
+```{r}
 n <- 100
 dane <- rnorm(n, 0 , 1)
 
@@ -83,47 +83,13 @@ print(ks_test$statistic)
 
 # Zadanie 2 -  Kalibracja Wartości krytycznych
 
-### Zadanie:
+Opis:
 
-Dla obu testów należy wyznaczyć wartości krytyczne symulacyjnie pod H0.
-
-W analizie należy jasno opisać:
-
-- jak generowane są dane pod $H0$,
-
-- jak duża jest liczba replikacji,
-
-- jak wyznaczana jest wartość krytyczna dla zadanego $alpha$.
-
-### Odpowiedź:
-
-Opis metody:
-
-1. Generowanie danych pod H0:
-
-    - H0: X ~ N(mu0, sigma0^2)
-
-    - Dane generowane są jako niezależne obserwacje z rozkładu normalnego
-
-    - Dla każdej replikacji generujemy n obserwacji
+1. Generowanie danych pod H0: Dane generowane są jako niezależne obserwacje z rozkładu normalnego. Dla każdej replikacji generuje n obserwacji
     
-2. Liczba replikacji: N_replikacji = 10000
-
-    - Zapewnia stabilność estymacji kwantyli rzędu 0.95
-
-    - Błąd standardowy = sqrt(alpha*(1-alpha)/N_replikacji) ≈ 0.002 dla alpha=0.05
-
-    - Kompromis między dokładnością a czasem obliczeń
+2. Liczba replikacji: N_mc = 10000, Zapewnia stabilność estymacji kwantyli rzędu 0.95
   
-3. Wyznaczanie wartości krytycznej dla zadanego alpha:
-
-    - Obliczam statystyki testowe dla N_replikacji prób z H0
-
-    - Sortuje statystyki rosnąco
-
-    - Wartość krytyczna = kwantyl rzędu (1-alpha) z rozkładu empirycznego
-
-    - Czyli wartość, dla której P(statystyka > c) ≈ alpha
+3. Wyznaczanie wartości krytycznej dla zadanego alpha: Obliczam statystyki testowe dla N_mc prób z H0, Sortuje statystyki rosnąco, Wartość krytyczna = kwantyl rzędu (1-alpha) z rozkładu empirycznego
 
 ```{r}
 # Parametry:
@@ -174,42 +140,18 @@ hist(wyniki$stat_ks, breaks = 50, col = "lightblue",
      main = "Test Kołmogorowa", 
      xlab = "Statystyka D", 
      ylab = "Częstość")
-abline(v = wyniki$c_ks, col = "red", lwd = 2, lty = 2)
-legend("topright", 
-       paste("c =", round(wyniki$c_ks, 4)))
 
 hist(wyniki$stat_chi2, breaks = 50, col = "lightpink", 
      main = "Test chi-kwadrat", 
      xlab = "Statystyka chi^2", 
      ylab = "Częstość")
-abline(v = wyniki$c_chi2, col = "red", lwd = 2, lty = 2)
-legend("topright", 
-       paste("c =", round(wyniki$c_chi2, 4)))
 
 ```
-
-
 
 
 ---
 
 # Zadanie 3 - Analiza błędu I rodzaju
-
-### Zadanie:
-
-Dla poziomu istotności $alpha = 0.05$ zbadać odsetek odrzuceń prawdziwej hipotezy głównej dla obu testów w zależności od:
-
-- liczebności próby $n$,
-
-- liczby klas $r$ w teście $chi^2$.
-
-Minimalny zakres:
-
-- $n$ z co najmniej trzech poziomów,
-
-- $r$ z co najmniej trzech poziomów.
-
-### Odpowiedź:
 
 ```{r}
 
@@ -261,32 +203,9 @@ head(bledy)
 ```
 
 
-
-
-
-
-
 ---
 
 # Zadanie 4 - Analiza mocy testów
-
-### Zadanie:
-
-Porównać moc obu testów dla danych pochodzących z rozkładów nienormalnych, ale przeskalowanych tak, aby miały tę samą wartość oczekiwaną i wariancję co rozkład normalny z H0.
-
-Należy uwzględnić co najmniej dwa typy alternatyw:
-
-- rozkład o grubych ogonach, na przykład t-Studenta,
-
-- rozkład asymetryczny, na przykład standaryzowany chi^2, gamma lub log-normalny.
-
-Analizę mocy przeprowadzić w zależności od:
-
-- liczebności próby,
-
-- parametru rozkładu generującego alternatywę, na przykład liczby stopni swobody lub parametru asymetrii.
-
-### Odpowiedź:
 
 ```{r}
 
@@ -383,31 +302,10 @@ print(moc_gamma)
 ```
 
 
-
-
-
-
 ---
 
 # Zadanie 5 - Wykresy i Interpretacja
 
-### Zadanie:
-
-Wyniki należy przedstawić na wykresach pokazujących:
-
-- odsetek odrzuceń przy prawdziwej H0,
-
-- moc testów przy różnych alternatywach,
-
-- wpływ n,
-
-- wpływ parametru rozkładu alternatywnego,
-
-- wpływ liczby klas w teście chi^2.
-
-Każdy wykres ma być opisany i zinterpretowany.
-
-### Odpowiedź:
 
 #### Interpretacja wyników analizy błędu I rodzaju
 
@@ -429,23 +327,19 @@ ggplot() +
   geom_hline(yintercept = 0.05, color = "red", linetype = "dashed", linewidth = 0.8) +
   labs(
     title = "Poziom istotności",
-    subtitle = "Weryfikacja zachowania rozmiaru testu pod H0",
     x = "Liczebność próby",
-    y = "Odsetek odrzucenia„",
+    y = "Odsetek odrzucenia",
     color = "Liczba klas w Chi^2",
     linetype = "Alternatywny Test"
-  ) +
-  theme_minimal() + 
-  ylim(0, 0.1)
-
+  )
 ```
 
 
-**Test Kołmogorowa** – dla wszystkich badanych kombinacji liczebności próby (n = 50, 150, 500) oraz liczby klas w teście chi-kwadrat (r = 4, 8, 16) empiryczny błąd I rodzaju oscyluje bardzo blisko teoretycznej wartości α = 0.05. Oznacza to, że test jest dobrze skalibrowany – niezależnie od tego, jak dużą próbą dysponujemy i ile klas wybierzemy dla testu chi-kwadrat, ryzyko odrzucenia prawdziwej hipotezy zerowej jest zgodne z zakładanym poziomem istotności. Wartości krytyczne wyznaczone metodą Monte Carlo skutecznie kontrolują poziom istotności.
+dla Testu Kołmogorowa: dla wszystkich badanych kombinacji liczebności próby oraz liczby klas empiryczny błąd I rodzaju oscyluje bardzo blisko teoretycznej wartości a = 0.05. Oznacza to, że test jest dobrze dobrany, niezależnie od tego, jak dużą próbą dysponujemy i ile klas wybierzemy dla testu chi-kwadrat, ryzyko odrzucenia prawdziwej hipotezy zerowej jest zgodne z zakładanym poziomem istotności.
 
-**Test chi-kwadrat** – tutaj sytuacja wygląda nieco inaczej. Dla małej próby (n = 50) i dużej liczby klas (r = 16) zaobserwowano, że błąd I rodzaju jest wyraźnie niższy od 0.05. Inaczej mówiąc, test staje się konserwatywny – rzadziej niż powinien odrzuca prawdziwą hipotezę zerową. Gdy zwiększymy liczebność próby do n = 150, błąd I rodzaju stabilizuje się już blisko 0.05 dla wszystkich badanych wartości r. Przy n = 500 wszystkie wartości są już bardzo bliskie zakładanemu poziomowi istotności.
+dla Testu chi-kwadrat: dla małej próby i dużej liczby klas zaobserwowano, że błąd I rodzaju jest wyraźnie niższy od 0.05. Test staje się konserwatywny – rzadziej niż powinien odrzuca prawdziwą hipotezę zerową. Gdy zwiększymy liczebność próby do n = 150, błąd I rodzaju stabilizuje się już blisko 0.05 dla wszystkich badanych wartości r. Przy dużego n wszystkie wartości są już bardzo bliskie zakładanemu poziomowi istotności.
 
-Rozkład chi-kwadrat jest asymptotycznie dokładny – czyli działa dobrze, gdy próba jest duża. Dla małych prób, zwłaszcza gdy oczekiwane liczebności w klasach spadają poniżej 5, to przybliżenie przestaje być precyzyjne. W efekcie test staje się mniej czuły i rzadziej wskazuje odrzucenie H0, niż wynika to z założonego poziomu istotności.
+Rozkład chi-kwadrat działa dobrze, gdy próba jest duża. Dla małych prób, zwłaszcza gdy oczekiwane liczebności w klasach spadają poniżej 5, to przybliżenie przestaje być precyzyjne. W efekcie test staje się mniej czuły i rzadziej wskazuje odrzucenie H0, niż wynika to z założonego poziomu istotności.
 
 Test chi-kwadrat wymaga relatywnie dużych prób, aby zachować nominalny poziom istotności. Z kolei test Kołmogorowa można stosować bezpiecznie już od małych prób.
 
@@ -468,19 +362,16 @@ ggplot(t_long, aes(x = df, y = Moc, fill = Test)) +
   facet_wrap(~ n, labeller = label_both) +
   labs(
     title = "Moc testow dla rozkladu t-Studenta",
-    subtitle = "Porownanie w zaleznosci od liczby stopni swobody i wielkosci proby",
     x = "Stopnie swobody",
     y = "Moc testu"
-  ) +
-  theme_light() + 
-  ylim(0, 1)
+  )
 ```
 
 Rozkład t-Studenta charakteryzuje się grubszymi ogonami niż rozkład normalny – im mniejsza liczba stopni swobody, tym ogony są grubsze i tym bardziej rozkład odbiega od normalności. Przeprowadzone symulacje pozwalają ocenić, jak dobrze oba testy radzą sobie z wykrywaniem takiego odstępstwa.
 
-Im mniejsza liczba stopni swobody, tym wyższa moc obu testów. Dla skrajnego przypadku df = 3 (bardzo grube ogony) moc testu Kołmogorowa osiąga około 0,9 już przy próbie liczącej zaledwie 50 obserwacji. Oznacza to, że test z dużym prawdopodobieństwem wykryje, że dane nie pochodzą z rozkładu normalnego. Dla df = 15, gdy rozkład t-Studenta jest już bardzo bliski normalnemu, moc obu testów jest niska (około 0,1–0,2) – co jest zjawiskiem oczekiwanym, bo alternatywa jest trudna do odróżnienia od hipotezy zerowej.
+Im mniejsza liczba stopni swobody, tym wyższa moc obu testów. Dla skrajnego przypadku df = 3 moc testu Kołmogorowa osiąga około 0,9 już przy próbie liczącej zaledwie 50 obserwacji. Oznacza to, że test z dużym prawdopodobieństwem wykryje, że dane nie pochodzą z rozkładu normalnego. Dla df = 15, gdy rozkład t-Studenta jest już bardzo bliski normalnemu, moc obu testów jest niska, co jest zjawiskiem oczekiwanym.
 
-Test Kołmogorowa konsekwentnie wykazuje nieco wyższą moc niż test chi-kwadrat, szczególnie gdy próba nie jest zbyt duża. Różnica nie jest może spektakularna, ale systematyczna – w każdym badanym scenariuszu to test Kołmogorowa częściej poprawnie odrzucał fałszywą hipotezę zerową.
+Test Chi-kwadrat konsekwentnie wykazuje nieco wyższą moc niż test Kołomogorowa, szczególnie gdy próba nie jest zbyt duża. 
 
 
 
@@ -504,20 +395,17 @@ ggplot(df_gamma_long, aes(x = n, y = Moc, color = Test, group = Test)) +
   facet_wrap(~ shape, labeller = label_bquote(cols = "Kształt (shape):" ~ .(shape))) +
   labs(
     title = "Moc testow dla asymetrycznego rozkladu Gamma",
-    subtitle = "Wplyw wielkosci proby n przy roznych parametrach ksztaltu",
     x = "Liczebnosc proby",
     y = "Moc testu"
-  ) +
-  theme_minimal() + 
-  ylim(0, 1)
+  )
 
 ```
 
-Rozkład Gamma jest asymetryczny – im mniejszy parametr kształtu (shape), tym asymetria jest silniejsza i tym bardziej rozkład odbiega od normalności. W skrajnym przypadku shape = 1 otrzymujemy rozkład wykładniczy, który jest silnie prawoskośny. Symulacje pokazują, jak oba testy radzą sobie z wykrywaniem takiej asymetrii.
+Rozkład Gamma jest asymetryczny. Im mniejszy parametr kształtu, tym asymetria jest silniejsza i tym bardziej rozkład odbiega od normalności. W skrajnym przypadku shape = 1 otrzymałam rozkład wykładniczy, który jest silnie prawoskośny. Symulacje pokazują, jak oba testy radzą sobie z wykrywaniem takiej asymetrii.
 
-Dla shape = 1 (silna asymetria) oba testy osiągają moc bliską 1 już przy n = 150 – praktycznie zawsze poprawnie odrzucają H0. Dla shape = 3 (umiarkowana asymetria) moc rośnie wraz z liczebnością próby, ale potrzebuje większych prób niż w przypadku rozkładu t-Studenta. Dla shape = 10 (rozkład już bardzo bliski normalnemu) moc obu testów jest niska, szczególnie dla testu chi-kwadrat.
+Dla shape = 1 czyli silna asymetria, oba testy osiągają moc bliską 1 już przy n = 150. Praktycznie zawsze poprawnie odrzucają H0. Dla shape = 3  moc rośnie wraz z liczebnością próby, ale potrzebuje większych prób niż w przypadku rozkładu t-Studenta. Dla shape = 10 moc obu testów jest niska, szczególnie dla testu chi-kwadrat.
 
-W przypadku wykrywania asymetrii przewaga testu Kołmogorowa nad testem chi-kwadrat jest wyraźniejsza niż w przypadku grubych ogonów. Dla shape = 3 i shape = 10 różnice są znaczące – test Kołmogorowa znacznie częściej poprawnie odrzuca fałszywą hipotezę zerową. Test chi-kwadrat traci część informacji przez grupowanie danych na klasy, co czyni go mniej skutecznym w wykrywaniu subtelnych odstępstw od normalności.
+W przypadku wykrywania asymetrii przewaga testu Kołmogorowa nad testem chi-kwadrat jest wyraźniejsza niż w przypadku grubych ogonów. Test chi-kwadrat traci część informacji przez grupowanie danych na klasy.
 
 
 
@@ -527,8 +415,6 @@ W przypadku wykrywania asymetrii przewaga testu Kołmogorowa nad testem chi-kwad
 #### Wpływ parametru alternatywy na moc testów
 
 ```{r}
-
-# Wplyw parametru alternatywy na moc (dla n = 150)
 moc_t_n150 <- moc_t[moc_t$n == 150, ]
 moc_gamma_n150 <- moc_gamma[moc_gamma$n == 150, ]
 
@@ -548,16 +434,13 @@ ggplot(df_param, aes(x = factor(Parametr))) +
     x = "Parametr rozkladu",
     y = "Moc testu",
     fill = "Test"
-  ) +
-  theme_minimal() +
-  ylim(0, 1)
+  )
 
 ```
 
-Wyniki zebrane na wykresie dla ustalonej liczebności próby n = 150 pozwalają prześledzić, jak zmiana parametru generującego alternatywę wpływa na zdolność testów do odrzucenia fałszywej hipotezy zerowej.
+Wykresy pozwalają określić jak zmiana parametru n wpływa na zdolność testów do odrzucenia fałszywej hipotezy zerowej.
 
-**Dla rozkładu t-Studenta:** Moc testów maleje wraz ze wzrostem liczby stopni swobody. Gdy df jest małe (df = 3), ogony są bardzo grube i testy z łatwością wykrywają odstępstwo od normalności (moc bliska 1). Gdy df rośnie (df = 15), rozkład t-Studenta staje się praktycznie nieodróżnialny od normalnego, więc moc spada do poziomu zbliżonego do błędu I rodzaju (około 0,05–0,1). Zależność ta jest monotoniczna i wyraźna.
+Dla rozkładu t-Studenta: Moc testów maleje wraz ze wzrostem liczby stopni swobody. Gdy df jest małe, ogony są bardzo grube i testy z łatwością wykrywają odstępstwo od normalności. Gdy df rośnie, rozkład t-Studenta staje się praktycznie nieodróżnialny od normalnego, więc moc spada do poziomu zbliżonego do błędu I rodzaju. Zależność ta jest monotoniczna i wyraźna.
 
-**Dla rozkładu Gamma:** Moc testów maleje wraz ze wzrostem parametru kształtu. Dla shape = 1 (rozkład wykładniczy) asymetria jest ekstremalna – testy osiągają moc bliską 1. Dla shape = 3 asymetria jest umiarkowana, a moc spada, ale wciąż jest na przyzwoitym poziomie (około 0,6–0,8). Dla shape = 10 rozkład Gamma jest już bliski normalnemu i moc drastycznie spada.
+Dla rozkładu Gamma: Moc testów maleje wraz ze wzrostem parametru kształtu. Dla shape = 1 (rozkład wykładniczy) asymetria jest ekstremalna – testy osiągają moc bliską 1. Dla shape = 3 asymetria jest umiarkowana, a moc spada, ale wciąż jest na przeciętnym poziomie. Dla shape = 10 rozkład Gamma jest już bliski normalnemu i moc drastycznie spada.
 
-W obu przypadkach test Kołmogorowa konsekwentnie przewyższa test chi-kwadrat pod względem mocy. Dla skrajnych parametrów (df = 3, shape = 1) oba testy osiągają moc bliską 1, więc różnica jest nieistotna. Jednak przy bardziej subtelnych odstępstwach od normalności (df = 15, shape = 10) przewaga testu Kołmogorowa staje się wyraźna.
