@@ -1,13 +1,10 @@
 ---
 title: "Laboratoria 1"
 subtitle: "Metody Nieparametryczne w Statystyce"
+author: "Paulina Kania"
 date: "2026-05-05"
 output: html_document
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 Biblioteki
 
@@ -20,22 +17,12 @@ set.seed(123)
 
 # Zadanie 1 - Analiza Mocy Testu
 
-### Zadanie:
-
-- Stwórz krzywą mocy testu dla testu jednej średniej.
-
-- Określ kluczowe parametry wejściowe, takie jak odchylenie standardowe populacji (σ), poziom istotności (α) oraz wielkość efektu (Δ).
-
-### Odpowiedź:
-
 ```{r}
-# Funkcja sprawdzająca z jakim prawdopodobienstwem odrzucimy hipotezę zerową (H0 = 0), w zależności od rzeczywistej wartości średniej rozkładu
-
 m_fun <- function(mu) {
   sapply(
     1:1000, 
     function(i) t.test(rnorm(20, mu, 5), mu=0)$p.value < 0.05
-  ) |> mean()
+  ) %>% mean()
 }
 
 mu_seq = seq(-5, 5, by=0.5) 
@@ -44,40 +31,22 @@ df_mu <- data.frame(mu = mu_seq,
                     moc = sapply(mu_seq, m_fun)
 ) 
 
-df_mu |> ggplot(aes(x=mu, y=moc)) + 
+df_mu %>% ggplot(aes(x=mu, y=moc)) + 
   geom_line(linewidth=1) +
   geom_hline(yintercept = c(0, 0.05, 1), lty=2, color = "red") + 
   
-  theme_minimal() +
-  labs(title = "Wpływ średniej rzeczywistej na moc testu t-Studenta", 
+  labs(title = "Wpływ średniej rzeczywistej", 
        x = "Średnia rzeczywista",
-       y = "Moc testu (Prawdopodobieństwo odrzucenia H0)") +
-  theme(
-    plot.title = element_text(face = "bold", size = 14)
-  )
+       y = "Moc testu")
 
 ```
 
 Wnioski: Moc testu jest najniższa, gdy wartość średniej jest najbliżej zera. 
 
 
-
-
-
-
-
-
 ---
 
 # Zadanie 2 - Wpływ poziomu istotności (α)
-
-### Zadanie:
-
-- Przeanalizuj, jak zmienia się krzywa mocy testu dla różnych wartości α (np. 0.01, 0.05, 0.1). 
-
-- Zinterpretuj wyniki – jak poziom istotności wpływa na zdolność testu do wykrycia rzeczywistego efektu?
-
-### Odpowiedź:
 
 ```{r}
 
@@ -85,7 +54,7 @@ a_fun <- function(a, mu) {
   sapply(
     1:1000, 
     function(i) t.test(rnorm(20, mu, 5), mu=0)$p.value < a
-    ) |> mean()
+    ) %>% mean()
 }
 
 a_seq <- c(0.005, 0.01, 0.05, 0.1)
@@ -97,33 +66,20 @@ df_a$a_test <- mapply(a_fun, df_a$a, df_a$mu)
 ggplot(df_a, aes(x=mu, y=a_test, color=as.factor(a))) +
   geom_line(linewidth=0.8) +
   geom_hline(yintercept = c(0, 0.05, 1), lty=2, color = "red") + 
-  
-  theme_minimal() +
-  labs(title = "Wpływ poziomu istotności (α) na moc testu t-Studenta", 
+
+  labs(title = "Wpływ poziomu istotności", 
        x = "Średnia rzeczywista",
-       y = "Moc testu (Prawdopodobieństwo odrzucenia H0)",
-       color = "Poziom Istotności") +
-  theme(
-    plot.title = element_text(face = "bold", size = 14)
-  )
+       y = "Moc testu",
+       color = "Poziom Istotności")
 
 ```
 
 Wnioski: Im większy poziom istotności, tym większe prawdopodobieństwo odrzucenia H0. Alfa zgrywa kluczową rolę w wykrywaniu rzeczywistego efektu, gdzie za nisko postawiona poprzeczka oznacza przyjmowanie za dużej ilości hipotez alternatywnych, a za duża poprzeczka (bardzo niskie wartości poziomu istotności) są zbyt radykalne w przyjmowaniu hipotezu średniej równej zero.
 
 
-
-
 ---
 
 # Zadanie 3 - Wpływ liczebności próby (n)
-
-### Zadanie:
-
-- Zmodyfikuj analizę, badając różne wielkości próby.
-- Zbadaj, jak wzrost lub spadek n wpływa na moc testu.
-
-### Odpowiedź:
 
 ```{r}
 
@@ -131,7 +87,7 @@ n_fun <- function(n, mu) {
   sapply(
     1:1000, 
     function(i) t.test(rnorm(n, mu, 5), mu=0)$p.value < 0.05
-    ) |> mean()
+    ) %>% mean()
 }
 
 n_seq = seq(10, 100, by=10)
@@ -143,39 +99,20 @@ df_n$n_test <- mapply(n_fun, df_n$n, df_n$mu)
 ggplot(df_n, aes(x=mu, y=n_test, color=as.factor(n))) +
   geom_line(linewidth=0.8) +
   geom_hline(yintercept = c(0, 0.05, 1), lty=2, color = "red") + 
-  
-  theme_minimal() +
-  labs(title = "Wpływ liczebności próby (n) na moc testu t-Studenta", 
+
+  labs(title = "Wpływ liczebności próby", 
        x = "Średnia rzeczywista",
-       y = "Moc testu (Prawdopodobieństwo odrzucenia H0)",
-       color = "Liczebność próby") +
-  theme(
-    plot.title = element_text(face = "bold", size = 14)
-  )
+       y = "Moc testu",
+       color = "Liczebność próby") 
 
 ```
 
 Wnioski: Poziom odrzucenia przy średniej równej zero (czyli H0) zostaje ten sam ale przy niższych wartościach liczebności próby test jest zbyt liberalny z nieodrzucaniem tej hipotezy. Dokładność testu wyrównuje sie przy większych wartościach n. Oznacza to że test staje się bardziej czuły i lepiej wykrywa róznice między średnią rzeczywistą a hipotezą zerową.
 
 
-
-
-
-
-
-
-
 ---
 
 # 4. Niespełnienie założeń testu
-
-### Zadanie:
-
-- Przeanalizuj przypadek, gdy normalność rozkładu nie jest spełniona (np. dla rozkładów skośnych).
-
-- Porównaj wyniki testu dla próbek pobranych z różnych rozkładów (np. normalnego, skośnego, bimodalnego).
-
-### Odpowiedź
 
 ```{r}
 moc_fun <- function(mu, rozklad) {
@@ -186,7 +123,7 @@ moc_fun <- function(mu, rozklad) {
                    "bimodalny" = c(rnorm(20/2, -1, 0.5), rnorm(20/2, 1, 0.5)) + mu
     )
     t.test(dane, mu = 0)$p.value < 0.05
-  }) |> mean()
+  }) %>% mean()
 }
 
 mu_seq = seq(-5, 5, by=0.5) 
@@ -197,37 +134,19 @@ ggplot(df_r, aes(x=mu, y=r_test, color=type)) +
     geom_line(linewidth=0.8) +
   geom_hline(yintercept = c(0, 0.05, 1), lty=2, color = "red") + 
   
-  theme_minimal() +
-  labs(title = "Rodzaj rozkładu na moc testu t-Studenta", 
+  labs(title = "Rodzaj rozkładu", 
        x = "Średnia rzeczywista",
-       y = "Moc testu (Prawdopodobieństwo odrzucenia H0)",
-       color = "Rozkład") +
-  theme(
-    plot.title = element_text(face = "bold", size = 14)
-  )
+       y = "Moc testu",
+       color = "Rozkład")
 
 ```
 
 Wniosek: test t-Studenta jest widocznie odporny na rozkład bimodalny co widać przez podobność wykresu do normalnego, lecz gorzej radzi sobie z chi-kwadratem. Wynika to z silnej skośności, która zostaje wyolbrzymiona przez małą przyjętą liczebność n = 20.
 
 
-
-
-
 ---
 
 # 5. Wizualizacja zależności
-
-### Zadanie:
-
-Przedstaw wpływ różnych czynników na moc testu na jednym wykresie lub zestawie wykresów.
-Uwzględnij co najmniej trzy spośród następujących czynników:
-
-- poziom istotności (α)
-
-- liczebność próby (n)
-
-- wielkość efektu (Δ)
 
 ```{r}
 
@@ -235,7 +154,7 @@ moc_fun <- function(n, mu, alpha) {
   sapply(
     1:1000,
     function(i) t.test(rnorm(n, mu, 5), mu=0)$p.value < alpha
-  ) |> mean()
+  ) %>% mean()
 }
 
 mu_seq <- seq(-5, 5, by=0.5)
@@ -249,24 +168,17 @@ df_symulacja$a <- as.factor(df_symulacja$alpha)
 df_symulacja$n <- factor(df_symulacja$n, levels = n_seq, labels = paste("n =", n_seq))
 
 ggplot(df_symulacja, aes(x = mu, y = moc, color = a, group = a)) +
-  geom_line(linewidth = 0.6) +
+  geom_line(linewidth = 0.5) +
   
   facet_wrap(~ n) + 
   geom_hline(yintercept = c(0.01, 0.05, 0.10), lty = 2, alpha = 0.5) +
-  geom_hline(yintercept = 0.90, lty = 2, color = "red", alpha = 0.7) +
+  geom_hline(yintercept = 0.90, lty = 2, alpha = 0.7) +
   
-  theme_minimal() +
   labs(
     title = "Analiza mocy testu t-Studenta",
-    subtitle = "Wpływ wielkości efektu (Δ), liczebności próby (n) oraz poziomu istotności (α)",
-    x = "Wielkość efektu (Średnia populacji przy hipotezie alternatywnej, H0: mu = 0)",
-    y = "Moc testu (Prawdopodobieństwo odrzucenia H0)",
-    color = "Poziom istotności (α)"
-  ) +
-  theme(
-    legend.position = "bottom",
-    strip.text = element_text(face = "bold", size = 11),
-    plot.title = element_text(face = "bold", size = 14)
+    x = "Wielkość efektu (H0: mu = 0)",
+    y = "Moc testu",
+    color = "Poziom istotności"
   )
 
 
